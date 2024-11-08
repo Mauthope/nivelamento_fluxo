@@ -45,9 +45,16 @@
             border-radius: 5px;
             overflow: hidden;
             display: flex;
+            position: relative;
         }
         .progress {
             height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            white-space: nowrap;
         }
         .op-completed {
             background-color: green;
@@ -83,11 +90,14 @@
             <h3>Monitoramento</h3>
             <label>Metragem da Bobina 1:</label>
             <input type="number" id="metragemBobina1" placeholder="Adicionar Bobina 1" />
-            <button onclick="adicionarMetragem()">Adicionar Metragem</button>
+            <button onclick="adicionarMetragemBobina1()">Adicionar Metragem</button><br>
+            <label>Metragem da Bobina 2:</label>
+            <input type="number" id="metragemBobina2" placeholder="Adicionar Bobina 2" />
+            <button onclick="adicionarMetragemBobina2()">Adicionar Metragem</button>
 
             <div class="progress-container">
                 <div id="barraOp" class="progress op-completed"></div>
-                <div id="barraBobina" class="progress bobina"></div>
+                <div id="barraBobina1" class="progress bobina"></div>
                 <div id="barraResiduo" class="progress residual"></div>
             </div>
 
@@ -101,10 +111,10 @@
 
     <script>
         let metragemOp = 0, eficiencia = 0, er = 0;
-        let consumoBobina1 = 0, residual = 0;
+        let consumoBobina1 = 0, consumoBobina2 = 0, residual = 0;
+        let velocidadeConsumo = 0, tempoConsumo = 0;
 
         function iniciarProcesso() {
-            const op = document.getElementById('op').value;
             metragemOp = parseFloat(document.getElementById('metragemOp').value);
             eficiencia = parseFloat(document.getElementById('eficiencia').value) / 100;
             er = parseFloat(document.getElementById('er').value);
@@ -116,58 +126,47 @@
 
             calcularTempoConsumo();
             calcularVelocidadeConsumo();
-
-            // Mostrar a seção de monitoramento
             document.getElementById('monitoramento').style.display = 'block';
-            atualizarBarra();
         }
 
-        function adicionarMetragem() {
-            const metragemBobina1 = parseFloat(document.getElementById('metragemBobina1').value);
-            if (isNaN(metragemBobina1) || metragemBobina1 <= 0) {
-                alert("Por favor, insira uma metragem válida.");
-                return;
+        function adicionarMetragemBobina1() {
+            const metragem = parseFloat(document.getElementById('metragemBobina1').value);
+            if (!isNaN(metragem) && metragem > 0) {
+                consumoBobina1 += metragem;
+                atualizarBarra();
             }
+        }
 
-            consumoBobina1 += metragemBobina1;
-
-            // Calcular o resíduo
-            if (consumoBobina1 > metragemOp) {
-                residual = consumoBobina1 - metragemOp;
-            } else {
-                residual = 0;
+        function adicionarMetragemBobina2() {
+            const metragem = parseFloat(document.getElementById('metragemBobina2').value);
+            if (!isNaN(metragem) && metragem > 0) {
+                consumoBobina2 += metragem;
+                atualizarBarra();
             }
-
-            atualizarBarra();
         }
 
         function calcularTempoConsumo() {
-            const tempoConsumo = (metragemOp / er) * (1 + eficiencia);
+            tempoConsumo = (metragemOp / er) * (1 + eficiencia);
             document.getElementById('tempoConsumo').textContent = tempoConsumo.toFixed(2);
-            return tempoConsumo;
         }
 
         function calcularVelocidadeConsumo() {
-            const tempoConsumo = calcularTempoConsumo();
-            const velocidadeConsumo = metragemOp / tempoConsumo;
+            velocidadeConsumo = metragemOp / tempoConsumo;
             document.getElementById('velocidadeConsumo').textContent = velocidadeConsumo.toFixed(2);
         }
 
         function atualizarBarra() {
             const barraOp = document.getElementById('barraOp');
-            const barraBobina = document.getElementById('barraBobina');
+            const barraBobina1 = document.getElementById('barraBobina1');
             const barraResiduo = document.getElementById('barraResiduo');
 
-            const total = metragemOp;
-            const eficienciaTotal = total * (1 + eficiencia);
+            const totalBobinas = consumoBobina1 + consumoBobina2;
+            residual = totalBobinas - metragemOp;
 
-            // Calcular as larguras das barras
-            const opPercent = Math.min((consumoBobina1 / eficienciaTotal) * 100, 100);
-            const residualPercent = Math.min((residual / eficienciaTotal) * 100, 100);
-
-            barraOp.style.width = `${opPercent}%`;
-            barraBobina.style.width = `${(consumoBobina1 / total) * 100}%`;
-            barraResiduo.style.width = `${residualPercent}%`;
+            barraOp.style.width = `${(consumoBobina1 / metragemOp) * 100}%`;
+            barraOp.textContent = `Bobina 1: ${consumoBobina1}m`;
+            barraResiduo.style.width = `${(residual / metragemOp) * 100}%`;
+            barraResiduo.textContent = `Resíduo: ${residual}m`;
         }
     </script>
 </body>
