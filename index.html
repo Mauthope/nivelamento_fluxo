@@ -1,126 +1,119 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barra de Loading Personalizada - 4 Colunas</title>
+    <title>Calculo de Consumo</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             display: flex;
-            flex-wrap: wrap;
             justify-content: space-around;
-            gap: 20px;
-            margin: 20px;
+            flex-wrap: wrap;
+            padding: 20px;
+            margin: 0;
         }
         .container {
-            width: 23%;
+            border: 1px solid #ccc;
             padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
+            margin: 10px;
+            width: 22%; /* Ajusta o tamanho de cada coluna */
+            box-sizing: border-box;
+            background-color: #f9f9f9;
+            border-radius: 8px;
         }
         h2 {
             text-align: center;
         }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+        .input-group {
+            margin-bottom: 10px;
         }
-        button {
+        .input-group label {
+            display: block;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+        .button {
+            display: block;
             width: 100%;
             padding: 10px;
-            background-color: #007bff;
-            color: #fff;
+            background-color: #4CAF50;
+            color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
+            font-size: 14px;
             margin-top: 10px;
         }
-        button:hover {
-            background-color: #0056b3;
+        .button:hover {
+            background-color: #45a049;
         }
-        .results, .bobinas {
-            margin-top: 20px;
+        .result {
+            margin-top: 10px;
         }
         .loading-bar-container {
-            position: relative;
             width: 100%;
-            height: 50px;
             background-color: #e0e0e0;
-            border-radius: 5px;
-            margin-top: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-top: 15px;
+            position: relative;
         }
         .loading-bar {
             height: 100%;
-            background-color: #28a745;
-            border-radius: 5px;
+            background-color: #76c7c0;
             width: 0%;
-            position: relative;
+            border-radius: 4px;
         }
         .progress-indicator {
             position: absolute;
-            top: -25px;
-            right: 10px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
             font-weight: bold;
-            color: #333;
         }
-        .mark {
-            position: absolute;
-            width: 2px;
-            height: 100%;
-            background-color: red;
-        }
-        .mark-label {
-            position: absolute;
-            top: -25px;
-            transform: translateX(-50%);
-            font-size: 12px;
-            color: red;
+        .bobinas {
+            margin-top: 20px;
         }
         .bobina-list {
-            max-height: 150px;
-            overflow-y: auto;
             margin-top: 10px;
         }
         .bobina-item {
-            background-color: #f1f1f1;
-            padding: 5px;
-            border-radius: 5px;
-            margin-bottom: 5px;
+            margin: 5px 0;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Dados da OP - Coluna 1</h2>
-        <label for="metragem1">Metragem da OP (m):</label>
-        <input type="number" id="metragem1" placeholder="Digite a metragem da OP">
-        <label for="er1">ER (m/min):</label>
-        <input type="number" id="er1" placeholder="Digite a ER (m/min)">
-        <label for="eficiencia1">Eficiência (%):</label>
-        <input type="number" id="eficiencia1" placeholder="Digite a eficiência (%)" value="0">
-        <button onclick="calcular(1)">Calcular</button>
-
-        <div class="results">
-            <h2>Resultados</h2>
+    <div class="container" id="container1">
+        <h2>Coluna 1</h2>
+        <div class="input-group">
+            <label for="metragem1">Metragem (m):</label>
+            <input type="number" id="metragem1" placeholder="Digite a metragem">
+        </div>
+        <div class="input-group">
+            <label for="er1">ER (m/min):</label>
+            <input type="number" id="er1" placeholder="Digite o ER">
+        </div>
+        <div class="input-group">
+            <label for="eficiencia1">Eficiência (%):</label>
+            <input type="number" id="eficiencia1" placeholder="Digite a eficiência">
+        </div>
+        <button class="button" onclick="calcular(1)">Calcular</button>
+        <div class="result">
             <p>Tempo de Consumo (min): <span id="tempo-consumo1">-</span></p>
             <p>Velocidade de Consumo (m/min): <span id="velocidade-consumo1">-</span></p>
         </div>
-
         <div class="bobinas">
-            <h2>Bobinas</h2>
             <label for="bobina-entrada1">Bobina de Entrada (m):</label>
-            <input type="number" id="bobina-entrada1" placeholder="Digite a bobina de entrada">
-            <button onclick="adicionarBobina(1)">Inserir Bobina</button>
+            <input type="number" id="bobina-entrada1">
+            <button class="button" onclick="adicionarBobina(1)">Inserir Bobina</button>
             <div class="bobina-list" id="bobina-list1"></div>
         </div>
-
         <div class="loading-bar-container">
             <div class="loading-bar" id="loading-bar1">
                 <div class="progress-indicator" id="progress-indicator1">0 m</div>
@@ -128,30 +121,32 @@
         </div>
     </div>
 
-    <div class="container">
-        <h2>Dados da OP - Coluna 2</h2>
-        <label for="metragem2">Metragem da OP (m):</label>
-        <input type="number" id="metragem2" placeholder="Digite a metragem da OP">
-        <label for="er2">ER (m/min):</label>
-        <input type="number" id="er2" placeholder="Digite a ER (m/min)">
-        <label for="eficiencia2">Eficiência (%):</label>
-        <input type="number" id="eficiencia2" placeholder="Digite a eficiência (%)" value="0">
-        <button onclick="calcular(2)">Calcular</button>
-
-        <div class="results">
-            <h2>Resultados</h2>
+    <!-- Colunas 2, 3 e 4 seguem o mesmo formato, apenas ajustando os IDs -->
+    <div class="container" id="container2">
+        <h2>Coluna 2</h2>
+        <div class="input-group">
+            <label for="metragem2">Metragem (m):</label>
+            <input type="number" id="metragem2" placeholder="Digite a metragem">
+        </div>
+        <div class="input-group">
+            <label for="er2">ER (m/min):</label>
+            <input type="number" id="er2" placeholder="Digite o ER">
+        </div>
+        <div class="input-group">
+            <label for="eficiencia2">Eficiência (%):</label>
+            <input type="number" id="eficiencia2" placeholder="Digite a eficiência">
+        </div>
+        <button class="button" onclick="calcular(2)">Calcular</button>
+        <div class="result">
             <p>Tempo de Consumo (min): <span id="tempo-consumo2">-</span></p>
             <p>Velocidade de Consumo (m/min): <span id="velocidade-consumo2">-</span></p>
         </div>
-
         <div class="bobinas">
-            <h2>Bobinas</h2>
             <label for="bobina-entrada2">Bobina de Entrada (m):</label>
-            <input type="number" id="bobina-entrada2" placeholder="Digite a bobina de entrada">
-            <button onclick="adicionarBobina(2)">Inserir Bobina</button>
+            <input type="number" id="bobina-entrada2">
+            <button class="button" onclick="adicionarBobina(2)">Inserir Bobina</button>
             <div class="bobina-list" id="bobina-list2"></div>
         </div>
-
         <div class="loading-bar-container">
             <div class="loading-bar" id="loading-bar2">
                 <div class="progress-indicator" id="progress-indicator2">0 m</div>
@@ -159,30 +154,31 @@
         </div>
     </div>
 
-    <div class="container">
-        <h2>Dados da OP - Coluna 3</h2>
-        <label for="metragem3">Metragem da OP (m):</label>
-        <input type="number" id="metragem3" placeholder="Digite a metragem da OP">
-        <label for="er3">ER (m/min):</label>
-        <input type="number" id="er3" placeholder="Digite a ER (m/min)">
-        <label for="eficiencia3">Eficiência (%):</label>
-        <input type="number" id="eficiencia3" placeholder="Digite a eficiência (%)" value="0">
-        <button onclick="calcular(3)">Calcular</button>
-
-        <div class="results">
-            <h2>Resultados</h2>
+    <div class="container" id="container3">
+        <h2>Coluna 3</h2>
+        <div class="input-group">
+            <label for="metragem3">Metragem (m):</label>
+            <input type="number" id="metragem3" placeholder="Digite a metragem">
+        </div>
+        <div class="input-group">
+            <label for="er3">ER (m/min):</label>
+            <input type="number" id="er3" placeholder="Digite o ER">
+        </div>
+        <div class="input-group">
+            <label for="eficiencia3">Eficiência (%):</label>
+            <input type="number" id="eficiencia3" placeholder="Digite a eficiência">
+        </div>
+        <button class="button" onclick="calcular(3)">Calcular</button>
+        <div class="result">
             <p>Tempo de Consumo (min): <span id="tempo-consumo3">-</span></p>
             <p>Velocidade de Consumo (m/min): <span id="velocidade-consumo3">-</span></p>
         </div>
-
         <div class="bobinas">
-            <h2>Bobinas</h2>
             <label for="bobina-entrada3">Bobina de Entrada (m):</label>
-            <input type="number" id="bobina-entrada3" placeholder="Digite a bobina de entrada">
-            <button onclick="adicionarBobina(3)">Inserir Bobina</button>
+            <input type="number" id="bobina-entrada3">
+            <button class="button" onclick="adicionarBobina(3)">Inserir Bobina</button>
             <div class="bobina-list" id="bobina-list3"></div>
         </div>
-
         <div class="loading-bar-container">
             <div class="loading-bar" id="loading-bar3">
                 <div class="progress-indicator" id="progress-indicator3">0 m</div>
@@ -190,30 +186,31 @@
         </div>
     </div>
 
-    <div class="container">
-        <h2>Dados da OP - Coluna 4</h2>
-        <label for="metragem4">Metragem da OP (m):</label>
-        <input type="number" id="metragem4" placeholder="Digite a metragem da OP">
-        <label for="er4">ER (m/min):</label>
-        <input type="number" id="er4" placeholder="Digite a ER (m/min)">
-        <label for="eficiencia4">Eficiência (%):</label>
-        <input type="number" id="eficiencia4" placeholder="Digite a eficiência (%)" value="0">
-        <button onclick="calcular(4)">Calcular</button>
-
-        <div class="results">
-            <h2>Resultados</h2>
+    <div class="container" id="container4">
+        <h2>Coluna 4</h2>
+        <div class="input-group">
+            <label for="metragem4">Metragem (m):</label>
+            <input type="number" id="metragem4" placeholder="Digite a metragem">
+        </div>
+        <div class="input-group">
+            <label for="er4">ER (m/min):</label>
+            <input type="number" id="er4" placeholder="Digite o ER">
+        </div>
+        <div class="input-group">
+            <label for="eficiencia4">Eficiência (%):</label>
+            <input type="number" id="eficiencia4" placeholder="Digite a eficiência">
+        </div>
+        <button class="button" onclick="calcular(4)">Calcular</button>
+        <div class="result">
             <p>Tempo de Consumo (min): <span id="tempo-consumo4">-</span></p>
             <p>Velocidade de Consumo (m/min): <span id="velocidade-consumo4">-</span></p>
         </div>
-
         <div class="bobinas">
-            <h2>Bobinas</h2>
             <label for="bobina-entrada4">Bobina de Entrada (m):</label>
-            <input type="number" id="bobina-entrada4" placeholder="Digite a bobina de entrada">
-            <button onclick="adicionarBobina(4)">Inserir Bobina</button>
+            <input type="number" id="bobina-entrada4">
+            <button class="button" onclick="adicionarBobina(4)">Inserir Bobina</button>
             <div class="bobina-list" id="bobina-list4"></div>
         </div>
-
         <div class="loading-bar-container">
             <div class="loading-bar" id="loading-bar4">
                 <div class="progress-indicator" id="progress-indicator4">0 m</div>
@@ -222,51 +219,44 @@
     </div>
 
     <script>
-        // Função para calcular tempo de consumo e velocidade
         function calcular(coluna) {
-            let metragem = document.getElementById('metragem' + coluna).value;
-            let er = document.getElementById('er' + coluna).value;
-            let eficiencia = document.getElementById('eficiencia' + coluna).value;
+            const metragem = document.getElementById(`metragem${coluna}`).value;
+            const er = document.getElementById(`er${coluna}`).value;
+            const eficiencia = document.getElementById(`eficiencia${coluna}`).value;
 
-            if (!metragem || !er || !eficiencia) {
-                alert('Preencha todos os campos!');
-                return;
-            }
+            const tempoConsumo = metragem / er;
+            const velocidadeConsumo = metragem / (tempoConsumo * (eficiencia / 100));
 
-            let tempoConsumo = metragem / er;
-            let velocidadeConsumo = (metragem / tempoConsumo) * (eficiencia / 100);
+            document.getElementById(`tempo-consumo${coluna}`).textContent = tempoConsumo.toFixed(2);
+            document.getElementById(`velocidade-consumo${coluna}`).textContent = velocidadeConsumo.toFixed(2);
 
-            document.getElementById('tempo-consumo' + coluna).innerText = tempoConsumo.toFixed(2);
-            document.getElementById('velocidade-consumo' + coluna).innerText = velocidadeConsumo.toFixed(2);
-            atualizarBarra(coluna, tempoConsumo, metragem);
+            iniciarBarra(coluna, metragem);
         }
 
-        // Função para atualizar a barra de progresso
-        function atualizarBarra(coluna, tempoConsumo, metragem) {
-            let barra = document.getElementById('loading-bar' + coluna);
-            let indicador = document.getElementById('progress-indicator' + coluna);
-            let porcentagem = (tempoConsumo / metragem) * 100;
-
-            barra.style.width = porcentagem + '%';
-            indicador.innerText = `${tempoConsumo.toFixed(2)} m`;
-        }
-
-        // Função para adicionar bobinas
         function adicionarBobina(coluna) {
-            let bobinaEntrada = document.getElementById('bobina-entrada' + coluna).value;
+            const bobinaEntrada = document.getElementById(`bobina-entrada${coluna}`).value;
+            const listaBobinas = document.getElementById(`bobina-list${coluna}`);
+            const itemBobina = document.createElement('div');
+            itemBobina.classList.add('bobina-item');
+            itemBobina.textContent = `Bobina: ${bobinaEntrada} m`;
+            listaBobinas.appendChild(itemBobina);
 
-            if (!bobinaEntrada) {
-                alert('Informe a bobina de entrada!');
-                return;
-            }
+            document.getElementById(`bobina-entrada${coluna}`).value = '';
+        }
 
-            let bobinaList = document.getElementById('bobina-list' + coluna);
-            let bobinaItem = document.createElement('div');
-            bobinaItem.className = 'bobina-item';
-            bobinaItem.textContent = 'Bobina de Entrada: ' + bobinaEntrada + ' metros';
-            bobinaList.appendChild(bobinaItem);
-
-            document.getElementById('bobina-entrada' + coluna).value = '';
+        function iniciarBarra(coluna, metragem) {
+            let progress = 0;
+            const loadingBar = document.getElementById(`loading-bar${coluna}`);
+            const progressIndicator = document.getElementById(`progress-indicator${coluna}`);
+            const interval = setInterval(() => {
+                if (progress >= metragem) {
+                    clearInterval(interval);
+                } else {
+                    progress += 0.1;
+                    loadingBar.style.width = `${(progress / metragem) * 100}%`;
+                    progressIndicator.textContent = `${progress.toFixed(2)} m`;
+                }
+            }, 50);
         }
     </script>
 </body>
