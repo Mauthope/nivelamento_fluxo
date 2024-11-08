@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barra de Loading Personalizada</title>
+    <title>Controle de OP com Barra de Consumo</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -61,6 +61,12 @@
             border-radius: 5px;
             width: 0%;
         }
+        .loading-bar-secondary {
+            height: 100%;
+            background-color: #17a2b8;
+            border-radius: 5px;
+            width: 0%;
+        }
         .mark {
             position: absolute;
             width: 2px;
@@ -77,6 +83,10 @@
             padding: 5px;
             border-radius: 5px;
             margin-bottom: 5px;
+        }
+        .progress-counter {
+            margin-top: 10px;
+            text-align: center;
         }
     </style>
 </head>
@@ -99,25 +109,34 @@
     </div>
 
     <div class="container bobinas">
-        <h2>Bobinas</h2>
-        <label for="bobina-entrada">Bobina de Entrada (m):</label>
+        <h2>Bobinas de Entrada</h2>
         <input type="number" id="bobina-entrada" placeholder="Digite a bobina de entrada">
-        <button onclick="adicionarBobina()">Inserir Bobina</button>
-        <div class="bobina-list" id="bobina-list"></div>
+        <button onclick="adicionarBobinaEntrada()">Inserir Bobina de Entrada</button>
+        <div class="bobina-list" id="bobina-list-entrada"></div>
+
+        <h2>Bobinas de Saída</h2>
+        <input type="number" id="bobina-saida" placeholder="Digite a bobina de saída">
+        <button onclick="adicionarBobinaSaida()">Inserir Bobina de Saída</button>
+        <div class="bobina-list" id="bobina-list-saida"></div>
     </div>
 
     <div class="container">
         <h2>Barra de Consumo</h2>
         <div class="loading-bar-container">
             <div class="loading-bar" id="loading-bar"></div>
+            <div class="loading-bar-secondary" id="loading-bar-secondary"></div>
         </div>
+        <div class="progress-counter">Progresso: <span id="progress-metros">0</span> m</div>
     </div>
 
     <script>
         let metragem, er, eficiencia;
         let tempoConsumo = 0;
         let velocidadeConsumo = 0;
-        let bobinas = [];
+        let bobinasEntrada = [];
+        let bobinasSaida = [];
+        let totalEntrada = 0, totalSaida = 0;
+        let metrosPercorridos = 0;
 
         function calcular() {
             metragem = parseFloat(document.getElementById("metragem").value);
@@ -140,11 +159,14 @@
 
         function iniciarConsumo() {
             const loadingBar = document.getElementById("loading-bar");
+            const progressDisplay = document.getElementById("progress-metros");
             let progress = 0;
 
             const interval = setInterval(() => {
                 progress += (velocidadeConsumo / metragem) * 100;
+                metrosPercorridos += velocidadeConsumo;
                 loadingBar.style.width = progress + "%";
+                progressDisplay.textContent = Math.min(metrosPercorridos.toFixed(0), metragem);
 
                 if (progress >= 100) {
                     clearInterval(interval);
@@ -152,36 +174,53 @@
             }, 1000);
         }
 
-        function adicionarBobina() {
+        function adicionarBobinaEntrada() {
             const entrada = parseFloat(document.getElementById("bobina-entrada").value);
             if (isNaN(entrada) || entrada <= 0) {
                 alert("Por favor, insira uma metragem válida.");
                 return;
             }
-
-            bobinas.push(entrada);
-            atualizarListaBobinas();
-            marcarBarra(entrada);
+            totalEntrada += entrada;
+            bobinasEntrada.push(totalEntrada);
+            marcarBarraEntrada(totalEntrada);
+            atualizarLista('entrada', entrada);
         }
 
-        function atualizarListaBobinas() {
-            const bobinaList = document.getElementById("bobina-list");
-            bobinaList.innerHTML = "";
-
-            bobinas.forEach((bobina, index) => {
-                const item = document.createElement("div");
-                item.className = "bobina-item";
-                item.textContent = `Bobina ${index + 1}: ${bobina}m`;
-                bobinaList.appendChild(item);
-            });
+        function adicionarBobinaSaida() {
+            const saida = parseFloat(document.getElementById("bobina-saida").value);
+            if (isNaN(saida) || saida <= 0) {
+                alert("Por favor, insira uma metragem válida.");
+                return;
+            }
+            totalSaida += saida;
+            bobinasSaida.push(totalSaida);
+            marcarBarraSaida(totalSaida);
+            atualizarLista('saida', saida);
         }
 
-        function marcarBarra(metragemBobina) {
-            const container = document.querySelector(".loading-bar-container");
+        function marcarBarraEntrada(metragemBobina) {
+            marcarBarra(metragemBobina, "loading-bar-container", "mark");
+        }
+
+        function marcarBarraSaida(metragemBobina) {
+            marcarBarra(metragemBobina, "loading-bar-secondary", "mark");
+        }
+
+        function marcarBar(metragemBobina, containerId, markClass) {
+            const container = document.querySelector(`.${containerId}`);
             const mark = document.createElement("div");
-            mark.className = "mark";
+            mark.className = markClass;
             mark.style.left = (metragemBobina / metragem) * 100 + "%";
             container.appendChild(mark);
+        }
+
+        function atualizarLista(tipo, valor) {
+            const listId = tipo === 'entrada' ? "bobina-list-entrada" : "bobina-list-saida";
+            const bobinaList = document.getElementById(listId);
+            const item = document.createElement("div");
+            item.className = "bobina-item";
+            item.textContent = `Bobina de ${tipo === 'entrada' ? 'Entrada' : 'Saída'}: ${valor} m`;
+            bobinaList.appendChild(item);
         }
     </script>
 </body>
