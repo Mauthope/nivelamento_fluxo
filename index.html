@@ -136,7 +136,7 @@ button:hover {
     </div>
     <script src="script.js"></script>
     <script>
-        let totalMetragemEntrada = 0;
+let totalMetragemEntrada = 0;
 let totalMetragemSaida = 0;
 let metragemOP = 0;
 let velocidadeConsumo = 0;
@@ -156,6 +156,7 @@ document.getElementById('start-process').addEventListener('click', () => {
     document.getElementById('velocidade-consumo').textContent = velocidadeConsumo.toFixed(2);
 
     document.getElementById('results-section').style.display = 'block';
+    consumirBobina();  // Inicia o consumo assim que o processo começar
 });
 
 document.getElementById('add-bobina').addEventListener('click', () => {
@@ -215,13 +216,20 @@ function consumirBobina() {
 }
 
 function atualizarBarra() {
-    const progressBobina = (totalMetragemEntrada / metragemOP) * 100;
-    const progressResíduo = ((metragemOP - totalMetragemSaida) / metragemOP) * 100;
-    
-    document.getElementById('progress-bobina').style.width = `${progressBobina}%`;
-    document.getElementById('progress-residuo').style.width = `${progressResíduo}%`;
+    // Atualiza a largura da barra de progresso para a bobina de saída
+    const progressoSaida = (totalMetragemSaida / metragemOP) * 100;
+    document.getElementById('progress-bobina').style.width = `${progressoSaida}%`;
 
-    document.getElementById('consumo-label').textContent = `${totalMetragemEntrada.toFixed(2)} m`;
+    // Atualiza a largura da barra de resíduo
+    const progressoResíduo = ((metragemOP - totalMetragemSaida) / metragemOP) * 100;
+    document.getElementById('progress-residuo').style.width = `${progressoResíduo}%`;
+
+    // Atualiza a sombra da barra de saída para representar o consumo
+    const sombraProgresso = (totalMetragemSaida / metragemOP) * 100;
+    document.getElementById('progress-bobina').style.boxShadow = `inset ${sombraProgresso}% 0 10px rgba(0, 0, 0, 0.2)`;
+
+    // Exibe a quantidade consumida na tela
+    document.getElementById('consumo-label').textContent = `${totalMetragemSaida.toFixed(2)} m`;
 }
 
     </script>
