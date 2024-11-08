@@ -118,6 +118,8 @@
         let tempoConsumo = 0;
         let velocidadeConsumo = 0;
         let bobinas = [];
+        let consumoAtual = 0;
+        let intervaloConsumo;
 
         function calcular() {
             metragem = parseFloat(document.getElementById("metragem").value);
@@ -129,6 +131,7 @@
                 return;
             }
 
+            // Cálculo do tempo e velocidade de consumo
             tempoConsumo = (metragem / er) * (1 + eficiencia);
             velocidadeConsumo = metragem / tempoConsumo;
 
@@ -140,14 +143,18 @@
 
         function iniciarConsumo() {
             const loadingBar = document.getElementById("loading-bar");
-            let progress = 0;
+            consumoAtual = 0;
+            loadingBar.style.width = "0%";
 
-            const interval = setInterval(() => {
-                progress += (velocidadeConsumo / metragem) * 100;
+            if (intervaloConsumo) clearInterval(intervaloConsumo);
+
+            intervaloConsumo = setInterval(() => {
+                consumoAtual += velocidadeConsumo / 60; // Consumo por segundo
+                let progress = (consumoAtual / metragem) * 100;
                 loadingBar.style.width = progress + "%";
 
                 if (progress >= 100) {
-                    clearInterval(interval);
+                    clearInterval(intervaloConsumo);
                 }
             }, 1000);
         }
@@ -159,9 +166,12 @@
                 return;
             }
 
+            // Adicionar metragem acumulada da nova bobina
+            const somaBobinas = bobinas.reduce((acc, val) => acc + val, 0);
             bobinas.push(entrada);
+            const posicao = somaBobinas + entrada;
             atualizarListaBobinas();
-            marcarBarra(entrada);
+            marcarBarra(posicao);
         }
 
         function atualizarListaBobinas() {
