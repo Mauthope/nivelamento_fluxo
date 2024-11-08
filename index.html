@@ -82,12 +82,12 @@
         width: 0;
     }
 
-    #progress-consumo {
-        background-color: #90EE90; /* Verde claro */
+    #progress-bobina-consumida {
+        background-color: #90ee90; /* Verde Claro */
         width: 0;
     }
 
-    #progress-bobina-saida {
+    #progress-residuo {
         background-color: #dc3545;
         width: 0;
     }
@@ -138,8 +138,8 @@
         <div class="progress-bar-container" id="progress-bar-container">
             <div class="progress-bar" id="progress-op"></div>
             <div class="progress-bar" id="progress-bobina-inicial"></div>
-            <div class="progress-bar" id="progress-consumo"></div>
-            <div class="progress-bar" id="progress-bobina-saida"></div>
+            <div class="progress-bar" id="progress-bobina-consumida"></div>
+            <div class="progress-bar" id="progress-residuo"></div>
             <span id="consumo-label">0 m</span>
         </div>
     </div>
@@ -151,7 +151,6 @@
         let consumoInterval, cronometroInterval;
         let tempo = 0;
         let pausado = false;
-        let totalConsumido = 0; // Para rastrear o consumo total
 
         document.getElementById('start-process').addEventListener('click', () => {
             metragemOP = parseFloat(document.getElementById('metragem-op').value);
@@ -165,7 +164,6 @@
             document.getElementById('velocidade-consumo').textContent = velocidadeConsumo.toFixed(2);
 
             document.getElementById('results-section').style.display = 'block';
-            consumirBobina();
         });
 
         document.getElementById('add-bobina').addEventListener('click', () => {
@@ -180,29 +178,24 @@
             atualizarBarra();
         });
 
-        function consumirBobina() {
-            consumoInterval = setInterval(() => {
-                if (totalMetragemEntrada > 0 && totalConsumido < totalMetragemEntrada) {
-                    const consumoPorSegundo = velocidadeConsumo / 60;
-                    totalConsumido += consumoPorSegundo;
-                    atualizarBarra();
-                }
-            }, 1000);
-        }
-
         function atualizarBarra() {
-            // Atualizando as larguras das barras
+            // Atualizando a barra de OP
+            const progressOP = (metragemOP / metragemOP) * 100;
+            // Barra de Bobina de Entrada (verde)
             const progressBobinaInicial = (totalMetragemEntrada / metragemOP) * 100;
-            const progressConsumo = (totalConsumido / metragemOP) * 100;
-            const progressBobinaSaida = ((totalMetragemEntrada - totalMetragemSaida) / metragemOP) * 100;
+            // Barra de Consumo das Bobinas de Entrada (verde claro)
+            const progressBobinaConsumida = ((totalMetragemEntrada - totalMetragemSaida) / metragemOP) * 100;
+            // Barra de Resíduo (vermelho)
+            const resíduo = ((totalMetragemEntrada - totalMetragemSaida) / metragemOP) * 100;
 
             // Atribuindo as larguras às barras
+            document.getElementById('progress-op').style.width = `${progressOP}%`;
             document.getElementById('progress-bobina-inicial').style.width = `${progressBobinaInicial}%`;
-            document.getElementById('progress-consumo').style.width = `${progressConsumo}%`;
-            document.getElementById('progress-bobina-saida').style.width = `${progressBobinaSaida}%`;
+            document.getElementById('progress-bobina-consumida').style.width = `${progressBobinaConsumida}%`;
+            document.getElementById('progress-residuo').style.width = `${resíduo}%`;
 
             // Atualizando o valor do consumo
-            document.getElementById('consumo-label').textContent = `${(totalConsumido).toFixed(2)} m`;
+            document.getElementById('consumo-label').textContent = `${(totalMetragemEntrada - totalMetragemSaida).toFixed(2)} m`;
         }
     </script>
 </body>
