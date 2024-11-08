@@ -3,162 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Consumo de OP</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Barra de Loading Personalizada</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+        }
+        .container {
+            width: 80%;
+            max-width: 600px;
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .results, .bobinas {
+            margin-top: 20px;
+        }
+        .loading-bar-container {
+            position: relative;
+            width: 100%;
+            height: 30px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .loading-bar {
+            height: 100%;
+            background-color: #28a745;
+            border-radius: 5px;
+            width: 0%;
+        }
+        .mark {
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background-color: red;
+        }
+        .bobina-list {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .bobina-item {
+            background-color: #f1f1f1;
+            padding: 5px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+    </style>
 </head>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f0f4f8;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 20px;
-    }
-
-    .container {
-        background-color: #ffffff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        width: 500px;
-        margin-bottom: 20px;
-    }
-
-    h1 {
-        text-align: center;
-    }
-
-    label {
-        display: block;
-        margin-top: 10px;
-    }
-
-    input {
-        width: 100%;
-        padding: 8px;
-        margin-top: 5px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-    }
-
-    button {
-        width: 100%;
-        padding: 10px;
-        margin-top: 15px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-
-    .progress-bar-container {
-        position: relative;
-        height: 30px;
-        background-color: #e0e0e0;
-        border-radius: 5px;
-        overflow: hidden;
-        margin-top: 20px;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .progress-bar {
-        height: 100%;
-        transition: width 0.5s ease-in-out;
-        position: relative;
-    }
-
-    #progress-op {
-        background-color: #007bff;
-    }
-
-    #progress-bobina-inicial {
-        background-color: #28a745;
-    }
-
-    #progress-bobina-consumida {
-        background-color: #90ee90;
-    }
-
-    #progress-residuo {
-        background-color: #dc3545;
-    }
-
-    #progress-bobina-saida {
-        background-color: #ffc107;
-    }
-
-    #consumo-label {
-        position: absolute;
-        right: 10px;
-        top: 5px;
-        font-weight: bold;
-        color: #333;
-    }
-
-    .marcacoes {
-        position: absolute;
-        top: -20px;
-        left: 0;
-        right: 0;
-        display: flex;
-        justify-content: space-between;
-        font-size: 12px;
-        color: #333;
-    }
-</style>
 <body>
     <div class="container">
-        <h1>Controle de Consumo de OP</h1>
-
-        <label for="op">OP:</label>
-        <input type="text" id="op" placeholder="Digite o número da OP">
-
-        <label for="metragem-op">Metragem da OP (m):</label>
-        <input type="number" id="metragem-op" placeholder="Digite a metragem da OP">
-
+        <h2>Dados da OP</h2>
+        <label for="metragem">Metragem da OP (m):</label>
+        <input type="number" id="metragem" placeholder="Digite a metragem da OP">
         <label for="er">ER (m/min):</label>
-        <input type="number" id="er" step="0.01" placeholder="Digite o ER">
-
+        <input type="number" id="er" placeholder="Digite a ER (m/min)">
         <label for="eficiencia">Eficiência (%):</label>
-        <input type="number" id="eficiencia" step="0.01" placeholder="Digite a eficiência">
+        <input type="number" id="eficiencia" placeholder="Digite a eficiência (%)" value="0">
+        <button onclick="calcular()">Calcular</button>
+    </div>
 
-        <button id="start-process">Iniciar Processo</button>
+    <div class="container results">
+        <h2>Resultados</h2>
+        <p>Tempo de Consumo (min): <span id="tempo-consumo">-</span></p>
+        <p>Velocidade de Consumo (m/min): <span id="velocidade-consumo">-</span></p>
+    </div>
 
-        <div class="progress-bar-container">
-            <div class="progress-bar" id="progress-op"></div>
-            <div class="progress-bar" id="progress-bobina-inicial"></div>
-            <div class="progress-bar" id="progress-bobina-consumida"></div>
-            <div class="progress-bar" id="progress-bobina-saida"></div>
+    <div class="container bobinas">
+        <h2>Bobinas</h2>
+        <label for="bobina-entrada">Bobina de Entrada (m):</label>
+        <input type="number" id="bobina-entrada" placeholder="Digite a bobina de entrada">
+        <button onclick="adicionarBobina()">Inserir Bobina</button>
+        <div class="bobina-list" id="bobina-list"></div>
+    </div>
+
+    <div class="container">
+        <h2>Barra de Consumo</h2>
+        <div class="loading-bar-container">
+            <div class="loading-bar" id="loading-bar"></div>
         </div>
-
-        <div id="consumo-label">0 m</div>
     </div>
 
     <script>
-        let metragemOP = 0;
-        let totalMetragemEntrada = 0;
-        let totalMetragemSaida = 0;
+        let metragem, er, eficiencia;
+        let tempoConsumo = 0;
+        let velocidadeConsumo = 0;
+        let bobinas = [];
 
-        document.getElementById('start-process').addEventListener('click', () => {
-            metragemOP = parseFloat(document.getElementById('metragem-op').value);
-            atualizarBarra();
-        });
+        function calcular() {
+            metragem = parseFloat(document.getElementById("metragem").value);
+            er = parseFloat(document.getElementById("er").value);
+            eficiencia = parseFloat(document.getElementById("eficiencia").value) / 100;
 
-        function atualizarBarra() {
-            const progressOP = (metragemOP / metragemOP) * 100;
-            const progressEntrada = (totalMetragemEntrada / metragemOP) * 100;
-            const progressConsumida = ((totalMetragemEntrada - totalMetragemSaida) / metragemOP) * 100;
-            const progressSaida = (totalMetragemSaida / metragemOP) * 100;
+            if (isNaN(metragem) || isNaN(er) || isNaN(eficiencia)) {
+                alert("Por favor, preencha todos os campos corretamente.");
+                return;
+            }
 
-            document.getElementById('progress-op').style.width = `${progressOP}%`;
-            document.getElementById('progress-bobina-inicial').style.width = `${progressEntrada}%`;
-            document.getElementById('progress-bobina-consumida').style.width = `${progressConsumida}%`;
-            document.getElementById('progress-bobina-saida').style.width = `${progressSaida}%`;
+            tempoConsumo = (metragem / er) * (1 + eficiencia);
+            velocidadeConsumo = metragem / tempoConsumo;
 
-            document.getElementById('consumo-label').textContent = `${totalMetragemEntrada - totalMetragemSaida} m`;
+            document.getElementById("tempo-consumo").textContent = tempoConsumo.toFixed(2);
+            document.getElementById("velocidade-consumo").textContent = velocidadeConsumo.toFixed(2);
+
+            iniciarConsumo();
+        }
+
+        function iniciarConsumo() {
+            const loadingBar = document.getElementById("loading-bar");
+            let progress = 0;
+
+            const interval = setInterval(() => {
+                progress += (velocidadeConsumo / metragem) * 100;
+                loadingBar.style.width = progress + "%";
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                }
+            }, 1000);
+        }
+
+        function adicionarBobina() {
+            const entrada = parseFloat(document.getElementById("bobina-entrada").value);
+            if (isNaN(entrada) || entrada <= 0) {
+                alert("Por favor, insira uma metragem válida.");
+                return;
+            }
+
+            bobinas.push(entrada);
+            atualizarListaBobinas();
+            marcarBarra(entrada);
+        }
+
+        function atualizarListaBobinas() {
+            const bobinaList = document.getElementById("bobina-list");
+            bobinaList.innerHTML = "";
+
+            bobinas.forEach((bobina, index) => {
+                const item = document.createElement("div");
+                item.className = "bobina-item";
+                item.textContent = `Bobina ${index + 1}: ${bobina}m`;
+                bobinaList.appendChild(item);
+            });
+        }
+
+        function marcarBarra(metragemBobina) {
+            const container = document.querySelector(".loading-bar-container");
+            const mark = document.createElement("div");
+            mark.className = "mark";
+            mark.style.left = (metragemBobina / metragem) * 100 + "%";
+            container.appendChild(mark);
         }
     </script>
 </body>
