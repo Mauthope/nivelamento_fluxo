@@ -15,21 +15,25 @@
         align-items: center;
         padding: 20px;
     }
+
     .container {
         background-color: #ffffff;
         padding: 20px;
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        width: 450px;
-        margin-top: 20px;
+        width: 500px;
+        margin-bottom: 20px;
     }
+
     h1 {
         text-align: center;
     }
+
     label {
         display: block;
         margin-top: 10px;
     }
+
     input {
         width: 100%;
         padding: 8px;
@@ -37,6 +41,7 @@
         border: 1px solid #ddd;
         border-radius: 5px;
     }
+
     button {
         width: 100%;
         padding: 10px;
@@ -47,107 +52,113 @@
         border-radius: 5px;
         cursor: pointer;
     }
-    button:hover {
-        background-color: #0056b3;
-    }
+
     .progress-bar-container {
-        margin-top: 20px;
+        position: relative;
+        height: 30px;
         background-color: #e0e0e0;
         border-radius: 5px;
         overflow: hidden;
-        position: relative;
-        height: 30px;
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
     }
+
     .progress-bar {
         height: 100%;
-        position: absolute;
         transition: width 0.5s ease-in-out;
+        position: relative;
     }
+
     #progress-op {
         background-color: #007bff;
     }
+
     #progress-bobina-inicial {
         background-color: #28a745;
     }
-    #progress-consumo {
+
+    #progress-bobina-consumida {
         background-color: #90ee90;
     }
-    #progress-saida {
+
+    #progress-residuo {
         background-color: #dc3545;
     }
-    .marcacoes {
-        position: relative;
-        margin-top: 10px;
+
+    #progress-bobina-saida {
+        background-color: #ffc107;
     }
-    .marcacao {
+
+    #consumo-label {
+        position: absolute;
+        right: 10px;
+        top: 5px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .marcacoes {
+        position: absolute;
+        top: -20px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: space-between;
         font-size: 12px;
         color: #333;
-        margin-right: 10px;
     }
 </style>
 <body>
     <div class="container">
         <h1>Controle de Consumo de OP</h1>
+
+        <label for="op">OP:</label>
+        <input type="text" id="op" placeholder="Digite o número da OP">
+
         <label for="metragem-op">Metragem da OP (m):</label>
         <input type="number" id="metragem-op" placeholder="Digite a metragem da OP">
 
+        <label for="er">ER (m/min):</label>
+        <input type="number" id="er" step="0.01" placeholder="Digite o ER">
+
+        <label for="eficiencia">Eficiência (%):</label>
+        <input type="number" id="eficiencia" step="0.01" placeholder="Digite a eficiência">
+
         <button id="start-process">Iniciar Processo</button>
-        <div class="progress-bar-container" id="progress-bar-op">
+
+        <div class="progress-bar-container">
             <div class="progress-bar" id="progress-op"></div>
+            <div class="progress-bar" id="progress-bobina-inicial"></div>
+            <div class="progress-bar" id="progress-bobina-consumida"></div>
+            <div class="progress-bar" id="progress-bobina-saida"></div>
         </div>
-        <div class="marcacoes" id="marcacoes-op"></div>
 
-        <label for="metragem-bobina-entrada">Metragem da Bobina de Entrada:</label>
-        <input type="number" id="metragem-bobina-entrada">
-        <button id="add-bobina">Adicionar Bobina de Entrada</button>
-
-        <div class="progress-bar-container" id="progress-bar-saida">
-            <div class="progress-bar" id="progress-saida"></div>
-        </div>
-        <div class="marcacoes" id="marcacoes-saida"></div>
+        <div id="consumo-label">0 m</div>
     </div>
 
     <script>
         let metragemOP = 0;
         let totalMetragemEntrada = 0;
         let totalMetragemSaida = 0;
-        let contadorBobinasEntrada = 1;
 
         document.getElementById('start-process').addEventListener('click', () => {
             metragemOP = parseFloat(document.getElementById('metragem-op').value);
-            atualizarBarraOP();
+            atualizarBarra();
         });
 
-        document.getElementById('add-bobina').addEventListener('click', () => {
-            const metragemEntrada = parseFloat(document.getElementById('metragem-bobina-entrada').value) || 0;
-            totalMetragemEntrada += metragemEntrada;
+        function atualizarBarra() {
+            const progressOP = (metragemOP / metragemOP) * 100;
+            const progressEntrada = (totalMetragemEntrada / metragemOP) * 100;
+            const progressConsumida = ((totalMetragemEntrada - totalMetragemSaida) / metragemOP) * 100;
+            const progressSaida = (totalMetragemSaida / metragemOP) * 100;
 
-            adicionarMarcacaoBobina(totalMetragemEntrada, contadorBobinasEntrada);
-            contadorBobinasEntrada++;
-            atualizarBarraOP();
-        });
+            document.getElementById('progress-op').style.width = `${progressOP}%`;
+            document.getElementById('progress-bobina-inicial').style.width = `${progressEntrada}%`;
+            document.getElementById('progress-bobina-consumida').style.width = `${progressConsumida}%`;
+            document.getElementById('progress-bobina-saida').style.width = `${progressSaida}%`;
 
-        function atualizarBarraOP() {
-            const progress = (totalMetragemEntrada / metragemOP) * 100;
-            document.getElementById('progress-op').style.width = `${progress}%`;
-            atualizarMarcacoes();
-        }
-
-        function adicionarMarcacaoBobina(metragem, numeroBobina) {
-            const marcacao = document.createElement('span');
-            marcacao.classList.add('marcacao');
-            marcacao.textContent = `Bobina ${numeroBobina}: ${metragem.toFixed(2)}m`;
-            document.getElementById('marcacoes-op').appendChild(marcacao);
-        }
-
-        function atualizarMarcacoes() {
-            const marcacoes = document.getElementById('marcacoes-op').children;
-            for (let i = 0; i < marcacoes.length; i++) {
-                const posicao = parseFloat(marcacoes[i].textContent.split(': ')[1]);
-                const leftPos = (posicao / metragemOP) * 100;
-                marcacoes[i].style.position = 'absolute';
-                marcacoes[i].style.left = `${leftPos}%`;
-            }
+            document.getElementById('consumo-label').textContent = `${totalMetragemEntrada - totalMetragemSaida} m`;
         }
     </script>
 </body>
