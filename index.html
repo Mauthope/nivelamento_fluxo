@@ -95,6 +95,14 @@
         font-weight: bold;
         color: #333;
     }
+
+    #initial-value {
+        position: absolute;
+        left: 10px;
+        top: 5px;
+        font-weight: bold;
+        color: #333;
+    }
 </style>
 <body>
     <div class="container">
@@ -133,6 +141,8 @@
 
         <div class="progress-bar-container" id="progress-bar-container">
             <div class="progress-bar" id="progress-bobina"></div>
+            <div class="progress-bar" id="progress-residuo"></div>
+            <span id="initial-value">0 m</span>
             <span id="consumo-label">0 m</span>
         </div>
     </div>
@@ -184,8 +194,12 @@
 
         function atualizarBarra() {
             const progressBobina = (totalMetragemEntrada / metragemOP) * 100;
+            const progressResiduo = ((totalMetragemEntrada - totalMetragemSaida) / metragemOP) * 100;
+
             document.getElementById('progress-bobina').style.width = `${progressBobina}%`;
-            document.getElementById('consumo-label').textContent = `${totalMetragemEntrada.toFixed(2)} m`;
+            document.getElementById('progress-residuo').style.width = `${progressResiduo}%`;
+            document.getElementById('initial-value').textContent = `${totalMetragemEntrada.toFixed(2)} m`;
+            document.getElementById('consumo-label').textContent = `${(totalMetragemEntrada - totalMetragemSaida).toFixed(2)} m`;
         }
     </script>
 </body>
