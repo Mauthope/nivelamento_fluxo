@@ -61,9 +61,6 @@
             border-radius: 5px;
             width: 0%;
         }
-        .loading-bar.secondary {
-            background-color: #ff6347;
-        }
         .mark {
             position: absolute;
             width: 2px;
@@ -80,10 +77,6 @@
             padding: 5px;
             border-radius: 5px;
             margin-bottom: 5px;
-        }
-        .progress-text {
-            text-align: center;
-            margin-top: 10px;
         }
     </style>
 </head>
@@ -106,19 +99,11 @@
     </div>
 
     <div class="container bobinas">
-        <h2>Bobinas de Entrada</h2>
+        <h2>Bobinas</h2>
         <label for="bobina-entrada">Bobina de Entrada (m):</label>
         <input type="number" id="bobina-entrada" placeholder="Digite a bobina de entrada">
-        <button onclick="adicionarBobinaEntrada()">Inserir Bobina</button>
-        <div class="bobina-list" id="bobina-entrada-list"></div>
-    </div>
-
-    <div class="container bobinas">
-        <h2>Bobinas de Saída</h2>
-        <label for="bobina-saida">Bobina de Saída (m):</label>
-        <input type="number" id="bobina-saida" placeholder="Digite a bobina de saída">
-        <button onclick="adicionarBobinaSaida()">Inserir Bobina</button>
-        <div class="bobina-list" id="bobina-saida-list"></div>
+        <button onclick="adicionarBobina()">Inserir Bobina</button>
+        <div class="bobina-list" id="bobina-list"></div>
     </div>
 
     <div class="container">
@@ -126,22 +111,13 @@
         <div class="loading-bar-container">
             <div class="loading-bar" id="loading-bar"></div>
         </div>
-        <div class="progress-text">
-            Consumo: <span id="consumo-metros">0</span> m
-        </div>
-        <div class="loading-bar-container">
-            <div class="loading-bar secondary" id="saida-bar"></div>
-        </div>
     </div>
 
     <script>
         let metragem, er, eficiencia;
         let tempoConsumo = 0;
         let velocidadeConsumo = 0;
-        let bobinasEntrada = [];
-        let bobinasSaida = [];
-        let consumoAtual = 0;
-        let totalBobinaEntrada = 0;
+        let bobinas = [];
 
         function calcular() {
             metragem = parseFloat(document.getElementById("metragem").value);
@@ -154,7 +130,7 @@
             }
 
             tempoConsumo = (metragem / er) * (1 + eficiencia);
-            velocidadeConsumo = er;
+            velocidadeConsumo = metragem / tempoConsumo;
 
             document.getElementById("tempo-consumo").textContent = tempoConsumo.toFixed(2);
             document.getElementById("velocidade-consumo").textContent = velocidadeConsumo.toFixed(2);
@@ -164,15 +140,11 @@
 
         function iniciarConsumo() {
             const loadingBar = document.getElementById("loading-bar");
-            const consumoText = document.getElementById("consumo-metros");
             let progress = 0;
-            consumoAtual = 0;
 
             const interval = setInterval(() => {
-                consumoAtual += velocidadeConsumo / 60; // Conversão de m/min para m/seg
-                progress = (consumoAtual / metragem) * 100;
+                progress += (velocidadeConsumo / metragem) * 100;
                 loadingBar.style.width = progress + "%";
-                consumoText.textContent = consumoAtual.toFixed(0);
 
                 if (progress >= 100) {
                     clearInterval(interval);
@@ -180,25 +152,32 @@
             }, 1000);
         }
 
-        function adicionarBobinaEntrada() {
+        function adicionarBobina() {
             const entrada = parseFloat(document.getElementById("bobina-entrada").value);
-            if (isNaN(entrada) || entrada <= 0) return;
+            if (isNaN(entrada) || entrada <= 0) {
+                alert("Por favor, insira uma metragem válida.");
+                return;
+            }
 
-            bobinasEntrada.push(entrada);
-            totalBobinaEntrada += entrada;
-            marcarBarra("loading-bar-container", totalBobinaEntrada);
+            bobinas.push(entrada);
+            atualizarListaBobinas();
+            marcarBarra(entrada);
         }
 
-        function adicionarBobinaSaida() {
-            const saida = parseFloat(document.getElementById("bobina-saida").value);
-            if (isNaN(saida) || saida <= 0) return;
+        function atualizarListaBobinas() {
+            const bobinaList = document.getElementById("bobina-list");
+            bobinaList.innerHTML = "";
 
-            bobinasSaida.push(saida);
-            marcarBarra("saida-bar", bobinasSaida.reduce((acc, val) => acc + val, 0));
+            bobinas.forEach((bobina, index) => {
+                const item = document.createElement("div");
+                item.className = "bobina-item";
+                item.textContent = `Bobina ${index + 1}: ${bobina}m`;
+                bobinaList.appendChild(item);
+            });
         }
 
-        function marcarBarra(containerId, metragemBobina) {
-            const container = document.querySelector(`.${containerId}`);
+        function marcarBarra(metragemBobina) {
+            const container = document.querySelector(".loading-bar-container");
             const mark = document.createElement("div");
             mark.className = "mark";
             mark.style.left = (metragemBobina / metragem) * 100 + "%";
