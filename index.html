@@ -9,52 +9,19 @@
     <style>
         body {
     font-family: Arial, sans-serif;
-    background-color: #f0f4f8;
+    background-color: #f5f5f5;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    margin: 0;
 }
 
 .container {
     background-color: #ffffff;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 400px;
-}
-
-h1 {
-    text-align: center;
-}
-
-label {
-    display: block;
-    margin-top: 10px;
-}
-
-input {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 15px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #0056b3;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 450px;
 }
 
 .progress-bar-container {
@@ -62,7 +29,6 @@ button:hover {
     height: 30px;
     background-color: #e0e0e0;
     border-radius: 5px;
-    overflow: hidden;
     margin-top: 20px;
 }
 
@@ -78,12 +44,17 @@ button:hover {
 
 #progress-bobina {
     background-color: #ffc107;
-    width: 0;
 }
 
 #progress-residuo {
     background-color: #dc3545;
-    width: 0;
+}
+
+#consumo-label {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    font-weight: bold;
 }
 
     </style>
@@ -117,12 +88,21 @@ button:hover {
 
             <label for="metragem-bobina-saida">Metragem da Bobina de Saída (m):</label>
             <input type="number" id="metragem-bobina-saida">
+
+            <button id="pause-resume">Pausar</button>
+            <p><strong>Cronômetro:</strong> <span id="cronometro">00:00</span></p>
+
+            <div id="motivo-container" style="display:none;">
+                <label for="motivo">Motivo da Pausa:</label>
+                <input type="text" id="motivo" placeholder="Descreva o motivo">
+            </div>
         </div>
 
         <div class="progress-bar-container" id="progress-bar-container">
             <div class="progress-bar" id="progress-op"></div>
             <div class="progress-bar" id="progress-bobina"></div>
             <div class="progress-bar" id="progress-residuo"></div>
+            <span id="consumo-label">0 m</span>
         </div>
     </div>
     <script src="script.js"></script>
@@ -131,6 +111,9 @@ button:hover {
 let totalMetragemSaida = 0;
 let metragemOP = 0;
 let velocidadeConsumo = 0;
+let consumoInterval, cronometroInterval;
+let tempo = 0;
+let pausado = false;
 
 document.getElementById('start-process').addEventListener('click', () => {
     metragemOP = parseFloat(document.getElementById('metragem-op').value);
@@ -152,27 +135,54 @@ document.getElementById('add-bobina').addEventListener('click', () => {
     atualizarBarra();
 });
 
-function atualizarBarra() {
-    const progressBobina = (totalMetragemEntrada / metragemOP) * 100;
-    document.getElementById('progress-bobina').style.width = `${progressBobina}%`;
+document.getElementById('pause-resume').addEventListener('click', () => {
+    pausado = !pausado;
+    const motivoContainer = document.getElementById('motivo-container');
+    
+    if (pausado) {
+        clearInterval(consumoInterval);
+        motivoContainer.style.display = 'block';
+        iniciarCronometro();
+    } else {
+        const motivo = document.getElementById('motivo').value;
+        salvarLocalStorage(motivo);
+        motivoContainer.style.display = 'none';
+        document.getElementById('motivo').value = '';
+        clearInterval(cronometroInterval);
+        tempo = 0;
+        consumirBobina();
+    }
+});
 
-    consumirBobina();
+function iniciarCronometro() {
+    cronometroInterval = setInterval(() => {
+        tempo++;
+        const minutos = Math.floor(tempo / 60).toString().padStart(2, '0');
+        const segundos = (tempo % 60).toString().padStart(2, '0');
+        document.getElementById('cronometro').textContent = `${minutos}:${segundos}`;
+    }, 1000);
+}
+
+function salvarLocalStorage(motivo) {
+    const historico = JSON.parse(localStorage.getItem('pausas')) || [];
+    historico.push({ tempo, motivo });
+    localStorage.setItem('pausas', JSON.stringify(historico));
 }
 
 function consumirBobina() {
-    const interval = setInterval(() => {
+    consumoInterval = setInterval(() => {
         if (totalMetragemEntrada > 0) {
             const consumoPorSegundo = velocidadeConsumo / 60;
             totalMetragemEntrada -= consumoPorSegundo;
-            if (totalMetragemEntrada < 0) totalMetragemEntrada = 0;
-
-            const progressBobina = (totalMetragemEntrada / metragemOP) * 100;
-            document.getElementById('progress-bobina').style.width = `${progressBobina}%`;
-
-        } else {
-            clearInterval(interval);
+            atualizarBarra();
         }
     }, 1000);
+}
+
+function atualizarBarra() {
+    const progressBobina = (totalMetragemEntrada / metragemOP) * 100;
+    document.getElementById('progress-bobina').style.width = `${progressBobina}%`;
+    document.getElementById('consumo-label').textContent = `${totalMetragemEntrada.toFixed(2)} m`;
 }
 
     </script>
