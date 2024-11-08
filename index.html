@@ -1,174 +1,166 @@
 <!DOCTYPE html>
-<html lang="pt-br">
-
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Produção</title>
+    <title>Controle de Consumo de OP</title>
+    <link rel="stylesheet" href="style.css">
+</head>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f7f9;
-            color: #333;
-        }
-        .container {
-            max-width: 800px;
-            margin: auto;
-        }
-        .input-group {
-            margin-bottom: 20px;
-        }
-        .input-group input {
-            margin: 5px;
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        button {
-            padding: 10px 15px;
-            margin-top: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .progress-container {
-            margin-top: 20px;
-            height: 30px;
-            width: 100%;
-            background-color: #d3d3d3;
-            border-radius: 5px;
-            overflow: hidden;
-            display: flex;
-            position: relative;
-        }
-        .progress {
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            white-space: nowrap;
-        }
-        .op-completed {
-            background-color: green;
-        }
-        .bobina {
-            background-color: orange;
-        }
-        .residual {
-            background-color: red;
-        }
-        .output-group {
-            margin-top: 20px;
-        }
-    </style>
-</head>
+    font-family: Arial, sans-serif;
+    background-color: #f0f4f8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
 
+.container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 400px;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+label {
+    display: block;
+    margin-top: 10px;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.results-section {
+    margin-top: 20px;
+}
+
+.progress-bar-container {
+    position: relative;
+    height: 30px;
+    background-color: #ddd;
+    border-radius: 5px;
+    margin-top: 20px;
+    overflow: hidden;
+}
+
+.progress-bar, .residue-bar {
+    height: 100%;
+    position: absolute;
+}
+
+.progress-bar {
+    background-color: #28a745;
+    width: 0;
+}
+
+.residue-bar {
+    background-color: #ffc107;
+    right: 0;
+}
+
+    </style>
 <body>
     <div class="container">
-        <h2>Cadastro de OP</h2>
-        <div class="input-group">
-            <label>OP:</label>
-            <input type="text" id="op" placeholder="Número da OP" /><br>
-            <label>Metragem da OP:</label>
-            <input type="number" id="metragemOp" placeholder="Metragem da OP" /><br>
-            <label>Eficiência (%) :</label>
-            <input type="number" id="eficiencia" placeholder="Eficiência (%)" /><br>
-            <label>ER (Eficiência Real):</label>
-            <input type="number" id="er" placeholder="Eficiência Real" /><br>
-            <button onclick="iniciarProcesso()">Iniciar Processo</button>
+        <h1>Controle de Consumo de OP</h1>
+        <div class="form-section" id="form-section">
+            <label for="op">OP:</label>
+            <input type="text" id="op" placeholder="Digite o número da OP">
+
+            <label for="metragem-op">Metragem da OP (m):</label>
+            <input type="number" id="metragem-op" placeholder="Digite a metragem da OP">
+
+            <label for="er">ER (m/s):</label>
+            <input type="number" id="er" step="0.01" placeholder="Digite o ER">
+
+            <label for="eficiencia">Eficiência (%):</label>
+            <input type="number" id="eficiencia" step="0.01" placeholder="Digite a eficiência">
+
+            <button id="start-process">Iniciar Processo</button>
         </div>
 
-        <div id="monitoramento" style="display:none;">
-            <h3>Monitoramento</h3>
-            <label>Metragem da Bobina 1:</label>
-            <input type="number" id="metragemBobina1" placeholder="Adicionar Bobina 1" />
-            <button onclick="adicionarMetragemBobina1()">Adicionar Metragem</button><br>
-            <label>Metragem da Bobina 2:</label>
-            <input type="number" id="metragemBobina2" placeholder="Adicionar Bobina 2" />
-            <button onclick="adicionarMetragemBobina2()">Adicionar Metragem</button>
+        <div class="results-section" id="results-section" style="display:none;">
+            <p><strong>Tempo de Consumo da OP:</strong> <span id="tempo-consumo">0</span> s</p>
+            <p><strong>Velocidade de Consumo:</strong> <span id="velocidade-consumo">0</span> m/s</p>
 
-            <div class="progress-container">
-                <div id="barraOp" class="progress op-completed"></div>
-                <div id="barraBobina1" class="progress bobina"></div>
-                <div id="barraResiduo" class="progress residual"></div>
-            </div>
+            <label for="metragem-bobina-entrada">Metragem da Bobina de Entrada (m):</label>
+            <input type="number" id="metragem-bobina-entrada">
 
-            <div class="output-group">
-                <h4>Resultados:</h4>
-                <p>Tempo de Consumo da OP: <span id="tempoConsumo"></span> min</p>
-                <p>Velocidade de Consumo: <span id="velocidadeConsumo"></span> m/min</p>
-            </div>
+            <label for="metragem-bobina-saida">Metragem da Bobina de Saída (m):</label>
+            <input type="number" id="metragem-bobina-saida">
+            <button id="add-bobina">Adicionar Bobina</button>
+        </div>
+
+        <div class="progress-bar-container" id="progress-bar-container">
+            <div class="progress-bar" id="progress-bar"></div>
+            <div class="residue-bar" id="residue-bar"></div>
         </div>
     </div>
-
+    <script src="script.js"></script>
     <script>
-        let metragemOp = 0, eficiencia = 0, er = 0;
-        let consumoBobina1 = 0, consumoBobina2 = 0, residual = 0;
-        let velocidadeConsumo = 0, tempoConsumo = 0;
+        document.getElementById('start-process').addEventListener('click', () => {
+    const metragemOP = parseFloat(document.getElementById('metragem-op').value);
+    const er = parseFloat(document.getElementById('er').value);
+    const eficiencia = parseFloat(document.getElementById('eficiencia').value) / 100;
 
-        function iniciarProcesso() {
-            metragemOp = parseFloat(document.getElementById('metragemOp').value);
-            eficiencia = parseFloat(document.getElementById('eficiencia').value) / 100;
-            er = parseFloat(document.getElementById('er').value);
+    const tempoConsumo = (metragemOP / er) * (1 + eficiencia);
+    const velocidadeConsumo = metragemOP / tempoConsumo;
 
-            if (isNaN(metragemOp) || isNaN(eficiencia) || isNaN(er)) {
-                alert("Preencha todos os campos corretamente!");
-                return;
-            }
+    document.getElementById('tempo-consumo').textContent = tempoConsumo.toFixed(2);
+    document.getElementById('velocidade-consumo').textContent = velocidadeConsumo.toFixed(2);
 
-            calcularTempoConsumo();
-            calcularVelocidadeConsumo();
-            document.getElementById('monitoramento').style.display = 'block';
-        }
+    document.getElementById('results-section').style.display = 'block';
 
-        function adicionarMetragemBobina1() {
-            const metragem = parseFloat(document.getElementById('metragemBobina1').value);
-            if (!isNaN(metragem) && metragem > 0) {
-                consumoBobina1 += metragem;
-                atualizarBarra();
-            }
-        }
+    let totalMetragemEntrada = 0;
+    let totalMetragemSaida = 0;
 
-        function adicionarMetragemBobina2() {
-            const metragem = parseFloat(document.getElementById('metragemBobina2').value);
-            if (!isNaN(metragem) && metragem > 0) {
-                consumoBobina2 += metragem;
-                atualizarBarra();
-            }
-        }
+    document.getElementById('add-bobina').addEventListener('click', () => {
+        const metragemEntrada = parseFloat(document.getElementById('metragem-bobina-entrada').value) || 0;
+        const metragemSaida = parseFloat(document.getElementById('metragem-bobina-saida').value) || 0;
 
-        function calcularTempoConsumo() {
-            tempoConsumo = (metragemOp / er) * (1 + eficiencia);
-            document.getElementById('tempoConsumo').textContent = tempoConsumo.toFixed(2);
-        }
+        totalMetragemEntrada += metragemEntrada;
+        totalMetragemSaida += metragemSaida;
 
-        function calcularVelocidadeConsumo() {
-            velocidadeConsumo = metragemOp / tempoConsumo;
-            document.getElementById('velocidadeConsumo').textContent = velocidadeConsumo.toFixed(2);
-        }
+        const residuo = totalMetragemEntrada - totalMetragemSaida;
+        atualizarBarra(metragemOP, totalMetragemEntrada, residuo);
+    });
 
-        function atualizarBarra() {
-            const barraOp = document.getElementById('barraOp');
-            const barraBobina1 = document.getElementById('barraBobina1');
-            const barraResiduo = document.getElementById('barraResiduo');
+    function atualizarBarra(metragemOP, totalEntrada, residuo) {
+        const progress = (totalEntrada / metragemOP) * 100;
+        const residueProgress = (residuo / metragemOP) * 100;
 
-            const totalBobinas = consumoBobina1 + consumoBobina2;
-            residual = totalBobinas - metragemOp;
+        document.getElementById('progress-bar').style.width = `${progress}%`;
+        document.getElementById('residue-bar').style.width = `${residueProgress}%`;
+    }
+});
 
-            barraOp.style.width = `${(consumoBobina1 / metragemOp) * 100}%`;
-            barraOp.textContent = `Bobina 1: ${consumoBobina1}m`;
-            barraResiduo.style.width = `${(residual / metragemOp) * 100}%`;
-            barraResiduo.textContent = `Resíduo: ${residual}m`;
-        }
     </script>
 </body>
-
 </html>
