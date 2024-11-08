@@ -14,12 +14,13 @@
     justify-content: center;
     align-items: center;
     height: 100vh;
+    margin: 0;
 }
 
 .container {
-    background-color: #ffffff;
+    background-color: #fff;
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     width: 450px;
 }
@@ -30,6 +31,7 @@
     background-color: #e0e0e0;
     border-radius: 5px;
     margin-top: 20px;
+    overflow: hidden;
 }
 
 .progress-bar {
@@ -83,7 +85,6 @@
 
             <label for="metragem-bobina-entrada">Metragem da Bobina de Entrada (m):</label>
             <input type="number" id="metragem-bobina-entrada">
-            
             <button id="add-bobina">Adicionar Bobina de Entrada</button>
 
             <label for="metragem-bobina-saida">Metragem da Bobina de Saída (m):</label>
@@ -112,7 +113,7 @@ let totalMetragemSaida = 0;
 let metragemOP = 0;
 let velocidadeConsumo = 0;
 let consumoInterval, cronometroInterval;
-let tempo = 0;
+let tempoCronometro = 0;
 let pausado = false;
 
 document.getElementById('start-process').addEventListener('click', () => {
@@ -125,15 +126,18 @@ document.getElementById('start-process').addEventListener('click', () => {
 
     document.getElementById('tempo-consumo').textContent = tempoConsumo.toFixed(2);
     document.getElementById('velocidade-consumo').textContent = velocidadeConsumo.toFixed(2);
-
     document.getElementById('results-section').style.display = 'block';
+
+    consumirBobina();
 });
 
-document.getElementById('add-bobina').addEventListener('click', () => {
-    const metragemEntrada = parseFloat(document.getElementById('metragem-bobina-entrada').value) || 0;
-    totalMetragemEntrada += metragemEntrada;
-    atualizarBarra();
-});
+function consumirBobina() {
+    consumoInterval = setInterval(() => {
+        const consumoPorSegundo = velocidadeConsumo / 60;
+        totalMetragemEntrada -= consumoPorSegundo;
+        atualizarBarra();
+    }, 1000);
+}
 
 document.getElementById('pause-resume').addEventListener('click', () => {
     pausado = !pausado;
@@ -144,39 +148,29 @@ document.getElementById('pause-resume').addEventListener('click', () => {
         motivoContainer.style.display = 'block';
         iniciarCronometro();
     } else {
-        const motivo = document.getElementById('motivo').value;
-        salvarLocalStorage(motivo);
+        salvarLocalStorage();
         motivoContainer.style.display = 'none';
         document.getElementById('motivo').value = '';
         clearInterval(cronometroInterval);
-        tempo = 0;
+        tempoCronometro = 0;
         consumirBobina();
     }
 });
 
 function iniciarCronometro() {
     cronometroInterval = setInterval(() => {
-        tempo++;
-        const minutos = Math.floor(tempo / 60).toString().padStart(2, '0');
-        const segundos = (tempo % 60).toString().padStart(2, '0');
+        tempoCronometro++;
+        const minutos = Math.floor(tempoCronometro / 60).toString().padStart(2, '0');
+        const segundos = (tempoCronometro % 60).toString().padStart(2, '0');
         document.getElementById('cronometro').textContent = `${minutos}:${segundos}`;
     }, 1000);
 }
 
-function salvarLocalStorage(motivo) {
+function salvarLocalStorage() {
+    const motivo = document.getElementById('motivo').value;
     const historico = JSON.parse(localStorage.getItem('pausas')) || [];
-    historico.push({ tempo, motivo });
+    historico.push({ tempo: tempoCronometro, motivo });
     localStorage.setItem('pausas', JSON.stringify(historico));
-}
-
-function consumirBobina() {
-    consumoInterval = setInterval(() => {
-        if (totalMetragemEntrada > 0) {
-            const consumoPorSegundo = velocidadeConsumo / 60;
-            totalMetragemEntrada -= consumoPorSegundo;
-            atualizarBarra();
-        }
-    }, 1000);
 }
 
 function atualizarBarra() {
