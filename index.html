@@ -7,9 +7,9 @@
     <link rel="stylesheet" href="style.css">
 </head>
     <style>
-        body {
+       body {
     font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
+    background-color: #f0f4f8;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -18,11 +18,43 @@
 }
 
 .container {
-    background-color: #fff;
+    background-color: #ffffff;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    width: 450px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 400px;
+}
+
+h1 {
+    text-align: center;
+}
+
+label {
+    display: block;
+    margin-top: 10px;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
 }
 
 .progress-bar-container {
@@ -30,8 +62,8 @@
     height: 30px;
     background-color: #e0e0e0;
     border-radius: 5px;
-    margin-top: 20px;
     overflow: hidden;
+    margin-top: 20px;
 }
 
 .progress-bar {
@@ -46,17 +78,12 @@
 
 #progress-bobina {
     background-color: #ffc107;
+    width: 0;
 }
 
 #progress-residuo {
     background-color: #dc3545;
-}
-
-#consumo-label {
-    position: absolute;
-    right: 10px;
-    top: 5px;
-    font-weight: bold;
+    width: 0;
 }
 
     </style>
@@ -108,12 +135,12 @@
     </div>
     <script src="script.js"></script>
     <script>
-        let totalMetragemEntrada = 0;
+let totalMetragemEntrada = 0;
 let totalMetragemSaida = 0;
 let metragemOP = 0;
 let velocidadeConsumo = 0;
 let consumoInterval, cronometroInterval;
-let tempoCronometro = 0;
+let tempo = 0;
 let pausado = false;
 
 document.getElementById('start-process').addEventListener('click', () => {
@@ -126,18 +153,15 @@ document.getElementById('start-process').addEventListener('click', () => {
 
     document.getElementById('tempo-consumo').textContent = tempoConsumo.toFixed(2);
     document.getElementById('velocidade-consumo').textContent = velocidadeConsumo.toFixed(2);
-    document.getElementById('results-section').style.display = 'block';
 
-    consumirBobina();
+    document.getElementById('results-section').style.display = 'block';
 });
 
-function consumirBobina() {
-    consumoInterval = setInterval(() => {
-        const consumoPorSegundo = velocidadeConsumo / 60;
-        totalMetragemEntrada -= consumoPorSegundo;
-        atualizarBarra();
-    }, 1000);
-}
+document.getElementById('add-bobina').addEventListener('click', () => {
+    const metragemEntrada = parseFloat(document.getElementById('metragem-bobina-entrada').value) || 0;
+    totalMetragemEntrada += metragemEntrada;
+    atualizarBarra();
+});
 
 document.getElementById('pause-resume').addEventListener('click', () => {
     pausado = !pausado;
@@ -148,29 +172,39 @@ document.getElementById('pause-resume').addEventListener('click', () => {
         motivoContainer.style.display = 'block';
         iniciarCronometro();
     } else {
-        salvarLocalStorage();
+        const motivo = document.getElementById('motivo').value;
+        salvarLocalStorage(motivo);
         motivoContainer.style.display = 'none';
         document.getElementById('motivo').value = '';
         clearInterval(cronometroInterval);
-        tempoCronometro = 0;
+        tempo = 0;
         consumirBobina();
     }
 });
 
 function iniciarCronometro() {
     cronometroInterval = setInterval(() => {
-        tempoCronometro++;
-        const minutos = Math.floor(tempoCronometro / 60).toString().padStart(2, '0');
-        const segundos = (tempoCronometro % 60).toString().padStart(2, '0');
+        tempo++;
+        const minutos = Math.floor(tempo / 60).toString().padStart(2, '0');
+        const segundos = (tempo % 60).toString().padStart(2, '0');
         document.getElementById('cronometro').textContent = `${minutos}:${segundos}`;
     }, 1000);
 }
 
-function salvarLocalStorage() {
-    const motivo = document.getElementById('motivo').value;
+function salvarLocalStorage(motivo) {
     const historico = JSON.parse(localStorage.getItem('pausas')) || [];
-    historico.push({ tempo: tempoCronometro, motivo });
+    historico.push({ tempo, motivo });
     localStorage.setItem('pausas', JSON.stringify(historico));
+}
+
+function consumirBobina() {
+    consumoInterval = setInterval(() => {
+        if (totalMetragemEntrada > 0) {
+            const consumoPorSegundo = velocidadeConsumo / 60;
+            totalMetragemEntrada -= consumoPorSegundo;
+            atualizarBarra();
+        }
+    }, 1000);
 }
 
 function atualizarBarra() {
