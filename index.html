@@ -11,29 +11,25 @@
         font-family: Arial, sans-serif;
         background-color: #f0f4f8;
         display: flex;
-        justify-content: center;
+        flex-direction: column;
         align-items: center;
-        height: 100vh;
-        margin: 0;
+        padding: 20px;
     }
-
     .container {
         background-color: #ffffff;
         padding: 20px;
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        width: 400px;
+        width: 450px;
+        margin-top: 20px;
     }
-
     h1 {
         text-align: center;
     }
-
     label {
         display: block;
         margin-top: 10px;
     }
-
     input {
         width: 100%;
         padding: 8px;
@@ -41,7 +37,6 @@
         border: 1px solid #ddd;
         border-radius: 5px;
     }
-
     button {
         width: 100%;
         padding: 10px;
@@ -52,180 +47,107 @@
         border-radius: 5px;
         cursor: pointer;
     }
-
     button:hover {
         background-color: #0056b3;
     }
-
     .progress-bar-container {
-        position: relative;
-        height: 30px;
+        margin-top: 20px;
         background-color: #e0e0e0;
         border-radius: 5px;
         overflow: hidden;
-        margin-top: 20px;
+        position: relative;
+        height: 30px;
     }
-
     .progress-bar {
         height: 100%;
         position: absolute;
         transition: width 0.5s ease-in-out;
     }
-
     #progress-op {
         background-color: #007bff;
-        width: 100%;
     }
-
     #progress-bobina-inicial {
         background-color: #28a745;
-        width: 0;
     }
-
-    #progress-bobina-consumida {
-        background-color: #90ee90; /* Verde Claro */
-        width: 0;
+    #progress-consumo {
+        background-color: #90ee90;
     }
-
-    #progress-residuo {
+    #progress-saida {
         background-color: #dc3545;
-        width: 0;
     }
-
-    #consumo-label {
-        position: absolute;
-        right: 10px;
-        top: 5px;
-        font-weight: bold;
-        color: #333;
-    }
-
     .marcacoes {
-        position: absolute;
-        top: -20px;
-        left: 0;
-        right: 0;
-        display: flex;
-        justify-content: space-between;
+        position: relative;
+        margin-top: 10px;
     }
-
     .marcacao {
         font-size: 12px;
         color: #333;
+        margin-right: 10px;
     }
 </style>
 <body>
     <div class="container">
         <h1>Controle de Consumo de OP</h1>
-        <div class="form-section" id="form-section">
-            <label for="op">OP:</label>
-            <input type="text" id="op" placeholder="Digite o número da OP">
+        <label for="metragem-op">Metragem da OP (m):</label>
+        <input type="number" id="metragem-op" placeholder="Digite a metragem da OP">
 
-            <label for="metragem-op">Metragem da OP (m):</label>
-            <input type="number" id="metragem-op" placeholder="Digite a metragem da OP">
-
-            <label for="er">ER (m/min):</label>
-            <input type="number" id="er" step="0.01" placeholder="Digite o ER">
-
-            <label for="eficiencia">Eficiência (%):</label>
-            <input type="number" id="eficiencia" step="0.01" placeholder="Digite a eficiência">
-
-            <button id="start-process">Iniciar Processo</button>
-        </div>
-
-        <div class="results-section" id="results-section" style="display:none;">
-            <p><strong>Tempo de Consumo da OP:</strong> <span id="tempo-consumo">0</span> min</p>
-            <p><strong>Velocidade de Consumo:</strong> <span id="velocidade-consumo">0</span> m/min</p>
-
-            <label for="metragem-bobina-entrada">Metragem da Bobina de Entrada (m):</label>
-            <input type="number" id="metragem-bobina-entrada">
-            <button id="add-bobina">Adicionar Bobina de Entrada</button>
-
-            <label for="metragem-bobina-saida">Metragem da Bobina de Saída (m):</label>
-            <input type="number" id="metragem-bobina-saida">
-            <button id="add-bobina-saida">Adicionar Bobina de Saída</button>
-
-            <button id="pause-resume">Pausar</button>
-            <p><strong>Cronômetro:</strong> <span id="cronometro">00:00</span></p>
-        </div>
-
-        <div class="progress-bar-container" id="progress-bar-container">
+        <button id="start-process">Iniciar Processo</button>
+        <div class="progress-bar-container" id="progress-bar-op">
             <div class="progress-bar" id="progress-op"></div>
-            <div class="progress-bar" id="progress-bobina-inicial"></div>
-            <div class="progress-bar" id="progress-bobina-consumida"></div>
-            <div class="progress-bar" id="progress-residuo"></div>
-            <span id="consumo-label">0 m</span>
-
-            <div class="marcacoes" id="marcacoes"></div>
         </div>
+        <div class="marcacoes" id="marcacoes-op"></div>
+
+        <label for="metragem-bobina-entrada">Metragem da Bobina de Entrada:</label>
+        <input type="number" id="metragem-bobina-entrada">
+        <button id="add-bobina">Adicionar Bobina de Entrada</button>
+
+        <div class="progress-bar-container" id="progress-bar-saida">
+            <div class="progress-bar" id="progress-saida"></div>
+        </div>
+        <div class="marcacoes" id="marcacoes-saida"></div>
     </div>
+
     <script>
+        let metragemOP = 0;
         let totalMetragemEntrada = 0;
         let totalMetragemSaida = 0;
-        let metragemOP = 0;
-        let velocidadeConsumo = 0;
-        let consumoInterval, cronometroInterval;
-        let tempo = 0;
-        let pausado = false;
         let contadorBobinasEntrada = 1;
 
         document.getElementById('start-process').addEventListener('click', () => {
             metragemOP = parseFloat(document.getElementById('metragem-op').value);
-            const er = parseFloat(document.getElementById('er').value);
-            const eficiencia = parseFloat(document.getElementById('eficiencia').value) / 100;
-
-            const tempoConsumo = (metragemOP / er) * (1 + eficiencia);
-            velocidadeConsumo = metragemOP / tempoConsumo;
-
-            document.getElementById('tempo-consumo').textContent = tempoConsumo.toFixed(2);
-            document.getElementById('velocidade-consumo').textContent = velocidadeConsumo.toFixed(2);
-
-            document.getElementById('results-section').style.display = 'block';
+            atualizarBarraOP();
         });
 
         document.getElementById('add-bobina').addEventListener('click', () => {
             const metragemEntrada = parseFloat(document.getElementById('metragem-bobina-entrada').value) || 0;
             totalMetragemEntrada += metragemEntrada;
 
-            // Adicionar a marcação de bobina
             adicionarMarcacaoBobina(totalMetragemEntrada, contadorBobinasEntrada);
-
             contadorBobinasEntrada++;
-            atualizarBarra();
+            atualizarBarraOP();
         });
 
-        document.getElementById('add-bobina-saida').addEventListener('click', () => {
-            const metragemSaida = parseFloat(document.getElementById('metragem-bobina-saida').value) || 0;
-            totalMetragemSaida += metragemSaida;
-            atualizarBarra();
-        });
-
-        function atualizarBarra() {
-            // Atualizando a barra de OP
-            const progressOP = (metragemOP / metragemOP) * 100;
-            // Barra de Bobina de Entrada (verde)
-            const progressBobinaInicial = (totalMetragemEntrada / metragemOP) * 100;
-            // Barra de Consumo das Bobinas de Entrada (verde claro)
-            const progressBobinaConsumida = ((totalMetragemEntrada - totalMetragemSaida) / metragemOP) * 100;
-            // Barra de Resíduo (vermelho)
-            const resíduo = ((totalMetragemEntrada - totalMetragemSaida) / metragemOP) * 100;
-
-            // Atribuindo as larguras às barras
-            document.getElementById('progress-op').style.width = `${progressOP}%`;
-            document.getElementById('progress-bobina-inicial').style.width = `${progressBobinaInicial}%`;
-            document.getElementById('progress-bobina-consumida').style.width = `${progressBobinaConsumida}%`;
-            document.getElementById('progress-residuo').style.width = `${resíduo}%`;
-
-            // Atualizando o valor do consumo
-            document.getElementById('consumo-label').textContent = `${totalMetragemEntrada - totalMetragemSaida} m`;
+        function atualizarBarraOP() {
+            const progress = (totalMetragemEntrada / metragemOP) * 100;
+            document.getElementById('progress-op').style.width = `${progress}%`;
+            atualizarMarcacoes();
         }
 
         function adicionarMarcacaoBobina(metragem, numeroBobina) {
             const marcacao = document.createElement('span');
             marcacao.classList.add('marcacao');
-            marcacao.textContent = `Bobina ${numeroBobina}: ${metragem.toFixed(2)} m`;
+            marcacao.textContent = `Bobina ${numeroBobina}: ${metragem.toFixed(2)}m`;
+            document.getElementById('marcacoes-op').appendChild(marcacao);
+        }
 
-            document.getElementById('marcacoes').appendChild(marcacao);
+        function atualizarMarcacoes() {
+            const marcacoes = document.getElementById('marcacoes-op').children;
+            for (let i = 0; i < marcacoes.length; i++) {
+                const posicao = parseFloat(marcacoes[i].textContent.split(': ')[1]);
+                const leftPos = (posicao / metragemOP) * 100;
+                marcacoes[i].style.position = 'absolute';
+                marcacoes[i].style.left = `${leftPos}%`;
+            }
         }
     </script>
 </body>
