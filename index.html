@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
     <style>
-        body {
+       body {
     font-family: Arial, sans-serif;
     background-color: #f0f4f8;
     display: flex;
@@ -79,7 +79,6 @@ button:hover {
 #progress-bobina {
     background-color: #ffc107;
     width: 0;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
 #progress-residuo {
@@ -156,18 +155,11 @@ document.getElementById('start-process').addEventListener('click', () => {
     document.getElementById('velocidade-consumo').textContent = velocidadeConsumo.toFixed(2);
 
     document.getElementById('results-section').style.display = 'block';
-    consumirBobina();  // Inicia o consumo assim que o processo começar
 });
 
 document.getElementById('add-bobina').addEventListener('click', () => {
     const metragemEntrada = parseFloat(document.getElementById('metragem-bobina-entrada').value) || 0;
     totalMetragemEntrada += metragemEntrada;
-    atualizarBarra();
-});
-
-document.getElementById('metragem-bobina-saida').addEventListener('input', () => {
-    const metragemSaida = parseFloat(document.getElementById('metragem-bobina-saida').value) || 0;
-    totalMetragemSaida = metragemSaida;
     atualizarBarra();
 });
 
@@ -195,7 +187,7 @@ function iniciarCronometro() {
         tempo++;
         const minutos = Math.floor(tempo / 60).toString().padStart(2, '0');
         const segundos = (tempo % 60).toString().padStart(2, '0');
-        document.getElementById('cronometro').textContent = `${minutos}:${segundos}`;
+        document.getElementById('cronometro').textContent = ${minutos}:${segundos};
     }, 1000);
 }
 
@@ -216,20 +208,9 @@ function consumirBobina() {
 }
 
 function atualizarBarra() {
-    // Atualiza a largura da barra de progresso para a bobina de saída
-    const progressoSaida = (totalMetragemSaida / metragemOP) * 100;
-    document.getElementById('progress-bobina').style.width = `${progressoSaida}%`;
-
-    // Atualiza a largura da barra de resíduo
-    const progressoResíduo = ((metragemOP - totalMetragemSaida) / metragemOP) * 100;
-    document.getElementById('progress-residuo').style.width = `${progressoResíduo}%`;
-
-    // Atualiza a sombra da barra de saída para representar o consumo
-    const sombraProgresso = (totalMetragemSaida / metragemOP) * 100;
-    document.getElementById('progress-bobina').style.boxShadow = `inset ${sombraProgresso}% 0 10px rgba(0, 0, 0, 0.2)`;
-
-    // Exibe a quantidade consumida na tela
-    document.getElementById('consumo-label').textContent = `${totalMetragemSaida.toFixed(2)} m`;
+    const progressBobina = (totalMetragemEntrada / metragemOP) * 100;
+    document.getElementById('progress-bobina').style.width = ${progressBobina}%;
+    document.getElementById('consumo-label').textContent = ${totalMetragemEntrada.toFixed(2)} m;
 }
 
     </script>
