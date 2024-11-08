@@ -58,6 +58,9 @@
         .residual {
             background-color: red;
         }
+        .output-group {
+            margin-top: 20px;
+        }
     </style>
 </head>
 
@@ -71,6 +74,8 @@
             <input type="number" id="metragemOp" placeholder="Metragem da OP" /><br>
             <label>Eficiência (%) :</label>
             <input type="number" id="eficiencia" placeholder="Eficiência (%)" /><br>
+            <label>ER (Eficiência Real):</label>
+            <input type="number" id="er" placeholder="Eficiência Real" /><br>
             <button onclick="iniciarProcesso()">Iniciar Processo</button>
         </div>
 
@@ -79,28 +84,38 @@
             <label>Metragem da Bobina 1:</label>
             <input type="number" id="metragemBobina1" placeholder="Adicionar Bobina 1" />
             <button onclick="adicionarMetragem()">Adicionar Metragem</button>
-            
+
             <div class="progress-container">
                 <div id="barraOp" class="progress op-completed"></div>
                 <div id="barraBobina" class="progress bobina"></div>
                 <div id="barraResiduo" class="progress residual"></div>
             </div>
+
+            <div class="output-group">
+                <h4>Resultados:</h4>
+                <p>Tempo de Consumo da OP: <span id="tempoConsumo"></span> min</p>
+                <p>Velocidade de Consumo: <span id="velocidadeConsumo"></span> m/min</p>
+            </div>
         </div>
     </div>
 
     <script>
-        let metragemOp = 0, eficiencia = 0;
+        let metragemOp = 0, eficiencia = 0, er = 0;
         let consumoBobina1 = 0, residual = 0;
 
         function iniciarProcesso() {
             const op = document.getElementById('op').value;
             metragemOp = parseFloat(document.getElementById('metragemOp').value);
             eficiencia = parseFloat(document.getElementById('eficiencia').value) / 100;
+            er = parseFloat(document.getElementById('er').value);
 
-            if (isNaN(metragemOp) || isNaN(eficiencia)) {
+            if (isNaN(metragemOp) || isNaN(eficiencia) || isNaN(er)) {
                 alert("Preencha todos os campos corretamente!");
                 return;
             }
+
+            calcularTempoConsumo();
+            calcularVelocidadeConsumo();
 
             // Mostrar a seção de monitoramento
             document.getElementById('monitoramento').style.display = 'block';
@@ -124,6 +139,18 @@
             }
 
             atualizarBarra();
+        }
+
+        function calcularTempoConsumo() {
+            const tempoConsumo = (metragemOp / er) * (1 + eficiencia);
+            document.getElementById('tempoConsumo').textContent = tempoConsumo.toFixed(2);
+            return tempoConsumo;
+        }
+
+        function calcularVelocidadeConsumo() {
+            const tempoConsumo = calcularTempoConsumo();
+            const velocidadeConsumo = metragemOp / tempoConsumo;
+            document.getElementById('velocidadeConsumo').textContent = velocidadeConsumo.toFixed(2);
         }
 
         function atualizarBarra() {
