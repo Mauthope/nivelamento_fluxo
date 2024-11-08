@@ -77,10 +77,15 @@
         width: 100%;
     }
 
-    #progress-bobina {
+    #progress-bobina-entrada {
         background-color: #ffc107;
         width: 0;
         box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    #progress-bobina-consumo {
+        background-color: #28a745;
+        width: 0;
     }
 
     #progress-residuo {
@@ -91,14 +96,6 @@
     #consumo-label {
         position: absolute;
         right: 10px;
-        top: 5px;
-        font-weight: bold;
-        color: #333;
-    }
-
-    #initial-value {
-        position: absolute;
-        left: 10px;
         top: 5px;
         font-weight: bold;
         color: #333;
@@ -140,9 +137,10 @@
         </div>
 
         <div class="progress-bar-container" id="progress-bar-container">
-            <div class="progress-bar" id="progress-bobina"></div>
+            <div class="progress-bar" id="progress-op"></div>
+            <div class="progress-bar" id="progress-bobina-entrada"></div>
+            <div class="progress-bar" id="progress-bobina-consumo"></div>
             <div class="progress-bar" id="progress-residuo"></div>
-            <span id="initial-value">0 m</span>
             <span id="consumo-label">0 m</span>
         </div>
     </div>
@@ -193,13 +191,17 @@
         }
 
         function atualizarBarra() {
-            const progressBobina = (totalMetragemEntrada / metragemOP) * 100;
+            const progressOp = (metragemOP / metragemOP) * 100;
+            const progressBobinaEntrada = (totalMetragemEntrada / metragemOP) * 100;
+            const progressBobinaConsumo = ((metragemOP - totalMetragemEntrada) / metragemOP) * 100;
             const progressResiduo = ((totalMetragemEntrada - totalMetragemSaida) / metragemOP) * 100;
 
-            document.getElementById('progress-bobina').style.width = `${progressBobina}%`;
+            document.getElementById('progress-op').style.width = `${progressOp}%`;
+            document.getElementById('progress-bobina-entrada').style.width = `${progressBobinaEntrada}%`;
+            document.getElementById('progress-bobina-consumo').style.width = `${progressBobinaConsumo}%`;
             document.getElementById('progress-residuo').style.width = `${progressResiduo}%`;
-            document.getElementById('initial-value').textContent = `${totalMetragemEntrada.toFixed(2)} m`;
-            document.getElementById('consumo-label').textContent = `${(totalMetragemEntrada - totalMetragemSaida).toFixed(2)} m`;
+
+            document.getElementById('consumo-label').textContent = `${totalMetragemEntrada.toFixed(2)} m`;
         }
     </script>
 </body>
