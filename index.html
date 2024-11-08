@@ -27,7 +27,6 @@
 
 h1 {
     text-align: center;
-    color: #333;
 }
 
 label {
@@ -48,7 +47,7 @@ button {
     padding: 10px;
     margin-top: 15px;
     background-color: #007bff;
-    color: #fff;
+    color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -58,32 +57,33 @@ button:hover {
     background-color: #0056b3;
 }
 
-.results-section {
-    margin-top: 20px;
-}
-
 .progress-bar-container {
     position: relative;
     height: 30px;
-    background-color: #ddd;
+    background-color: #e0e0e0;
     border-radius: 5px;
-    margin-top: 20px;
     overflow: hidden;
+    margin-top: 20px;
 }
 
-.progress-bar, .residue-bar {
+.progress-bar {
     height: 100%;
     position: absolute;
 }
 
-.progress-bar {
-    background-color: #28a745;
+#progress-op {
+    background-color: #007bff;
+    width: 100%;
+}
+
+#progress-bobina {
+    background-color: #ffc107;
     width: 0;
 }
 
-.residue-bar {
-    background-color: #ffc107;
-    right: 0;
+#progress-residuo {
+    background-color: #dc3545;
+    width: 0;
 }
 
     </style>
@@ -97,7 +97,7 @@ button:hover {
             <label for="metragem-op">Metragem da OP (m):</label>
             <input type="number" id="metragem-op" placeholder="Digite a metragem da OP">
 
-            <label for="er">ER (m/s):</label>
+            <label for="er">ER (m/min):</label>
             <input type="number" id="er" step="0.01" placeholder="Digite o ER">
 
             <label for="eficiencia">Eficiência (%):</label>
@@ -107,59 +107,73 @@ button:hover {
         </div>
 
         <div class="results-section" id="results-section" style="display:none;">
-            <p><strong>Tempo de Consumo da OP:</strong> <span id="tempo-consumo">0</span> s</p>
-            <p><strong>Velocidade de Consumo:</strong> <span id="velocidade-consumo">0</span> m/s</p>
+            <p><strong>Tempo de Consumo da OP:</strong> <span id="tempo-consumo">0</span> min</p>
+            <p><strong>Velocidade de Consumo:</strong> <span id="velocidade-consumo">0</span> m/min</p>
 
             <label for="metragem-bobina-entrada">Metragem da Bobina de Entrada (m):</label>
             <input type="number" id="metragem-bobina-entrada">
+            
+            <button id="add-bobina">Adicionar Bobina de Entrada</button>
 
             <label for="metragem-bobina-saida">Metragem da Bobina de Saída (m):</label>
             <input type="number" id="metragem-bobina-saida">
-            <button id="add-bobina">Adicionar Bobina</button>
         </div>
 
         <div class="progress-bar-container" id="progress-bar-container">
-            <div class="progress-bar" id="progress-bar"></div>
-            <div class="residue-bar" id="residue-bar"></div>
+            <div class="progress-bar" id="progress-op"></div>
+            <div class="progress-bar" id="progress-bobina"></div>
+            <div class="progress-bar" id="progress-residuo"></div>
         </div>
     </div>
     <script src="script.js"></script>
     <script>
-        document.getElementById('start-process').addEventListener('click', () => {
-    const metragemOP = parseFloat(document.getElementById('metragem-op').value);
+        let totalMetragemEntrada = 0;
+let totalMetragemSaida = 0;
+let metragemOP = 0;
+let velocidadeConsumo = 0;
+
+document.getElementById('start-process').addEventListener('click', () => {
+    metragemOP = parseFloat(document.getElementById('metragem-op').value);
     const er = parseFloat(document.getElementById('er').value);
     const eficiencia = parseFloat(document.getElementById('eficiencia').value) / 100;
 
     const tempoConsumo = (metragemOP / er) * (1 + eficiencia);
-    const velocidadeConsumo = metragemOP / tempoConsumo;
+    velocidadeConsumo = metragemOP / tempoConsumo;
 
     document.getElementById('tempo-consumo').textContent = tempoConsumo.toFixed(2);
     document.getElementById('velocidade-consumo').textContent = velocidadeConsumo.toFixed(2);
 
     document.getElementById('results-section').style.display = 'block';
-
-    let totalMetragemEntrada = 0;
-    let totalMetragemSaida = 0;
-
-    document.getElementById('add-bobina').addEventListener('click', () => {
-        const metragemEntrada = parseFloat(document.getElementById('metragem-bobina-entrada').value) || 0;
-        const metragemSaida = parseFloat(document.getElementById('metragem-bobina-saida').value) || 0;
-
-        totalMetragemEntrada += metragemEntrada;
-        totalMetragemSaida += metragemSaida;
-
-        const residuo = totalMetragemEntrada - totalMetragemSaida;
-        atualizarBarra(metragemOP, totalMetragemEntrada, residuo);
-    });
-
-    function atualizarBarra(metragemOP, totalEntrada, residuo) {
-        const progress = (totalEntrada / metragemOP) * 100;
-        const residueProgress = (residuo / metragemOP) * 100;
-
-        document.getElementById('progress-bar').style.width = `${progress}%`;
-        document.getElementById('residue-bar').style.width = `${residueProgress}%`;
-    }
 });
+
+document.getElementById('add-bobina').addEventListener('click', () => {
+    const metragemEntrada = parseFloat(document.getElementById('metragem-bobina-entrada').value) || 0;
+    totalMetragemEntrada += metragemEntrada;
+    atualizarBarra();
+});
+
+function atualizarBarra() {
+    const progressBobina = (totalMetragemEntrada / metragemOP) * 100;
+    document.getElementById('progress-bobina').style.width = `${progressBobina}%`;
+
+    consumirBobina();
+}
+
+function consumirBobina() {
+    const interval = setInterval(() => {
+        if (totalMetragemEntrada > 0) {
+            const consumoPorSegundo = velocidadeConsumo / 60;
+            totalMetragemEntrada -= consumoPorSegundo;
+            if (totalMetragemEntrada < 0) totalMetragemEntrada = 0;
+
+            const progressBobina = (totalMetragemEntrada / metragemOP) * 100;
+            document.getElementById('progress-bobina').style.width = `${progressBobina}%`;
+
+        } else {
+            clearInterval(interval);
+        }
+    }, 1000);
+}
 
     </script>
 </body>
