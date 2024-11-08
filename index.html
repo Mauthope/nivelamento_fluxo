@@ -50,7 +50,7 @@
         .loading-bar-container {
             position: relative;
             width: 100%;
-            height: 30px;
+            height: 50px;
             background-color: #e0e0e0;
             border-radius: 5px;
             margin-top: 20px;
@@ -60,12 +60,27 @@
             background-color: #28a745;
             border-radius: 5px;
             width: 0%;
+            position: relative;
+        }
+        .progress-indicator {
+            position: absolute;
+            top: -25px;
+            right: 10px;
+            font-weight: bold;
+            color: #333;
         }
         .mark {
             position: absolute;
             width: 2px;
             height: 100%;
             background-color: red;
+        }
+        .mark-label {
+            position: absolute;
+            top: -25px;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: red;
         }
         .bobina-list {
             max-height: 150px;
@@ -109,7 +124,9 @@
     <div class="container">
         <h2>Barra de Consumo</h2>
         <div class="loading-bar-container">
-            <div class="loading-bar" id="loading-bar"></div>
+            <div class="loading-bar" id="loading-bar">
+                <div class="progress-indicator" id="progress-indicator">0 m</div>
+            </div>
         </div>
     </div>
 
@@ -131,7 +148,6 @@
                 return;
             }
 
-            // Cálculo do tempo e velocidade de consumo
             tempoConsumo = (metragem / er) * (1 + eficiencia);
             velocidadeConsumo = metragem / tempoConsumo;
 
@@ -143,15 +159,17 @@
 
         function iniciarConsumo() {
             const loadingBar = document.getElementById("loading-bar");
+            const indicator = document.getElementById("progress-indicator");
             consumoAtual = 0;
             loadingBar.style.width = "0%";
 
             if (intervaloConsumo) clearInterval(intervaloConsumo);
 
             intervaloConsumo = setInterval(() => {
-                consumoAtual += velocidadeConsumo / 60; // Consumo por segundo
+                consumoAtual += velocidadeConsumo / 60;
                 let progress = (consumoAtual / metragem) * 100;
                 loadingBar.style.width = progress + "%";
+                indicator.textContent = `${consumoAtual.toFixed(1)} m`;
 
                 if (progress >= 100) {
                     clearInterval(intervaloConsumo);
@@ -166,7 +184,6 @@
                 return;
             }
 
-            // Adicionar metragem acumulada da nova bobina
             const somaBobinas = bobinas.reduce((acc, val) => acc + val, 0);
             bobinas.push(entrada);
             const posicao = somaBobinas + entrada;
@@ -191,6 +208,12 @@
             const mark = document.createElement("div");
             mark.className = "mark";
             mark.style.left = (metragemBobina / metragem) * 100 + "%";
+
+            const label = document.createElement("div");
+            label.className = "mark-label";
+            label.textContent = `${metragemBobina}m`;
+            mark.appendChild(label);
+
             container.appendChild(mark);
         }
     </script>
