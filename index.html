@@ -3,26 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barra de Consumo com Marcação e Indicador</title>
+    <title>Barra de Loading Personalizada - Consumo de Bobinas</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #1a1a1a;
             color: #fff;
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            flex-wrap: wrap;
             gap: 20px;
+            justify-content: center;
             margin: 20px;
         }
         .container {
-            width: 60%;
-            max-width: 800px;
+            width: 45%;
+            max-width: 600px;
             padding: 20px;
             border: 1px solid #333;
             border-radius: 10px;
-            background-color: #2d2d2d;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            background-color: #2d2d2d;
+        }
+        h2 {
+            text-align: center;
+            color: #fff;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #444;
+            background-color: #333;
+            color: #fff;
+            font-size: 16px;
+        }
+        input:focus, button:focus {
+            outline: none;
+            border-color: #007bff;
+            background-color: #444;
+        }
+        button {
+            background-color: #007bff;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .results, .bobinas {
+            margin-top: 20px;
         }
         .loading-bar-container {
             position: relative;
@@ -30,20 +59,22 @@
             height: 50px;
             background-color: #444;
             border-radius: 5px;
+            margin-top: 20px;
             overflow: hidden;
         }
         .loading-bar {
             height: 100%;
             position: absolute;
             background-color: #28a745;
-            width: 0%;
             border-radius: 5px;
+            width: 0%;
         }
         .marking {
             position: absolute;
             height: 100%;
             width: 2px;
             background-color: #ff0000;
+            top: 0;
         }
         .progress-indicator {
             position: absolute;
@@ -52,6 +83,19 @@
             font-weight: bold;
             color: #fff;
         }
+        .bobina-list {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .bobina-item {
+            background-color: #444;
+            padding: 5px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+        /* Novo estilo para o painel digital */
         .digital-display {
             font-family: 'Courier New', monospace;
             font-size: 24px;
@@ -63,102 +107,126 @@
             margin-top: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
-        .indicator-block {
-            width: 100px;
-            height: 100px;
-            margin-top: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .indicator-polygon {
-            width: 0;
-            height: 0;
-            border-left: 50px solid transparent;
-            border-right: 50px solid transparent;
-            border-bottom: 100px solid green;
-            transition: border-bottom-color 0.3s;
-        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Barra de Consumo com Marcação</h2>
-        <label for="bobina-entrada">Bobina de Entrada (m):</label>
-        <input type="number" id="bobina-entrada" placeholder="Digite a metragem da bobina">
-        <button onclick="adicionarBobina()">Inserir Bobina</button>
+    <div class="container" id="container1">
+        <h2>Dados da OP 1</h2>
+        <label for="metragem1">Metragem da OP (m):</label>
+        <input type="number" id="metragem1" placeholder="Digite a metragem da OP">
+        <label for="er1">ER (m/min):</label>
+        <input type="number" id="er1" placeholder="Digite a ER (m/min)">
+        <label for="eficiencia1">Eficiência (%):</label>
+        <input type="number" id="eficiencia1" placeholder="Digite a eficiência (%)" value="0">
+        <button onclick="calcular(1)">Calcular</button>
+        
+        <div class="results">
+            <h2>Resultados</h2>
+            <p>Tempo de Consumo (min): <span id="tempo-consumo1">-</span></p>
+            <p>Velocidade de Consumo (m/min): <span id="velocidade-consumo1">-</span></p>
+        </div>
 
-        <div class="loading-bar-container" id="loading-bar-container">
-            <div class="loading-bar" id="loading-bar"></div>
-            <div class="progress-indicator" id="progress-indicator">0 m</div>
+        <div class="bobinas">
+            <h2>Bobinas</h2>
+            <label for="bobina-entrada1">Bobina de Entrada (m):</label>
+            <input type="number" id="bobina-entrada1" placeholder="Digite a bobina de entrada">
+            <button onclick="adicionarBobina(1)">Inserir Bobina</button>
+            <div class="bobina-list" id="bobina-list1"></div>
+        </div>
+
+        <div>
+            <h2>Barra de Consumo</h2>
+            <div class="loading-bar-container">
+                <div class="loading-bar" id="loading-bar1"></div>
+                <div class="progress-indicator" id="progress-indicator1">0 m</div>
+            </div>
         </div>
 
         <!-- Painel digital para metragem -->
-        <div class="digital-display" id="digital-display">0 m</div>
-
-        <!-- Indicador com polígono -->
-        <div class="indicator-block">
-            <div class="indicator-polygon" id="indicator-polygon"></div>
-        </div>
+        <div class="digital-display" id="digital-display1">0 m</div>
     </div>
 
     <script>
-        let consumoAtual = 0;
-        let metragemTotal = 1000; // Valor máximo da barra (pode ser configurado)
-        let marcacoes = [];
+        let consumos = [0];
+        let marcacoes = [0]; // Armazena as posições das marcações das bobinas
+        let velocidades = [0];
 
-        function adicionarBobina() {
-            let bobinaEntrada = parseFloat(document.getElementById('bobina-entrada').value);
-            if (!bobinaEntrada || bobinaEntrada <= 0) {
-                alert("Por favor, insira uma metragem válida.");
+        function calcular(op) {
+            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
+            let er = parseFloat(document.getElementById(`er${op}`).value);
+            let eficiencia = parseFloat(document.getElementById(`eficiencia${op}`).value);
+
+            if (!metragem || !er || !eficiencia) {
+                alert("Por favor, preencha todos os campos.");
                 return;
             }
-            
-            consumoAtual += bobinaEntrada;
-            marcacoes.push(consumoAtual);
 
-            marcarBarra(consumoAtual);
+            let tempoConsumo = metragem / (er * (eficiencia / 100));
+            let velocidadeConsumo = metragem / tempoConsumo;
+
+            document.getElementById(`tempo-consumo${op}`).textContent = tempoConsumo.toFixed(2);
+            document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
+            velocidades[op - 1] = velocidadeConsumo;
+            iniciarBarraVermelha(op, metragem, velocidadeConsumo);
         }
 
-        function marcarBarra(metragem) {
-            let barraContainer = document.getElementById("loading-bar-container");
-            let posicao = (metragem / metragemTotal) * 100;
-            
-            let marking = document.createElement('div');
-            marking.classList.add('marking');
-            marking.style.left = `${posicao}%`;
-            barraContainer.appendChild(marking);
+        function adicionarBobina(op) {
+            let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
+            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
+
+            if (!bobinaEntrada) {
+                alert("Por favor, preencha a bobina de entrada.");
+                return;
+            }
+
+            consumos[op - 1] += bobinaEntrada;
+            marcacoes.push(consumos[op - 1]); // Adiciona a posição da marcação na lista
+            atualizarBarra(op, consumos[op - 1], metragem);
+
+            let bobinaList = document.getElementById(`bobina-list${op}`);
+            let bobinaItem = document.createElement('div');
+            bobinaItem.classList.add('bobina-item');
+            bobinaItem.textContent = `Bobina: ${bobinaEntrada} m`;
+            bobinaList.appendChild(bobinaItem);
         }
 
-        function atualizarBarra() {
+        function atualizarBarra(op, consumoAtual, metragem) {
+            let porcentagem = Math.min((consumoAtual / metragem) * 100, 100);
+            document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
+            document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual} m`;
+
+            // Atualiza o painel digital em tempo real
+            document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
+
+            // Adiciona as marcações
+            let barraContainer = document.querySelector(".loading-bar-container");
+            let marcações = document.querySelectorAll('.marking');
+            marcações.forEach(marcacao => marcacao.remove()); // Remove as marcações antigas
+
+            // Adiciona as novas marcações
+            marcacoes.forEach(marcacao => {
+                let posicao = (marcacao / metragem) * 100;
+                let marking = document.createElement('div');
+                marking.classList.add('marking');
+                marking.style.left = `${posicao}%`;
+                barraContainer.appendChild(marking);
+            });
+        }
+
+        function iniciarBarraVermelha(op, metragem, velocidade) {
             let progresso = 0;
-            let velocidade = 5; // Consumo em metros por segundo (simulado)
             let intervalo = setInterval(() => {
-                progresso += velocidade;
-                let porcentagem = Math.min((progresso / metragemTotal) * 100, 100);
+                progresso += velocidade / 60;
+                let porcentagem = Math.min((progresso / metragem) * 100, 100);
+                document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
+                document.getElementById(`progress-indicator${op}`).textContent = `${(progresso).toFixed(2)} m`;
+                document.getElementById(`digital-display${op}`).textContent = `${(progresso).toFixed(2)} m`;
 
-                document.getElementById("loading-bar").style.width = `${porcentagem}%`;
-                document.getElementById("progress-indicator").textContent = `${progresso} m`;
-                document.getElementById("digital-display").textContent = `${progresso} m`;
-
-                // Verifica se atingiu uma marcação e muda o polígono de cor
-                verificarMarcacao(progresso);
-
-                if (progresso >= metragemTotal) clearInterval(intervalo);
+                if (porcentagem >= 100) {
+                    clearInterval(intervalo);
+                }
             }, 1000);
         }
-
-        function verificarMarcacao(progresso) {
-            let poligono = document.getElementById("indicator-polygon");
-            
-            for (let marcacao of marcacoes) {
-                if (progresso >= marcacao) {
-                    poligono.style.borderBottomColor = "red";
-                }
-            }
-        }
-
-        atualizarBarra();
     </script>
 </body>
 </html>
