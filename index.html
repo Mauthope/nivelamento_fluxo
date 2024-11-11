@@ -3,34 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barra de Consumo</title>
+    <title>Barra de Consumo Personalizada</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            gap: 20px;
-            margin: 20px;
+            padding: 20px;
         }
         .container {
-            width: 80%;
-            max-width: 800px;
+            width: 600px;
             padding: 20px;
             border: 1px solid #ddd;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+        h2 {
+            text-align: center;
+        }
         input, button {
+            width: 100%;
             padding: 10px;
-            margin: 10px 0;
+            margin-top: 10px;
+            border-radius: 5px;
         }
         button {
             background-color: #007bff;
-            color: #fff;
-            border: none;
+            color: white;
             cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .results {
+            margin-top: 20px;
         }
         .loading-bar-container {
             position: relative;
@@ -38,146 +44,145 @@
             height: 50px;
             background-color: #e0e0e0;
             border-radius: 5px;
-            overflow: hidden;
             margin-top: 20px;
+            overflow: hidden;
         }
         .loading-bar {
             height: 100%;
-            background-color: red;
-            width: 0%;
-            position: absolute;
-        }
-        .progress-number {
             position: absolute;
             top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            font-weight: bold;
-            color: #fff;
+            left: 0;
         }
-        .bobina-segment {
+        .progress-bar-red {
+            background-color: red;
             height: 100%;
             position: absolute;
             top: 0;
-            border-right: 2px solid #fff;
-            z-index: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
+            left: 0;
+            z-index: 2;
+            opacity: 0.6;
+        }
+        .progress-indicator {
+            position: absolute;
+            top: -25px;
+            right: 10px;
             font-weight: bold;
         }
         .bobina-list {
-            max-height: 100px;
+            max-height: 150px;
             overflow-y: auto;
+            margin-top: 10px;
         }
         .bobina-item {
-            background-color: #f1f1f1;
             padding: 5px;
-            margin: 5px 0;
+            margin-bottom: 5px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Controle de Consumo de Bobinas</h2>
+        <h2>Consumo de Metragem</h2>
         <label for="metragem">Metragem da OP (m):</label>
-        <input type="number" id="metragem" placeholder="Digite a metragem total">
+        <input type="number" id="metragem" placeholder="Digite a metragem da OP">
+        <label for="er">ER (m/min):</label>
+        <input type="number" id="er" placeholder="Digite a ER (m/min)">
+        <button onclick="iniciarConsumo()">Iniciar Consumo</button>
 
-        <label for="bobina-entrada">Bobina de Entrada (m):</label>
+        <div class="results">
+            <p>Tempo de Consumo (min): <span id="tempo-consumo">-</span></p>
+            <p>Velocidade de Consumo (m/min): <span id="velocidade-consumo">-</span></p>
+        </div>
+
+        <h2>Inserir Bobinas</h2>
         <input type="number" id="bobina-entrada" placeholder="Digite a metragem da bobina">
-        <button onclick="adicionarBobina()">Adicionar Bobina</button>
-
+        <button onclick="adicionarBobina()">Inserir Bobina</button>
         <div class="bobina-list" id="bobina-list"></div>
 
-        <h3>Barra de Consumo</h3>
+        <h2>Barra de Consumo</h2>
         <div class="loading-bar-container">
-            <div class="loading-bar" id="loading-bar">
-                <div class="progress-number" id="progress-number">0 m</div>
-            </div>
+            <div class="loading-bar" id="consumo-bar"></div>
+            <div class="progress-bar-red" id="progress-bar-red"></div>
+            <div class="progress-indicator" id="progress-indicator">0 m</div>
         </div>
     </div>
 
     <script>
         let bobinas = [];
-        let totalMetragem = 0;
+        let consumoTotal = 0;
         let consumoAtual = 0;
-        const bobinasCores = ["#FF6347", "#FF8C00", "#FFD700", "#32CD32", "#1E90FF"];
-        let consumoInterval;
+        let velocidadeConsumo = 0;
+        let interval;
+        const cores = ["#28a745", "#17a2b8", "#ffc107", "#fd7e14", "#6f42c1"];
 
-        function adicionarBobina() {
-            const metragemInput = document.getElementById('metragem');
-            const bobinaInput = document.getElementById('bobina-entrada');
-            
-            let metragem = parseFloat(metragemInput.value);
-            let bobina = parseFloat(bobinaInput.value);
-            
-            if (!metragem || !bobina) {
-                alert("Preencha todos os campos.");
+        function iniciarConsumo() {
+            const metragem = parseFloat(document.getElementById("metragem").value);
+            const er = parseFloat(document.getElementById("er").value);
+            if (!metragem || !er) {
+                alert("Preencha todos os campos!");
                 return;
             }
 
-            totalMetragem = metragem;
-            bobinas.push(bobina);
-            
-            atualizarBarra();
-            exibirBobinas();
-            bobinaInput.value = '';
+            const tempoConsumo = metragem / er;
+            velocidadeConsumo = er;
+            document.getElementById("tempo-consumo").textContent = tempoConsumo.toFixed(2);
+            document.getElementById("velocidade-consumo").textContent = er.toFixed(2);
+
+            if (interval) clearInterval(interval);
+            interval = setInterval(atualizarConsumo, 1000);
         }
 
-        function exibirBobinas() {
-            const bobinaList = document.getElementById('bobina-list');
+        function adicionarBobina() {
+            const bobina = parseFloat(document.getElementById("bobina-entrada").value);
+            const metragemTotal = parseFloat(document.getElementById("metragem").value);
+
+            if (!bobina || bobina + consumoTotal > metragemTotal) {
+                alert("Bobina inválida ou excedendo a metragem total!");
+                return;
+            }
+
+            bobinas.push(bobina);
+            consumoTotal += bobina;
+            renderizarBobinas();
+            document.getElementById("bobina-entrada").value = '';
+        }
+
+        function renderizarBobinas() {
+            const bobinaList = document.getElementById("bobina-list");
             bobinaList.innerHTML = '';
-            let acumulado = 0;
-            
+
+            let barraHTML = '';
+            let offset = 0;
+            const metragemTotal = parseFloat(document.getElementById("metragem").value);
+
             bobinas.forEach((bobina, index) => {
-                acumulado += bobina;
-                const cor = bobinasCores[index % bobinasCores.length];
-                const bobinaItem = document.createElement('div');
-                bobinaItem.classList.add('bobina-item');
-                bobinaItem.textContent = `Bobina ${index + 1}: ${bobina} m (Acumulado: ${acumulado} m)`;
+                const largura = (bobina / metragemTotal) * 100;
+                barraHTML += `<div class="loading-bar" style="background-color: ${cores[index % cores.length]}; width: ${largura}%; left: ${offset}%;"></div>`;
+                offset += largura;
+
+                const bobinaItem = document.createElement("div");
+                bobinaItem.classList.add("bobina-item");
+                bobinaItem.textContent = `Bobina: ${bobina} metros`;
                 bobinaList.appendChild(bobinaItem);
             });
+
+            document.getElementById("consumo-bar").innerHTML = barraHTML;
         }
 
-        function atualizarBarra() {
-            const barra = document.getElementById('loading-bar');
-            const progressNumber = document.getElementById('progress-number');
+        function atualizarConsumo() {
+            const metragemTotal = parseFloat(document.getElementById("metragem").value);
+            consumoAtual += velocidadeConsumo / 60; // Consumo por segundo
 
-            if (consumoInterval) clearInterval(consumoInterval);
+            const progresso = (consumoAtual / metragemTotal) * 100;
+            const progressBarRed = document.getElementById("progress-bar-red");
+            const progressIndicator = document.getElementById("progress-indicator");
 
-            consumoInterval = setInterval(() => {
-                if (consumoAtual >= totalMetragem) {
-                    clearInterval(consumoInterval);
-                    consumoAtual = totalMetragem;
-                }
+            progressBarRed.style.width = `${progresso}%`;
+            progressIndicator.textContent = `${Math.min(consumoAtual, metragemTotal).toFixed(1)} m`;
 
-                consumoAtual++;
-                let porcentagem = (consumoAtual / totalMetragem) * 100;
-                barra.style.width = `${porcentagem}%`;
-                progressNumber.textContent = `${consumoAtual} m`;
-
-                atualizarBobinas();
-            }, 100);
-        }
-
-        function atualizarBobinas() {
-            const barra = document.getElementById('loading-bar');
-            let acumulado = 0;
-
-            bobinas.forEach((bobina, index) => {
-                const cor = bobinasCores[index % bobinasCores.length];
-                let largura = (bobina / totalMetragem) * 100;
-                acumulado += bobina;
-
-                let segment = document.createElement('div');
-                segment.classList.add('bobina-segment');
-                segment.style.width = `${largura}%`;
-                segment.style.left = `${(acumulado - bobina) / totalMetragem * 100}%`;
-                segment.style.backgroundColor = cor;
-                segment.textContent = `${acumulado} m`;
-                barra.appendChild(segment);
-            });
+            if (consumoAtual >= metragemTotal) {
+                clearInterval(interval);
+                alert("Consumo completo!");
+            }
         }
     </script>
 </body>
