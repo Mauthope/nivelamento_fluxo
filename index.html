@@ -95,10 +95,10 @@
             margin-bottom: 5px;
             color: #fff;
         }
-        .metragem-atual {
-            text-align: center;
-            font-weight: bold;
+        .real-time-metragem {
+            font-size: 18px;
             margin-top: 10px;
+            text-align: center;
             color: #fff;
         }
     </style>
@@ -134,8 +134,7 @@
                 <div class="loading-bar" id="loading-bar1"></div>
                 <div class="progress-indicator" id="progress-indicator1">0 m</div>
             </div>
-            <!-- Mostrador da metragem em tempo real -->
-            <div class="metragem-atual" id="metragem-atual1">Metragem atual: 0 m</div>
+            <div class="real-time-metragem" id="real-time-metragem1">Metragem consumida: 0 m/min</div>
         </div>
     </div>
 
@@ -188,8 +187,10 @@
             document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
             document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual} m`;
 
-            // Atualiza o mostrador da metragem
-            document.getElementById(`metragem-atual${op}`).textContent = `Metragem atual: ${consumoAtual} m`;
+            // Atualiza o mostrador de metragem em tempo real
+            let velocidadeAtual = velocidades[op - 1];
+            let metragemPorMinuto = consumoAtual / (consumoAtual / velocidadeAtual);
+            document.getElementById(`real-time-metragem${op}`).textContent = `Metragem consumida: ${metragemPorMinuto.toFixed(2)} m/min`;
 
             // Adiciona as marcações
             let barraContainer = document.querySelector(".loading-bar-container");
