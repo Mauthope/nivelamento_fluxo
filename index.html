@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width: device-width, initial-scale=1.0">
     <title>Barra de Loading Personalizada - Consumo de Bobinas</title>
     <style>
         body {
@@ -95,7 +95,6 @@
             margin-bottom: 5px;
             color: #fff;
         }
-        /* Novo estilo para o painel digital */
         .digital-display {
             font-family: 'Courier New', monospace;
             font-size: 24px;
@@ -108,7 +107,6 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
 
-        /* Estilo para o círculo */
         .circle {
             width: 30px;
             height: 30px;
@@ -119,7 +117,6 @@
             transform: translateX(-50%);
         }
 
-        /* Estilo para o botão de reset */
         .reset-button {
             width: 100%;
             margin-top: 10px;
@@ -164,20 +161,17 @@
             </div>
         </div>
 
-        <!-- Painel digital para metragem -->
         <div class="digital-display" id="digital-display1">0 m</div>
 
-        <!-- Círculo que muda de cor -->
         <div class="circle" id="circle1"></div>
 
-        <!-- Botão para resetar a cor do círculo -->
         <button class="reset-button" onclick="resetarCorCírculo(1)">Resetar Círculo</button>
     </div>
 
     <script>
         let consumos = [0];
-        let marcacoes = [0]; // Armazena as posições das marcações das bobinas
-        let velocidades = [0];
+        let marcacoes = [0];
+        let bobinasEntrada = [];
 
         function calcular(op) {
             let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
@@ -194,7 +188,6 @@
 
             document.getElementById(`tempo-consumo${op}`).textContent = tempoConsumo.toFixed(2);
             document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
-            velocidades[op - 1] = velocidadeConsumo;
             iniciarBarraVermelha(op, metragem, velocidadeConsumo);
         }
 
@@ -208,7 +201,7 @@
             }
 
             consumos[op - 1] += bobinaEntrada;
-            marcacoes.push(consumos[op - 1]); // Adiciona a posição da marcação na lista
+            bobinasEntrada.push(bobinaEntrada);
             atualizarBarra(op, consumos[op - 1], metragem);
 
             let bobinaList = document.getElementById(`bobina-list${op}`);
@@ -218,79 +211,43 @@
             bobinaList.appendChild(bobinaItem);
         }
 
-    function atualizarBarra(op, consumoAtual, metragem, bobinasEntrada) {
-    // 1. Atualiza a barra de consumo (visível)
-    let porcentagem = Math.min((consumoAtual / metragem) * 100, 100);
-    let barraContainer = document.querySelector(".loading-bar-container");
-    let loadingBar = document.getElementById(`loading-bar${op}`);
-    loadingBar.style.width = `${porcentagem}%`;  // Atualiza a largura da barra de consumo
-    document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual} m`;
+        function atualizarBarra(op, consumoAtual, metragem) {
+            let porcentagem = Math.min((consumoAtual / metragem) * 100, 100);
+            let barraContainer = document.querySelector(".loading-bar-container");
+            let loadingBar = document.getElementById(`loading-bar${op}`);
+            loadingBar.style.width = `${porcentagem}%`; 
+            document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual} m`;
+            document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
 
-    // Atualiza o painel digital com o valor em metros
-    document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
+            let somaBobinas = bobinasEntrada.reduce((acc, bobina) => acc + bobina, 0);
+            let marcacoes = document.querySelectorAll('.marking');
+            marcacoes.forEach(marcacao => marcacao.remove());
 
-    // 2. Calcular a posição das marcações sem interferir no progresso da barra de consumo
-    // Somatório das bobinas de entrada
-    let somaBobinas = bobinasEntrada.reduce((acc, bobina) => acc + bobina, 0);
-
-    // 3. Remove as marcações anteriores, caso existam
-    let marcacoes = document.querySelectorAll('.marking');
-    marcacoes.forEach(marcacao => marcacao.remove());
-
-    // 4. Adiciona as marcações para as bobinas, começando pela bobina 2 (ignora a primeira)
-    for (let i = 1; i < bobinasEntrada.length; i++) {  // Começando pela bobina 2
-        let bobina = bobinasEntrada[i];
-
-        // Calcular a posição da marcação
-        let posicao = (bobina / somaBobinas) * 100;
-
-        // Criar a marcação
-        let marking = document.createElement('div');
-        marking.classList.add('marking');
-        marking.style.left = `${posicao}%`;
-
-        // Adiciona a marcação ao container
-        barraContainer.appendChild(marking);
-
-        // Opcional: Adiciona texto de marcador visível para identificar as bobinas
-        let markerText = document.createElement('span');
-        markerText.textContent = `Bobina ${i + 1}`;  // Exibe o número da bobina
-        markerText.style.position = 'absolute';
-        markerText.style.left = `${posicao}%`;
-        markerText.style.top = '5px';  // Ajuste da posição do texto
-        markerText.style.fontSize = '12px';
-        markerText.style.color = '#fff';
-        barraContainer.appendChild(markerText);
-    }
-
-    // 5. Altera a cor do círculo quando a barra de consumo passar pela última marcação
-    if (consumoAtual >= bobinasEntrada[bobinasEntrada.length - 1]) {
-        let circle = document.getElementById(`circle${op}`);
-        circle.style.backgroundColor = "red";  // Quando passar da marcação, o círculo fica vermelho
-    }
-}
-
-
-
-
-
-
-        // Função para restaurar a cor do círculo para verde
-        function resetarCorCírculo(op) {
-            let circle = document.getElementById(`circle${op}`);
-            circle.style.backgroundColor = "green"; // Resetando para verde
+            let barraContainer = document.querySelector(".loading-bar-container");
+            for (let i = 0; i < bobinasEntrada.length; i++) {
+                let bobina = bobinasEntrada[i];
+                let posicao = (bobina / metragem) * 100;
+                let marking = document.createElement('div');
+                marking.classList.add('marking');
+                marking.style.left = `${posicao}%`;
+                barraContainer.appendChild(marking);
+            }
         }
 
         function iniciarBarraVermelha(op, metragem, velocidadeConsumo) {
-            let consumoAtual = 0;
+            consumos[op - 1] = 0;
             let interval = setInterval(() => {
-                if (consumoAtual >= metragem) {
-                    clearInterval(interval);
+                if (consumos[op - 1] < metragem) {
+                    consumos[op - 1] += velocidadeConsumo;
+                    atualizarBarra(op, consumos[op - 1], metragem);
                 } else {
-                    consumoAtual += velocidadeConsumo / 60;
-                    atualizarBarra(op, consumoAtual, metragem);
+                    clearInterval(interval);
                 }
             }, 1000);
+        }
+
+        function resetarCorCírculo(op) {
+            document.getElementById(`circle${op}`).style.backgroundColor = 'green';
         }
     </script>
 </body>
