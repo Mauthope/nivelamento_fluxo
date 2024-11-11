@@ -231,8 +231,7 @@
     let marcações = document.querySelectorAll('.marking');
     marcações.forEach(marcacao => marcacao.remove()); // Remove todas as marcações anteriores
 
-    // Começa a partir da bobina 2, ignorando a 1
-    marcacoes.slice(1).forEach((marcacao, index) => {
+    marcacoes.forEach((marcacao, index) => {
         let marking = document.createElement('div');
         marking.classList.add('marking');
         
@@ -245,7 +244,7 @@
 
         // Para exibir a posição da marcação de forma legível
         let markerText = document.createElement('span');
-        markerText.textContent = `Bobina ${index + 2}`;  // Ajuste aqui para começar a numeração pela bobina 2
+        markerText.textContent = `Bobina ${index + 1}`;
         markerText.style.position = 'absolute';
         markerText.style.left = `${position}%`;
         markerText.style.top = '5px';
