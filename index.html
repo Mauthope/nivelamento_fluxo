@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width: device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Barra de Loading Personalizada - Consumo de Bobinas</title>
     <style>
         body {
@@ -56,24 +56,19 @@
             margin-top: 20px;
             overflow: hidden;
         }
-        .loading-bar, .red-bar {
+        .loading-bar {
             height: 100%;
             position: absolute;
-        }
-        .loading-bar {
             background-color: #28a745;
             border-radius: 5px;
             width: 0%;
         }
-        .red-bar {
-            background-color: rgba(255, 0, 0, 0.7);
-            z-index: 1;
-            width: 0%;
-        }
-        .bobina-segment {
-            height: 100%;
+        .marking {
             position: absolute;
-            border-right: 2px solid #fff;
+            height: 100%;
+            width: 2px;
+            background-color: #ff0000;
+            top: 0;
         }
         .progress-indicator {
             position: absolute;
@@ -124,7 +119,6 @@
             <h2>Barra de Consumo</h2>
             <div class="loading-bar-container">
                 <div class="loading-bar" id="loading-bar1"></div>
-                <div class="red-bar" id="red-bar1"></div>
                 <div class="progress-indicator" id="progress-indicator1">0 m</div>
             </div>
         </div>
@@ -132,9 +126,8 @@
 
     <script>
         let consumos = [0];
-        let cores = ['#FFD700', '#00CED1', '#FF69B4', '#8A2BE2']; // Cores para cada bobina
+        let marcacoes = [0]; // Armazena as posições das marcações das bobinas
         let velocidades = [0];
-        let segmentos = [];
 
         function calcular(op) {
             let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
@@ -165,38 +158,42 @@
             }
 
             consumos[op - 1] += bobinaEntrada;
+            marcacoes.push(consumos[op - 1]); // Adiciona a posição da marcação na lista
             atualizarBarra(op, consumos[op - 1], metragem);
 
-            let corBobina = cores[Math.floor(Math.random() * cores.length)];
             let bobinaList = document.getElementById(`bobina-list${op}`);
             let bobinaItem = document.createElement('div');
             bobinaItem.classList.add('bobina-item');
-            bobinaItem.style.backgroundColor = corBobina;
             bobinaItem.textContent = `Bobina: ${bobinaEntrada} m`;
             bobinaList.appendChild(bobinaItem);
-
-            // Adiciona a marcação da bobina na barra de consumo
-            let marcador = document.createElement('div');
-            marcador.classList.add('bobina-segment');
-            marcador.style.width = `${(bobinaEntrada / metragem) * 100}%`;
-            marcador.style.backgroundColor = corBobina;
-            document.getElementById(`loading-bar${op}`).appendChild(marcador);
-            segmentos.push(marcador);
         }
 
         function atualizarBarra(op, consumoAtual, metragem) {
             let porcentagem = Math.min((consumoAtual / metragem) * 100, 100);
             document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
             document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual} m`;
+
+            // Adiciona as marcações
+            let barraContainer = document.querySelector(".loading-bar-container");
+            let marcações = document.querySelectorAll('.marking');
+            marcações.forEach(marcacao => marcacao.remove()); // Remove as marcações antigas
+
+            // Adiciona as novas marcações
+            marcacoes.forEach(marcacao => {
+                let posicao = (marcacao / metragem) * 100;
+                let marking = document.createElement('div');
+                marking.classList.add('marking');
+                marking.style.left = `${posicao}%`;
+                barraContainer.appendChild(marking);
+            });
         }
 
         function iniciarBarraVermelha(op, metragem, velocidade) {
-            let redBar = document.getElementById(`red-bar${op}`);
             let progresso = 0;
             let intervalo = setInterval(() => {
                 progresso += velocidade / 60;
                 let porcentagem = Math.min((progresso / metragem) * 100, 100);
-                redBar.style.width = `${porcentagem}%`;
+                document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
                 if (porcentagem >= 100) clearInterval(intervalo);
             }, 1000);
         }
