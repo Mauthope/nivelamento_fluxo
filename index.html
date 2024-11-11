@@ -175,7 +175,6 @@
             let loadingBar = document.getElementById(`loading-bar${op}`);
             let redBar = document.getElementById(`red-bar${op}`);
             loadingBar.style.width = `${porcentagem}%`;
-            redBar.style.width = `${porcentagem}%`;
 
             // Atualizar a cor da barra conforme os segmentos de bobina
             let larguraBarra = 0;
@@ -206,11 +205,11 @@
             let redBar = document.getElementById(`red-bar${op}`);
             let progresso = 0;
             let intervalo = setInterval(() => {
-                progresso += velocidade / 60;
-                let porcentagem = Math.min((progresso / metragem) * 100, 100);
-                redBar.style.width = `${porcentagem}%`;
-                document.getElementById(`progress-indicator${op}`).textContent = `${Math.floor(progresso)} m`;
-                if (porcentagem >= 100) clearInterval(intervalo);
+                progresso += velocidade / 100;
+                redBar.style.width = `${Math.min(progresso / metragem * 100, 100)}%`;
+                if (progresso >= metragem) {
+                    clearInterval(intervalo);
+                }
             }, 1000);
         }
     </script>
