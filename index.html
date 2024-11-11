@@ -7,8 +7,6 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #1a1a1a;
-            color: #fff;
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
@@ -19,33 +17,29 @@
             width: 45%;
             max-width: 600px;
             padding: 20px;
-            border: 1px solid #333;
+            border: 1px solid #ddd;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            background-color: #2d2d2d;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         h2 {
             text-align: center;
-            color: #fff;
         }
-        input, button {
+        input {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
             border-radius: 5px;
-            border: 1px solid #444;
-            background-color: #333;
-            color: #fff;
-            font-size: 16px;
-        }
-        input:focus, button:focus {
-            outline: none;
-            border-color: #007bff;
-            background-color: #444;
+            border: 1px solid #ccc;
         }
         button {
+            width: 100%;
+            padding: 10px;
             background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
+            margin-top: 10px;
         }
         button:hover {
             background-color: #0056b3;
@@ -57,31 +51,36 @@
             position: relative;
             width: 100%;
             height: 50px;
-            background-color: #444;
+            background-color: #e0e0e0;
             border-radius: 5px;
             margin-top: 20px;
             overflow: hidden;
         }
-        .loading-bar {
+        .loading-bar, .red-bar {
             height: 100%;
             position: absolute;
+        }
+        .loading-bar {
             background-color: #28a745;
             border-radius: 5px;
             width: 0%;
         }
-        .marking {
-            position: absolute;
+        .red-bar {
+            background-color: rgba(255, 0, 0, 0.7);
+            z-index: 1;
+            width: 0%;
+        }
+        .bobina-segment {
             height: 100%;
-            width: 2px;
-            background-color: #ff0000;
-            top: 0;
+            position: absolute;
+            border-right: 2px solid #fff;
         }
         .progress-indicator {
             position: absolute;
             top: -25px;
             right: 10px;
             font-weight: bold;
-            color: #fff;
+            color: #333;
         }
         .bobina-list {
             max-height: 150px;
@@ -89,23 +88,10 @@
             margin-top: 10px;
         }
         .bobina-item {
-            background-color: #444;
+            background-color: #f1f1f1;
             padding: 5px;
             border-radius: 5px;
             margin-bottom: 5px;
-            color: #fff;
-        }
-        /* Novo estilo para o painel digital */
-        .digital-display {
-            font-family: 'Courier New', monospace;
-            font-size: 24px;
-            color: #fff;
-            background-color: #333;
-            padding: 10px;
-            border-radius: 10px;
-            text-align: center;
-            margin-top: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
@@ -138,23 +124,21 @@
             <h2>Barra de Consumo</h2>
             <div class="loading-bar-container">
                 <div class="loading-bar" id="loading-bar1"></div>
+                <div class="red-bar" id="red-bar1"></div>
                 <div class="progress-indicator" id="progress-indicator1">0 m</div>
             </div>
         </div>
-
-        <!-- Painel digital para metragem -->
-        <div class="digital-display" id="digital-display1">0 m</div>
     </div>
 
     <script>
         let consumos = [0];
-        let marcacoes = [0]; // Armazena as posições das marcações das bobinas
+        let cores = ['#FFD700', '#00CED1', '#FF69B4', '#8A2BE2']; // Cores para cada bobina
         let velocidades = [0];
 
         function calcular(op) {
-            let metragem = parseFloat(document.getElementById(metragem${op}).value);
-            let er = parseFloat(document.getElementById(er${op}).value);
-            let eficiencia = parseFloat(document.getElementById(eficiencia${op}).value);
+            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
+            let er = parseFloat(document.getElementById(`er${op}`).value);
+            let eficiencia = parseFloat(document.getElementById(`eficiencia${op}`).value);
 
             if (!metragem || !er || !eficiencia) {
                 alert("Por favor, preencha todos os campos.");
@@ -164,15 +148,15 @@
             let tempoConsumo = metragem / (er * (eficiencia / 100));
             let velocidadeConsumo = metragem / tempoConsumo;
 
-            document.getElementById(tempo-consumo${op}).textContent = tempoConsumo.toFixed(2);
-            document.getElementById(velocidade-consumo${op}).textContent = velocidadeConsumo.toFixed(2);
+            document.getElementById(`tempo-consumo${op}`).textContent = tempoConsumo.toFixed(2);
+            document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
             velocidades[op - 1] = velocidadeConsumo;
             iniciarBarraVermelha(op, metragem, velocidadeConsumo);
         }
 
         function adicionarBobina(op) {
-            let bobinaEntrada = parseFloat(document.getElementById(bobina-entrada${op}).value);
-            let metragem = parseFloat(document.getElementById(metragem${op}).value);
+            let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
+            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
 
             if (!bobinaEntrada) {
                 alert("Por favor, preencha a bobina de entrada.");
@@ -180,51 +164,31 @@
             }
 
             consumos[op - 1] += bobinaEntrada;
-            marcacoes.push(consumos[op - 1]); // Adiciona a posição da marcação na lista
             atualizarBarra(op, consumos[op - 1], metragem);
 
-            let bobinaList = document.getElementById(bobina-list${op});
+            let corBobina = cores[Math.floor(Math.random() * cores.length)];
+            let bobinaList = document.getElementById(`bobina-list${op}`);
             let bobinaItem = document.createElement('div');
             bobinaItem.classList.add('bobina-item');
-            bobinaItem.textContent = Bobina: ${bobinaEntrada} m;
+            bobinaItem.style.backgroundColor = corBobina;
+            bobinaItem.textContent = `Bobina: ${bobinaEntrada} m`;
             bobinaList.appendChild(bobinaItem);
         }
 
         function atualizarBarra(op, consumoAtual, metragem) {
             let porcentagem = Math.min((consumoAtual / metragem) * 100, 100);
-            document.getElementById(loading-bar${op}).style.width = ${porcentagem}%;
-            document.getElementById(progress-indicator${op}).textContent = ${consumoAtual} m;
-
-            // Atualiza o painel digital em tempo real
-            document.getElementById(digital-display${op}).textContent = ${consumoAtual.toFixed(2)} m;
-
-            // Adiciona as marcações
-            let barraContainer = document.querySelector(".loading-bar-container");
-            let marcações = document.querySelectorAll('.marking');
-            marcações.forEach(marcacao => marcacao.remove()); // Remove as marcações antigas
-
-            // Adiciona as novas marcações
-            marcacoes.forEach(marcacao => {
-                let posicao = (marcacao / metragem) * 100;
-                let marking = document.createElement('div');
-                marking.classList.add('marking');
-                marking.style.left = ${posicao}%;
-                barraContainer.appendChild(marking);
-            });
+            document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
+            document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual} m`;
         }
 
         function iniciarBarraVermelha(op, metragem, velocidade) {
+            let redBar = document.getElementById(`red-bar${op}`);
             let progresso = 0;
             let intervalo = setInterval(() => {
                 progresso += velocidade / 60;
                 let porcentagem = Math.min((progresso / metragem) * 100, 100);
-                document.getElementById(loading-bar${op}).style.width = ${porcentagem}%;
-                document.getElementById(progress-indicator${op}).textContent = ${(progresso).toFixed(2)} m;
-                document.getElementById(digital-display${op}).textContent = ${(progresso).toFixed(2)} m;
-
-                if (porcentagem >= 100) {
-                    clearInterval(intervalo);
-                }
+                redBar.style.width = `${porcentagem}%`;
+                if (porcentagem >= 100) clearInterval(intervalo);
             }, 1000);
         }
     </script>
