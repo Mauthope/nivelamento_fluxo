@@ -73,7 +73,8 @@
         .progress-indicator {
             position: absolute;
             top: -25px;
-            right: 10px;
+            left: 50%;
+            transform: translateX(-50%);
             font-weight: bold;
             color: #333;
         }
@@ -175,8 +176,8 @@
 
             // Adiciona as marcações
             let barraContainer = document.querySelector(".loading-bar-container");
-            let marcações = document.querySelectorAll('.marking');
-            marcações.forEach(marcacao => marcacao.remove()); // Remove as marcações antigas
+            let marcacoes = document.querySelectorAll('.marking');
+            marcacoes.forEach(marcacao => marcacao.remove()); // Remove as marcações antigas
 
             // Adiciona as novas marcações
             marcacoes.forEach(marcacao => {
@@ -194,6 +195,7 @@
                 progresso += velocidade / 60;
                 let porcentagem = Math.min((progresso / metragem) * 100, 100);
                 document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
+                document.getElementById(`progress-indicator${op}`).textContent = `${Math.round(progresso)} m`;
                 if (porcentagem >= 100) clearInterval(intervalo);
             }, 1000);
         }
