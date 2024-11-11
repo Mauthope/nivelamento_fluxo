@@ -72,6 +72,13 @@
             position: absolute;
             border-right: 2px solid #fff;
         }
+        .bobina-marker {
+            position: absolute;
+            top: -10px;
+            width: 2px;
+            height: 20px;
+            background-color: #333;
+        }
         .progress-indicator {
             position: absolute;
             top: -25px;
@@ -129,7 +136,6 @@
 
     <script>
         let consumos = [0];
-        let cores = ['#FFD700', '#00CED1', '#FF69B4', '#8A2BE2']; // Cores para cada bobina
         let velocidades = [0];
         let segmentosBobinas = [];
 
@@ -162,10 +168,9 @@
             }
 
             consumos[op - 1] += bobinaEntrada;
-            let corBobina = cores[Math.floor(Math.random() * cores.length)];
-            segmentosBobinas.push({ consumo: bobinaEntrada, cor: corBobina });
+            segmentosBobinas.push({ consumo: bobinaEntrada });
             atualizarBarra(op, consumos[op - 1], metragem);
-            atualizarListaBobinas(op, bobinaEntrada, corBobina);
+            atualizarListaBobinas(op, bobinaEntrada);
         }
 
         function atualizarBarra(op, consumoAtual, metragem) {
@@ -174,17 +179,15 @@
             let redBar = document.getElementById(`red-bar${op}`);
             loadingBar.style.width = `${porcentagem}%`;
 
-            // Barra inferior - Exibe segmentos de bobinas
+            // Barra inferior - Exibe marcação no final de cada bobina
             let larguraBarra = 0;
             segmentosBobinas.forEach((segmento, index) => {
                 let segmentoWidth = (segmento.consumo / metragem) * 100;
-                let bobinaSegment = document.createElement('div');
-                bobinaSegment.classList.add('bobina-segment');
-                bobinaSegment.style.backgroundColor = segmento.cor;
-                bobinaSegment.style.width = `${segmentoWidth}%`;
-                bobinaSegment.style.left = `${larguraBarra}%`;
+                let bobinaMarker = document.createElement('div');
+                bobinaMarker.classList.add('bobina-marker');
+                bobinaMarker.style.left = `${larguraBarra + segmentoWidth}%`;
+                loadingBar.appendChild(bobinaMarker);
                 larguraBarra += segmentoWidth;
-                loadingBar.appendChild(bobinaSegment);
             });
 
             // Barra superior (vermelha) - Progresso de consumo
@@ -193,11 +196,10 @@
             document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual} m`;
         }
 
-        function atualizarListaBobinas(op, bobinaEntrada, corBobina) {
+        function atualizarListaBobinas(op, bobinaEntrada) {
             let bobinaList = document.getElementById(`bobina-list${op}`);
             let bobinaItem = document.createElement('div');
             bobinaItem.classList.add('bobina-item');
-            bobinaItem.style.backgroundColor = corBobina;
             bobinaItem.textContent = `Bobina: ${bobinaEntrada} m`;
             bobinaList.appendChild(bobinaItem);
         }
