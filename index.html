@@ -70,19 +70,6 @@
             font-weight: bold;
             color: #333;
         }
-        .mark {
-            position: absolute;
-            width: 2px;
-            height: 100%;
-            background-color: red;
-        }
-        .mark-label {
-            position: absolute;
-            top: -25px;
-            transform: translateX(-50%);
-            font-size: 12px;
-            color: red;
-        }
         .bobina-list {
             max-height: 150px;
             overflow-y: auto;
@@ -131,109 +118,9 @@
         </div>
     </div>
 
-    <div class="container" id="container2">
-        <h2>Dados da OP 2</h2>
-        <label for="metragem2">Metragem da OP (m):</label>
-        <input type="number" id="metragem2" placeholder="Digite a metragem da OP">
-        <label for="er2">ER (m/min):</label>
-        <input type="number" id="er2" placeholder="Digite a ER (m/min)">
-        <label for="eficiencia2">Eficiência (%):</label>
-        <input type="number" id="eficiencia2" placeholder="Digite a eficiência (%)" value="0">
-        <button onclick="calcular(2)">Calcular</button>
-        
-        <div class="results">
-            <h2>Resultados</h2>
-            <p>Tempo de Consumo (min): <span id="tempo-consumo2">-</span></p>
-            <p>Velocidade de Consumo (m/min): <span id="velocidade-consumo2">-</span></p>
-        </div>
-
-        <div class="bobinas">
-            <h2>Bobinas</h2>
-            <label for="bobina-entrada2">Bobina de Entrada (m):</label>
-            <input type="number" id="bobina-entrada2" placeholder="Digite a bobina de entrada">
-            <button onclick="adicionarBobina(2)">Inserir Bobina</button>
-            <div class="bobina-list" id="bobina-list2"></div>
-        </div>
-
-        <div>
-            <h2>Barra de Consumo</h2>
-            <div class="loading-bar-container">
-                <div class="loading-bar" id="loading-bar2">
-                    <div class="progress-indicator" id="progress-indicator2">0 m</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="container" id="container3">
-        <h2>Dados da OP 3</h2>
-        <label for="metragem3">Metragem da OP (m):</label>
-        <input type="number" id="metragem3" placeholder="Digite a metragem da OP">
-        <label for="er3">ER (m/min):</label>
-        <input type="number" id="er3" placeholder="Digite a ER (m/min)">
-        <label for="eficiencia3">Eficiência (%):</label>
-        <input type="number" id="eficiencia3" placeholder="Digite a eficiência (%)" value="0">
-        <button onclick="calcular(3)">Calcular</button>
-        
-        <div class="results">
-            <h2>Resultados</h2>
-            <p>Tempo de Consumo (min): <span id="tempo-consumo3">-</span></p>
-            <p>Velocidade de Consumo (m/min): <span id="velocidade-consumo3">-</span></p>
-        </div>
-
-        <div class="bobinas">
-            <h2>Bobinas</h2>
-            <label for="bobina-entrada3">Bobina de Entrada (m):</label>
-            <input type="number" id="bobina-entrada3" placeholder="Digite a bobina de entrada">
-            <button onclick="adicionarBobina(3)">Inserir Bobina</button>
-            <div class="bobina-list" id="bobina-list3"></div>
-        </div>
-
-        <div>
-            <h2>Barra de Consumo</h2>
-            <div class="loading-bar-container">
-                <div class="loading-bar" id="loading-bar3">
-                    <div class="progress-indicator" id="progress-indicator3">0 m</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="container" id="container4">
-        <h2>Dados da OP 4</h2>
-        <label for="metragem4">Metragem da OP (m):</label>
-        <input type="number" id="metragem4" placeholder="Digite a metragem da OP">
-        <label for="er4">ER (m/min):</label>
-        <input type="number" id="er4" placeholder="Digite a ER (m/min)">
-        <label for="eficiencia4">Eficiência (%):</label>
-        <input type="number" id="eficiencia4" placeholder="Digite a eficiência (%)" value="0">
-        <button onclick="calcular(4)">Calcular</button>
-        
-        <div class="results">
-            <h2>Resultados</h2>
-            <p>Tempo de Consumo (min): <span id="tempo-consumo4">-</span></p>
-            <p>Velocidade de Consumo (m/min): <span id="velocidade-consumo4">-</span></p>
-        </div>
-
-        <div class="bobinas">
-            <h2>Bobinas</h2>
-            <label for="bobina-entrada4">Bobina de Entrada (m):</label>
-            <input type="number" id="bobina-entrada4" placeholder="Digite a bobina de entrada">
-            <button onclick="adicionarBobina(4)">Inserir Bobina</button>
-            <div class="bobina-list" id="bobina-list4"></div>
-        </div>
-
-        <div>
-            <h2>Barra de Consumo</h2>
-            <div class="loading-bar-container">
-                <div class="loading-bar" id="loading-bar4">
-                    <div class="progress-indicator" id="progress-indicator4">0 m</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
+        let consumos = [0, 0, 0, 0];
+
         function calcular(op) {
             let metragem = document.getElementById(`metragem${op}`).value;
             let er = document.getElementById(`er${op}`).value;
@@ -252,26 +139,32 @@
         }
 
         function adicionarBobina(op) {
-            let bobinaEntrada = document.getElementById(`bobina-entrada${op}`).value;
+            let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
+            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
 
             if (!bobinaEntrada) {
                 alert("Por favor, preencha a bobina de entrada.");
                 return;
             }
 
+            consumos[op - 1] += bobinaEntrada;
+            atualizarBarra(op, consumos[op - 1], metragem);
+
             let bobinaList = document.getElementById(`bobina-list${op}`);
             let bobinaItem = document.createElement('div');
             bobinaItem.classList.add('bobina-item');
             bobinaItem.textContent = `Bobina de Entrada: ${bobinaEntrada} metros`;
             bobinaList.appendChild(bobinaItem);
+
             document.getElementById(`bobina-entrada${op}`).value = '';
         }
 
-        function atualizarBarra(op, porcentagem) {
+        function atualizarBarra(op, consumoAtual, metragem) {
+            let porcentagem = Math.min((consumoAtual / metragem) * 100, 100);
             let barra = document.getElementById(`loading-bar${op}`);
             let indicador = document.getElementById(`progress-indicator${op}`);
             barra.style.width = `${porcentagem}%`;
-            indicador.textContent = `${porcentagem} m`;
+            indicador.textContent = `${consumoAtual} m`;
         }
     </script>
 </body>
