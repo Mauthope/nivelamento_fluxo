@@ -219,29 +219,41 @@
         }
 
       function atualizarBarra(op, consumoAtual, metragem) {
+    // Barra de consumo (a barra visível)
     let porcentagem = Math.min((consumoAtual / metragem) * 100, 100);
-    document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
+    let barraContainer = document.querySelector(".loading-bar-container");
+    let loadingBar = document.getElementById(`loading-bar${op}`);
+    loadingBar.style.width = `${porcentagem}%`;
     document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual} m`;
 
     // Atualiza o painel digital em tempo real
     document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
 
-    // Adiciona as marcações independentemente da barra de progresso
-    let barraContainer = document.querySelector(".loading-bar-container");
-    let marcações = document.querySelectorAll('.marking');
-    marcações.forEach(marcacao => marcacao.remove()); // Remove todas as marcações anteriores
+    // Criar uma barra invisível temporária para a marcação
+    let barraInvisivel = document.createElement('div');
+    barraInvisivel.style.position = 'absolute';
+    barraInvisivel.style.top = '0';
+    barraInvisivel.style.left = '0';
+    barraInvisivel.style.width = '100%';
+    barraInvisivel.style.height = '100%';
+    barraInvisivel.style.opacity = '0';  // Tornar invisível
+    barraContainer.appendChild(barraInvisivel);
 
-    // Cria as marcações a partir da bobina 2, ignorando a bobina 1
+    // Remover as marcações anteriores
+    let marcacoes = document.querySelectorAll('.marking');
+    marcacoes.forEach(marcacao => marcacao.remove());
+
+    // Criar marcações a partir da bobina 2 em diante
     marcacoes.slice(1).forEach((marcacao, index) => {
         let marking = document.createElement('div');
         marking.classList.add('marking');
         
-        // Cada marcação será colocada de forma proporcional ao valor da bobina na barra
+        // Calcular a posição da marcação com base na segunda barra invisível
         let position = (marcacao / metragem) * 100;
         marking.style.left = `${position}%`;
-        
-        // Adiciona a marcação à barra
-        barraContainer.appendChild(marking);
+
+        // Adiciona a marcação à barra invisível
+        barraInvisivel.appendChild(marking);
 
         // Para exibir a posição da marcação de forma legível
         let markerText = document.createElement('span');
@@ -251,7 +263,7 @@
         markerText.style.top = '5px';
         markerText.style.fontSize = '12px';
         markerText.style.color = '#fff';
-        barraContainer.appendChild(markerText);
+        barraInvisivel.appendChild(markerText);
     });
 
     // Alterando a cor do círculo quando a barra passa pelas marcações
@@ -260,6 +272,7 @@
         circle.style.backgroundColor = "red"; // Quando passar da marcação, o círculo fica vermelho
     }
 }
+
 
 
 
