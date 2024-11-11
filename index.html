@@ -28,14 +28,6 @@
             text-align: center;
             color: #fff;
         }
-        .input-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
         input, button {
             width: 100%;
             padding: 10px;
@@ -118,20 +110,14 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="container1">
         <h2>Dados da OP 1</h2>
-        <div class="input-group">
-            <label for="metragem1">Metragem da OP (m):</label>
-            <input type="number" id="metragem1" placeholder="Digite a metragem da OP">
-        </div>
-        <div class="input-group">
-            <label for="er1">ER (m/min):</label>
-            <input type="number" id="er1" placeholder="Digite a ER (m/min)">
-        </div>
-        <div class="input-group">
-            <label for="eficiencia1">Eficiência (%):</label>
-            <input type="number" id="eficiencia1" placeholder="Digite a eficiência (%)" value="0">
-        </div>
+        <label for="metragem1">Metragem da OP (m):</label>
+        <input type="number" id="metragem1" placeholder="Digite a metragem da OP">
+        <label for="er1">ER (m/min):</label>
+        <input type="number" id="er1" placeholder="Digite a ER (m/min)">
+        <label for="eficiencia1">Eficiência (%):</label>
+        <input type="number" id="eficiencia1" placeholder="Digite a eficiência (%)" value="0">
         <button onclick="calcular(1)">Calcular</button>
         
         <div class="results">
@@ -142,10 +128,8 @@
 
         <div class="bobinas">
             <h2>Bobinas</h2>
-            <div class="input-group">
-                <label for="bobina-entrada1">Bobina de Entrada (m):</label>
-                <input type="number" id="bobina-entrada1" placeholder="Digite a bobina de entrada">
-            </div>
+            <label for="bobina-entrada1">Bobina de Entrada (m):</label>
+            <input type="number" id="bobina-entrada1" placeholder="Digite a bobina de entrada">
             <button onclick="adicionarBobina(1)">Inserir Bobina</button>
             <div class="bobina-list" id="bobina-list1"></div>
         </div>
@@ -230,14 +214,18 @@
         }
 
         function iniciarBarraVermelha(op, metragem, velocidade) {
-            let progressBar = document.getElementById(`loading-bar${op}`);
-            progressBar.style.transition = 'none'; // Desativa a transição para um carregamento mais imediato
-            atualizarBarra(op, 0, metragem);
+            let progresso = 0;
+            let intervalo = setInterval(() => {
+                progresso += velocidade / 60;
+                let porcentagem = Math.min((progresso / metragem) * 100, 100);
+                document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
+                document.getElementById(`progress-indicator${op}`).textContent = `${(progresso).toFixed(2)} m`;
+                document.getElementById(`digital-display${op}`).textContent = `${(progresso).toFixed(2)} m`;
 
-            setTimeout(() => {
-                progressBar.style.transition = 'width 0.2s ease-out'; // Reativa a transição
-                atualizarBarra(op, consumos[op - 1], metragem);
-            }, 500);
+                if (porcentagem >= 100) {
+                    clearInterval(intervalo);
+                }
+            }, 1000);
         }
     </script>
 </body>
