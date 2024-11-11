@@ -218,7 +218,7 @@
             bobinaList.appendChild(bobinaItem);
         }
 
-     function atualizarBarra(op, consumoAtual, metragem) {
+    function atualizarBarra(op, consumoAtual, metragem, bobinasEntrada) {
     // 1. Atualiza a barra de consumo (visível)
     let porcentagem = Math.min((consumoAtual / metragem) * 100, 100);
     let barraContainer = document.querySelector(".loading-bar-container");
@@ -229,50 +229,47 @@
     // Atualiza o painel digital com o valor em metros
     document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
 
-    // 2. Adiciona uma barra invisível (para posicionar as marcações sem afetar a barra de consumo)
-    let barraInvisivel = document.createElement('div');
-    barraInvisivel.style.position = 'absolute';
-    barraInvisivel.style.top = '0';
-    barraInvisivel.style.left = '0';
-    barraInvisivel.style.width = '100%';
-    barraInvisivel.style.height = '100%';
-    barraInvisivel.style.opacity = '0';  // A barra invisível
-    barraContainer.appendChild(barraInvisivel);
+    // 2. Calcular a posição das marcações sem interferir no progresso da barra de consumo
+    // Somatório das bobinas de entrada
+    let somaBobinas = bobinasEntrada.reduce((acc, bobina) => acc + bobina, 0);
 
     // 3. Remove as marcações anteriores, caso existam
     let marcacoes = document.querySelectorAll('.marking');
     marcacoes.forEach(marcacao => marcacao.remove());
 
-    // 4. Adiciona as marcações a partir da bobina 2 (ignora a bobina 1)
-    for (let i = 1; i < marcacoes.length; i++) {  // Começando pela bobina 2
-        let marcacao = marcacoes[i];
+    // 4. Adiciona as marcações para as bobinas, começando pela bobina 2 (ignora a primeira)
+    for (let i = 1; i < bobinasEntrada.length; i++) {  // Começando pela bobina 2
+        let bobina = bobinasEntrada[i];
+
+        // Calcular a posição da marcação
+        let posicao = (bobina / somaBobinas) * 100;
+
+        // Criar a marcação
         let marking = document.createElement('div');
         marking.classList.add('marking');
-        
-        // Calcular a posição da marcação, com base na segunda barra invisível
-        let position = (marcacao / metragem) * 100;
-        marking.style.left = `${position}%`;
+        marking.style.left = `${posicao}%`;
 
-        // Adiciona a marcação à barra invisível
-        barraInvisivel.appendChild(marking);
+        // Adiciona a marcação ao container
+        barraContainer.appendChild(marking);
 
         // Opcional: Adiciona texto de marcador visível para identificar as bobinas
         let markerText = document.createElement('span');
         markerText.textContent = `Bobina ${i + 1}`;  // Exibe o número da bobina
         markerText.style.position = 'absolute';
-        markerText.style.left = `${position}%`;
+        markerText.style.left = `${posicao}%`;
         markerText.style.top = '5px';  // Ajuste da posição do texto
         markerText.style.fontSize = '12px';
         markerText.style.color = '#fff';
-        barraInvisivel.appendChild(markerText);
+        barraContainer.appendChild(markerText);
     }
 
     // 5. Altera a cor do círculo quando a barra de consumo passar pela última marcação
-    if (consumoAtual >= marcacoes[marcacoes.length - 1]) {
+    if (consumoAtual >= bobinasEntrada[bobinasEntrada.length - 1]) {
         let circle = document.getElementById(`circle${op}`);
         circle.style.backgroundColor = "red";  // Quando passar da marcação, o círculo fica vermelho
     }
 }
+
 
 
 
