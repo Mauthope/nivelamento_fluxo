@@ -3,18 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barra de Consumo Dinâmica</title>
+    <title>Barra de Loading Personalizada - 4 Colunas</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             display: flex;
             flex-wrap: wrap;
+            gap: 20px;
             justify-content: center;
             margin: 20px;
         }
         .container {
-            width: 60%;
-            max-width: 800px;
+            width: 45%;
+            max-width: 600px;
+            margin-bottom: 20px;
             padding: 20px;
             border: 1px solid #ddd;
             border-radius: 10px;
@@ -38,32 +40,28 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            margin-top: 10px;
         }
         button:hover {
             background-color: #0056b3;
         }
+        .results, .bobinas {
+            margin-top: 20px;
+        }
         .loading-bar-container {
             position: relative;
             width: 100%;
-            height: 40px;
+            height: 50px;
             background-color: #e0e0e0;
             border-radius: 5px;
             margin-top: 20px;
         }
-        .bobina-bar {
+        .loading-bar {
             height: 100%;
-            position: absolute;
-            top: 0;
+            background-color: #28a745;
             border-radius: 5px;
-        }
-        .progress-bar {
-            position: absolute;
-            top: 0;
-            height: 100%;
-            background-color: red;
-            opacity: 0.6;
-            border-radius: 5px;
-            z-index: 2;
+            width: 0%;
+            position: relative;
         }
         .progress-indicator {
             position: absolute;
@@ -71,7 +69,6 @@
             right: 10px;
             font-weight: bold;
             color: #333;
-            z-index: 3;
         }
         .bobina-list {
             max-height: 150px;
@@ -88,13 +85,21 @@
 </head>
 <body>
     <div class="container" id="container1">
-        <h2>Dados da OP</h2>
+        <h2>Dados da OP 1</h2>
         <label for="metragem1">Metragem da OP (m):</label>
         <input type="number" id="metragem1" placeholder="Digite a metragem da OP">
         <label for="er1">ER (m/min):</label>
         <input type="number" id="er1" placeholder="Digite a ER (m/min)">
+        <label for="eficiencia1">Eficiência (%):</label>
+        <input type="number" id="eficiencia1" placeholder="Digite a eficiência (%)" value="0">
         <button onclick="calcular(1)">Calcular</button>
         
+        <div class="results">
+            <h2>Resultados</h2>
+            <p>Tempo de Consumo (min): <span id="tempo-consumo1">-</span></p>
+            <p>Velocidade de Consumo (m/min): <span id="velocidade-consumo1">-</span></p>
+        </div>
+
         <div class="bobinas">
             <h2>Bobinas</h2>
             <label for="bobina-entrada1">Bobina de Entrada (m):</label>
@@ -106,87 +111,80 @@
         <div>
             <h2>Barra de Consumo</h2>
             <div class="loading-bar-container">
-                <div class="progress-bar" id="progress-bar1"></div>
-                <div id="progress-indicator1" class="progress-indicator">0 m</div>
+                <div class="loading-bar" id="loading-bar1">
+                    <div class="progress-indicator" id="progress-indicator1">0 m</div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        let consumos = [0];
-        let bobinas = [];
-        let cores = ['#FF6347', '#20B2AA', '#FFD700', '#8A2BE2', '#FF1493', '#1E90FF', '#32CD32'];
-        let progresso = 0;
-        let intervalo;
+        let consumos = [0, 0, 0, 0];
+        let bobinasCores = ["#FF6347", "#FF8C00", "#FFD700", "#32CD32", "#1E90FF"]; // Cores das bobinas
+        let interval;
 
         function calcular(op) {
             let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
             let er = parseFloat(document.getElementById(`er${op}`).value);
+            let eficiencia = parseFloat(document.getElementById(`eficiencia${op}`).value);
 
-            if (!metragem || !er) {
+            if (!metragem || !er || !eficiencia) {
                 alert("Por favor, preencha todos os campos.");
                 return;
             }
 
-            let tempoTotal = metragem / er;
+            let tempoConsumo = metragem / (er * (eficiencia / 100));
+            let velocidadeConsumo = metragem / tempoConsumo;
 
-            clearInterval(intervalo);
-            progresso = 0;
-            intervalo = setInterval(() => {
-                progresso += er / 60;
-                if (progresso >= metragem) {
-                    clearInterval(intervalo);
-                    progresso = metragem;
-                }
-                atualizarBarra(op, progresso, metragem);
-            }, 1000);
+            document.getElementById(`tempo-consumo${op}`).textContent = tempoConsumo.toFixed(2);
+            document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
         }
 
         function adicionarBobina(op) {
             let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
             let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
 
-            if (!bobinaEntrada || !metragem) {
+            if (!bobinaEntrada) {
                 alert("Por favor, preencha a bobina de entrada.");
                 return;
             }
 
             consumos[op - 1] += bobinaEntrada;
-            bobinas.push(bobinaEntrada);
             atualizarBarra(op, consumos[op - 1], metragem);
-            exibirBobina(op, bobinaEntrada);
+
+            let bobinaList = document.getElementById(`bobina-list${op}`);
+            let bobinaItem = document.createElement('div');
+            bobinaItem.classList.add('bobina-item');
+            bobinaItem.textContent = `Bobina de Entrada: ${bobinaEntrada} metros`;
+            bobinaList.appendChild(bobinaItem);
 
             document.getElementById(`bobina-entrada${op}`).value = '';
         }
 
-        function exibirBobina(op, bobina) {
-            let bobinaList = document.getElementById(`bobina-list${op}`);
-            let bobinaItem = document.createElement('div');
-            bobinaItem.classList.add('bobina-item');
-            bobinaItem.textContent = `Bobina de Entrada: ${bobina} metros`;
-            bobinaList.appendChild(bobinaItem);
-        }
-
         function atualizarBarra(op, consumoAtual, metragem) {
-            let barraContainer = document.querySelector('.loading-bar-container');
-            barraContainer.innerHTML = '';
-
-            let totalConsumido = 0;
-            bobinas.forEach((bobina, index) => {
-                let barra = document.createElement('div');
-                barra.classList.add('bobina-bar');
-                barra.style.width = `${(bobina / metragem) * 100}%`;
-                barra.style.left = `${(totalConsumido / metragem) * 100}%`;
-                barra.style.backgroundColor = cores[index % cores.length];
-                barraContainer.appendChild(barra);
-                totalConsumido += bobina;
-            });
-
-            let barraVermelha = document.getElementById(`progress-bar${op}`);
+            let barra = document.getElementById(`loading-bar${op}`);
             let indicador = document.getElementById(`progress-indicator${op}`);
-            let porcentagem = Math.min((consumoAtual / metragem) * 100, 100);
-            barraVermelha.style.width = `${porcentagem}%`;
-            indicador.textContent = `${consumoAtual.toFixed(2)} m`;
+            let porcentagem = (consumoAtual / metragem) * 100;
+            let barraWidth = Math.min(porcentagem, 100);
+
+            barra.style.width = `${barraWidth}%`;
+            indicador.textContent = `${Math.round(consumoAtual)} m`;
+
+            // Adicionando as bobinas com cores diferentes na barra
+            let totalBobinas = document.getElementsByClassName('bobina-item').length;
+            let larguraRestante = barraWidth;
+            for (let i = 0; i < totalBobinas; i++) {
+                let cor = bobinasCores[i % bobinasCores.length]; // Definir uma cor para cada bobina
+                let barraInterna = document.createElement('div');
+                barraInterna.style.position = "absolute";
+                barraInterna.style.left = `${larguraRestante}%`;
+                barraInterna.style.width = `${(consumoAtual / metragem) * 100}%`;
+                barraInterna.style.height = '100%';
+                barraInterna.style.backgroundColor = cor;
+                barraInterna.style.zIndex = 1;
+                barra.appendChild(barraInterna);
+                larguraRestante -= (consumoAtual / metragem) * 100;
+            }
         }
     </script>
 </body>
