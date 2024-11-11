@@ -56,19 +56,18 @@
             margin-top: 20px;
             overflow: hidden;
         }
-        .loading-bar, .red-bar {
+        .loading-bar {
             height: 100%;
             position: absolute;
-        }
-        .loading-bar {
-            background-color: #28a745;
+            top: 0;
+            left: 0;
             border-radius: 5px;
-            width: 0%;
         }
         .red-bar {
             background-color: rgba(255, 0, 0, 0.7);
             z-index: 1;
             width: 0%;
+            height: 100%;
         }
         .bobina-segment {
             height: 100%;
@@ -132,8 +131,9 @@
 
     <script>
         let consumos = [0];
-        let cores = ['#FFD700', '#00CED1', '#FF69B4', '#8A2BE2', '#FF6347', '#32CD32']; // Mais cores para cada bobina
+        let cores = ['#FFD700', '#00CED1', '#FF69B4', '#8A2BE2']; // Cores para cada bobina
         let velocidades = [0];
+        let segmentosBobinas = [];
 
         function calcular(op) {
             let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
@@ -164,21 +164,42 @@
             }
 
             consumos[op - 1] += bobinaEntrada;
-            atualizarBarra(op, consumos[op - 1], metragem);
-
             let corBobina = cores[Math.floor(Math.random() * cores.length)];
+            segmentosBobinas.push({ consumo: bobinaEntrada, cor: corBobina });
+            atualizarBarra(op, consumos[op - 1], metragem);
+            atualizarListaBobinas(op, bobinaEntrada, corBobina);
+        }
+
+        function atualizarBarra(op, consumoAtual, metragem) {
+            let porcentagem = Math.min((consumoAtual / metragem) * 100, 100);
+            let loadingBar = document.getElementById(`loading-bar${op}`);
+            let redBar = document.getElementById(`red-bar${op}`);
+            loadingBar.style.width = `${porcentagem}%`;
+            redBar.style.width = `${porcentagem}%`;
+
+            // Atualizar a cor da barra conforme os segmentos de bobina
+            let larguraBarra = 0;
+            segmentosBobinas.forEach((segmento, index) => {
+                let segmentoWidth = (segmento.consumo / metragem) * 100;
+                let bobinaSegment = document.createElement('div');
+                bobinaSegment.classList.add('bobina-segment');
+                bobinaSegment.style.backgroundColor = segmento.cor;
+                bobinaSegment.style.width = `${segmentoWidth}%`;
+                bobinaSegment.style.left = `${larguraBarra}%`;
+                larguraBarra += segmentoWidth;
+                loadingBar.appendChild(bobinaSegment);
+            });
+
+            document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual} m`;
+        }
+
+        function atualizarListaBobinas(op, bobinaEntrada, corBobina) {
             let bobinaList = document.getElementById(`bobina-list${op}`);
             let bobinaItem = document.createElement('div');
             bobinaItem.classList.add('bobina-item');
             bobinaItem.style.backgroundColor = corBobina;
             bobinaItem.textContent = `Bobina: ${bobinaEntrada} m`;
             bobinaList.appendChild(bobinaItem);
-        }
-
-        function atualizarBarra(op, consumoAtual, metragem) {
-            let porcentagem = Math.min((consumoAtual / metragem) * 100, 100);
-            document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
-            document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual} m`;
         }
 
         function iniciarBarraVermelha(op, metragem, velocidade) {
@@ -188,6 +209,7 @@
                 progresso += velocidade / 60;
                 let porcentagem = Math.min((progresso / metragem) * 100, 100);
                 redBar.style.width = `${porcentagem}%`;
+                document.getElementById(`progress-indicator${op}`).textContent = `${Math.floor(progresso)} m`;
                 if (porcentagem >= 100) clearInterval(intervalo);
             }, 1000);
         }
