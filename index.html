@@ -107,17 +107,6 @@
             margin-top: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
-        /* Estilo para o hexágono */
-        .hexagon {
-            width: 100px;
-            height: 58px;
-            background-color: #28a745;
-            position: absolute;
-            bottom: -70px;
-            right: 10px;
-            transform: rotate(90deg);
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-        }
     </style>
 </head>
 <body>
@@ -155,9 +144,6 @@
 
         <!-- Painel digital para metragem -->
         <div class="digital-display" id="digital-display1">0 m</div>
-
-        <!-- Hexágono que muda de cor -->
-        <div class="hexagon" id="hexagon1"></div>
     </div>
 
     <script>
@@ -166,9 +152,9 @@
         let velocidades = [0];
 
         function calcular(op) {
-            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
-            let er = parseFloat(document.getElementById(`er${op}`).value);
-            let eficiencia = parseFloat(document.getElementById(`eficiencia${op}`).value);
+            let metragem = parseFloat(document.getElementById(metragem${op}).value);
+            let er = parseFloat(document.getElementById(er${op}).value);
+            let eficiencia = parseFloat(document.getElementById(eficiencia${op}).value);
 
             if (!metragem || !er || !eficiencia) {
                 alert("Por favor, preencha todos os campos.");
@@ -178,15 +164,15 @@
             let tempoConsumo = metragem / (er * (eficiencia / 100));
             let velocidadeConsumo = metragem / tempoConsumo;
 
-            document.getElementById(`tempo-consumo${op}`).textContent = tempoConsumo.toFixed(2);
-            document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
+            document.getElementById(tempo-consumo${op}).textContent = tempoConsumo.toFixed(2);
+            document.getElementById(velocidade-consumo${op}).textContent = velocidadeConsumo.toFixed(2);
             velocidades[op - 1] = velocidadeConsumo;
             iniciarBarraVermelha(op, metragem, velocidadeConsumo);
         }
 
         function adicionarBobina(op) {
-            let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
-            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
+            let bobinaEntrada = parseFloat(document.getElementById(bobina-entrada${op}).value);
+            let metragem = parseFloat(document.getElementById(metragem${op}).value);
 
             if (!bobinaEntrada) {
                 alert("Por favor, preencha a bobina de entrada.");
@@ -197,20 +183,20 @@
             marcacoes.push(consumos[op - 1]); // Adiciona a posição da marcação na lista
             atualizarBarra(op, consumos[op - 1], metragem);
 
-            let bobinaList = document.getElementById(`bobina-list${op}`);
+            let bobinaList = document.getElementById(bobina-list${op});
             let bobinaItem = document.createElement('div');
             bobinaItem.classList.add('bobina-item');
-            bobinaItem.textContent = `Bobina: ${bobinaEntrada} m`;
+            bobinaItem.textContent = Bobina: ${bobinaEntrada} m;
             bobinaList.appendChild(bobinaItem);
         }
 
         function atualizarBarra(op, consumoAtual, metragem) {
             let porcentagem = Math.min((consumoAtual / metragem) * 100, 100);
-            document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
-            document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual} m`;
+            document.getElementById(loading-bar${op}).style.width = ${porcentagem}%;
+            document.getElementById(progress-indicator${op}).textContent = ${consumoAtual} m;
 
             // Atualiza o painel digital em tempo real
-            document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
+            document.getElementById(digital-display${op}).textContent = ${consumoAtual.toFixed(2)} m;
 
             // Adiciona as marcações
             let barraContainer = document.querySelector(".loading-bar-container");
@@ -222,13 +208,25 @@
                 let posicao = (marcacao / metragem) * 100;
                 let marking = document.createElement('div');
                 marking.classList.add('marking');
-                marking.style.left = ${posicao}%; 
-                barraContainer.appendChild(marking); });
-// Muda a cor do hexágono ao atingir uma marcação
-        if (marcacoes.includes(consumoAtual)) {
-            document.getElementById(`hexagon${op}`).style.backgroundColor = '#dc3545';
+                marking.style.left = ${posicao}%;
+                barraContainer.appendChild(marking);
+            });
         }
-    }
-</script>
+
+        function iniciarBarraVermelha(op, metragem, velocidade) {
+            let progresso = 0;
+            let intervalo = setInterval(() => {
+                progresso += velocidade / 60;
+                let porcentagem = Math.min((progresso / metragem) * 100, 100);
+                document.getElementById(loading-bar${op}).style.width = ${porcentagem}%;
+                document.getElementById(progress-indicator${op}).textContent = ${(progresso).toFixed(2)} m;
+                document.getElementById(digital-display${op}).textContent = ${(progresso).toFixed(2)} m;
+
+                if (porcentagem >= 100) {
+                    clearInterval(intervalo);
+                }
+            }, 1000);
+        }
+    </script>
 </body>
 </html>
