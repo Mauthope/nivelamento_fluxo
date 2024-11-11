@@ -26,6 +26,7 @@
         }
         h2 {
             text-align: center;
+            color: #fff;
         }
         input, button {
             width: 100%;
@@ -37,12 +38,18 @@
             color: #fff;
             font-size: 16px;
         }
+        input:focus, button:focus {
+            outline: none;
+        }
         button {
             background-color: #007bff;
             cursor: pointer;
         }
         button:hover {
             background-color: #0056b3;
+        }
+        .results, .bobinas {
+            margin-top: 20px;
         }
         .loading-bar-container {
             position: relative;
@@ -72,32 +79,43 @@
             top: -25px;
             right: 10px;
             font-weight: bold;
+            color: #fff;
+        }
+        .bobina-list {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .bobina-item {
+            background-color: #444;
+            padding: 5px;
+            border-radius: 5px;
+            margin-bottom: 5px;
         }
         .digital-display {
             font-family: 'Courier New', monospace;
             font-size: 24px;
-            color: #fff;
             background-color: #333;
             padding: 10px;
             border-radius: 10px;
             text-align: center;
             margin-top: 10px;
         }
-        /* Estilo para o hexágono */
+        /* Hexágono */
         .hexagon-container {
             display: flex;
             justify-content: center;
             margin-top: 20px;
         }
         .hexagon {
-            width: 100px;
-            height: 55px;
+            width: 80px;
+            height: 45px;
             background-color: #28a745;
             clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-            transition: background-color 0.5s;
+            transition: background-color 0.3s;
         }
         .hexagon.red {
-            background-color: #ff0000;
+            background-color: #dc3545;
         }
     </style>
 </head>
@@ -111,11 +129,19 @@
         <label for="eficiencia1">Eficiência (%):</label>
         <input type="number" id="eficiencia1" placeholder="Digite a eficiência (%)" value="0">
         <button onclick="calcular(1)">Calcular</button>
-
+        
         <div class="results">
             <h2>Resultados</h2>
             <p>Tempo de Consumo (min): <span id="tempo-consumo1">-</span></p>
             <p>Velocidade de Consumo (m/min): <span id="velocidade-consumo1">-</span></p>
+        </div>
+
+        <div class="bobinas">
+            <h2>Bobinas</h2>
+            <label for="bobina-entrada1">Bobina de Entrada (m):</label>
+            <input type="number" id="bobina-entrada1" placeholder="Digite a bobina de entrada">
+            <button onclick="adicionarBobina(1)">Inserir Bobina</button>
+            <div class="bobina-list" id="bobina-list1"></div>
         </div>
 
         <div>
@@ -126,10 +152,7 @@
             </div>
         </div>
 
-        <!-- Painel digital para metragem -->
-        <div class="digital-display" id="digital-display1">0 m</div>
-
-        <!-- Hexágono que muda de cor -->
+        <!-- Hexágono Interativo -->
         <div class="hexagon-container">
             <div class="hexagon" id="hexagon1"></div>
         </div>
@@ -156,32 +179,26 @@
             document.getElementById(`tempo-consumo${op}`).textContent = tempoConsumo.toFixed(2);
             document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
             velocidades[op - 1] = velocidadeConsumo;
-            iniciarBarraVermelha(op, metragem, velocidadeConsumo);
+        }
+
+        function adicionarBobina(op) {
+            let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
+            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
+
+            consumos[op - 1] += bobinaEntrada;
+            atualizarBarra(op, consumos[op - 1], metragem);
         }
 
         function atualizarBarra(op, consumoAtual, metragem) {
             let porcentagem = Math.min((consumoAtual / metragem) * 100, 100);
             document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
             document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual} m`;
-            document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
 
+            // Muda a cor do hexágono quando atinge uma marcação
+            const hexagon = document.getElementById(`hexagon${op}`);
             if (marcacoes.includes(consumoAtual)) {
-                mudarCorHexagono(op);
+                hexagon.classList.add("red");
             }
-        }
-
-        function iniciarBarraVermelha(op, metragem, velocidade) {
-            let progresso = 0;
-            let intervalo = setInterval(() => {
-                progresso += velocidade / 60;
-                atualizarBarra(op, progresso, metragem);
-                if (progresso >= metragem) clearInterval(intervalo);
-            }, 1000);
-        }
-
-        function mudarCorHexagono(op) {
-            let hexagono = document.getElementById(`hexagon${op}`);
-            hexagono.classList.add('red');
         }
     </script>
 </body>
