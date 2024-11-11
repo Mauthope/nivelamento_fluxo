@@ -218,7 +218,7 @@
             bobinaList.appendChild(bobinaItem);
         }
 
-       function atualizarBarra(op, consumoAtual, metragem) {
+      function atualizarBarra(op, consumoAtual, metragem) {
     let porcentagem = Math.min((consumoAtual / metragem) * 100, 100);
     document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
     document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual} m`;
@@ -231,7 +231,8 @@
     let marcações = document.querySelectorAll('.marking');
     marcações.forEach(marcacao => marcacao.remove()); // Remove todas as marcações anteriores
 
-    marcacoes.forEach((marcacao, index) => {
+    // Começa a partir da bobina 2, ignorando a 1
+    marcacoes.slice(1).forEach((marcacao, index) => {
         let marking = document.createElement('div');
         marking.classList.add('marking');
         
@@ -244,7 +245,7 @@
 
         // Para exibir a posição da marcação de forma legível
         let markerText = document.createElement('span');
-        markerText.textContent = `Bobina ${index + 1}`;
+        markerText.textContent = `Bobina ${index + 2}`;  // Ajuste aqui para começar a numeração pela bobina 2
         markerText.style.position = 'absolute';
         markerText.style.left = `${position}%`;
         markerText.style.top = '5px';
@@ -259,6 +260,7 @@
         circle.style.backgroundColor = "red"; // Quando passar da marcação, o círculo fica vermelho
     }
 }
+
 
         // Função para restaurar a cor do círculo para verde
         function resetarCorCírculo(op) {
