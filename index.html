@@ -107,19 +107,6 @@
             margin-top: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
-        /* Estilo para o hexágono */
-        .hexagon {
-            width: 60px;
-            height: 60px;
-            position: absolute;
-            top: 50%;
-            left: 100%;
-            margin-left: 20px;
-            transform: translateY(-50%);
-            background-color: #28a745;
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-            transition: background-color 0.5s ease;
-        }
     </style>
 </head>
 <body>
@@ -152,7 +139,6 @@
             <div class="loading-bar-container">
                 <div class="loading-bar" id="loading-bar1"></div>
                 <div class="progress-indicator" id="progress-indicator1">0 m</div>
-                <div class="hexagon" id="hexagon1"></div> <!-- Hexágono adicionado -->
             </div>
         </div>
 
@@ -166,9 +152,9 @@
         let velocidades = [0];
 
         function calcular(op) {
-            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
-            let er = parseFloat(document.getElementById(`er${op}`).value);
-            let eficiencia = parseFloat(document.getElementById(`eficiencia${op}`).value);
+            let metragem = parseFloat(document.getElementById(metragem${op}).value);
+            let er = parseFloat(document.getElementById(er${op}).value);
+            let eficiencia = parseFloat(document.getElementById(eficiencia${op}).value);
 
             if (!metragem || !er || !eficiencia) {
                 alert("Por favor, preencha todos os campos.");
@@ -178,15 +164,15 @@
             let tempoConsumo = metragem / (er * (eficiencia / 100));
             let velocidadeConsumo = metragem / tempoConsumo;
 
-            document.getElementById(`tempo-consumo${op}`).textContent = tempoConsumo.toFixed(2);
-            document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
+            document.getElementById(tempo-consumo${op}).textContent = tempoConsumo.toFixed(2);
+            document.getElementById(velocidade-consumo${op}).textContent = velocidadeConsumo.toFixed(2);
             velocidades[op - 1] = velocidadeConsumo;
             iniciarBarraVermelha(op, metragem, velocidadeConsumo);
         }
 
         function adicionarBobina(op) {
-            let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
-            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
+            let bobinaEntrada = parseFloat(document.getElementById(bobina-entrada${op}).value);
+            let metragem = parseFloat(document.getElementById(metragem${op}).value);
 
             if (!bobinaEntrada) {
                 alert("Por favor, preencha a bobina de entrada.");
@@ -197,22 +183,22 @@
             marcacoes.push(consumos[op - 1]); // Adiciona a posição da marcação na lista
             atualizarBarra(op, consumos[op - 1], metragem);
 
-            let bobinaList = document.getElementById(`bobina-list${op}`);
+            let bobinaList = document.getElementById(bobina-list${op});
             let bobinaItem = document.createElement('div');
             bobinaItem.classList.add('bobina-item');
-            bobinaItem.textContent = `Bobina: ${bobinaEntrada} m`;
+            bobinaItem.textContent = Bobina: ${bobinaEntrada} m;
             bobinaList.appendChild(bobinaItem);
         }
 
         function atualizarBarra(op, consumoAtual, metragem) {
             let porcentagem = Math.min((consumoAtual / metragem) * 100, 100);
-            document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
-            document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual} m`;
+            document.getElementById(loading-bar${op}).style.width = ${porcentagem}%;
+            document.getElementById(progress-indicator${op}).textContent = ${consumoAtual} m;
 
             // Atualiza o painel digital em tempo real
-            document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
+            document.getElementById(digital-display${op}).textContent = ${consumoAtual.toFixed(2)} m;
 
-            // Atualiza as marcações
+            // Adiciona as marcações
             let barraContainer = document.querySelector(".loading-bar-container");
             let marcações = document.querySelectorAll('.marking');
             marcações.forEach(marcacao => marcacao.remove()); // Remove as marcações antigas
@@ -220,21 +206,24 @@
             // Adiciona as novas marcações
             marcacoes.forEach(marcacao => {
                 let posicao = (marcacao / metragem) * 100;
-                let marcacaoElemento = document.createElement('div');
-                marcacaoElemento.classList.add('marking');
-                marcacaoElemento.style.left = `${posicao}%`;
-                barraContainer.appendChild(marcacaoElemento);
+                let marking = document.createElement('div');
+                marking.classList.add('marking');
+                marking.style.left = ${posicao}%;
+                barraContainer.appendChild(marking);
             });
         }
 
-        function iniciarBarraVermelha(op, metragem, velocidadeConsumo) {
+        function iniciarBarraVermelha(op, metragem, velocidade) {
+            let progresso = 0;
             let intervalo = setInterval(() => {
-                consumos[op - 1] += velocidadeConsumo / 60;
-                atualizarBarra(op, consumos[op - 1], metragem);
+                progresso += velocidade / 60;
+                let porcentagem = Math.min((progresso / metragem) * 100, 100);
+                document.getElementById(loading-bar${op}).style.width = ${porcentagem}%;
+                document.getElementById(progress-indicator${op}).textContent = ${(progresso).toFixed(2)} m;
+                document.getElementById(digital-display${op}).textContent = ${(progresso).toFixed(2)} m;
 
-                if (consumos[op - 1] >= metragem) {
+                if (porcentagem >= 100) {
                     clearInterval(intervalo);
-                    document.getElementById(`hexagon${op}`).style.backgroundColor = "#ff0000"; // Muda a cor para vermelho
                 }
             }, 1000);
         }
