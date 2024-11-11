@@ -81,6 +81,40 @@
             border-radius: 5px;
             margin-bottom: 5px;
         }
+        .progress-container {
+            width: 80%;
+            background-color: #e0e0e0;
+            border-radius: 20px;
+            padding: 5px;
+            margin: 20px auto;
+        }
+        .progress-bar {
+            height: 30px;
+            border-radius: 15px;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
+        .bobina {
+            height: 100%;
+            position: absolute;
+        }
+        .barra-vermelha {
+            height: 100%;
+            background-color: red;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        .numerador {
+            position: absolute;
+            right: 10px;
+            top: 5px;
+            font-weight: bold;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -117,7 +151,13 @@
             </div>
         </div>
     </div>
-
+ <div class="progress-container">
+        <div class="progress-bar" id="progress-bar">
+            <div class="barra-vermelha" id="barra-vermelha">
+                <span class="numerador" id="numerador">0%</span>
+            </div>
+        </div>
+    </div>
     <script>
         let consumos = [0, 0, 0, 0];
 
@@ -166,6 +206,50 @@
             barra.style.width = `${porcentagem}%`;
             indicador.textContent = `${consumoAtual} m`;
         }
+         // Dados iniciais
+        const metragemOP = 1000; // Metragem total da OP
+        const bobinas = [
+            { cor: "#4CAF50", metragem: 300 },
+            { cor: "#FF9800", metragem: 200 },
+            { cor: "#3F51B5", metragem: 150 }
+        ];
+
+        const progressBar = document.getElementById("progress-bar");
+        const barraVermelha = document.getElementById("barra-vermelha");
+        const numerador = document.getElementById("numerador");
+
+        // Função para renderizar as bobinas na barra
+        function renderBobinas() {
+            let offset = 0;
+            bobinas.forEach((bobina, index) => {
+                const bobinaDiv = document.createElement("div");
+                bobinaDiv.classList.add("bobina");
+                bobinaDiv.style.backgroundColor = bobina.cor;
+                bobinaDiv.style.left = `${(offset / metragemOP) * 100}%`;
+                bobinaDiv.style.width = `${(bobina.metragem / metragemOP) * 100}%`;
+                progressBar.appendChild(bobinaDiv);
+                offset += bobina.metragem;
+            });
+        }
+
+        renderBobinas();
+
+        // Função para atualizar a barra vermelha com base na velocidade
+        let consumoAtual = 0;
+        const velocidade = 20; // Velocidade de consumo (unidades por segundo)
+
+        function atualizarProgresso() {
+            if (consumoAtual < metragemOP) {
+                consumoAtual += velocidade;
+                const progresso = (consumoAtual / metragemOP) * 100;
+                barraVermelha.style.width = `${progresso}%`;
+                numerador.textContent = `${Math.min(100, progresso.toFixed(2))}%`;
+                setTimeout(atualizarProgresso, 1000); // Atualiza a cada segundo
+            }
+        }
+
+        // Iniciar o progresso
+        atualizarProgresso();
     </script>
 </body>
 </html>
