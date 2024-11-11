@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width: device-width, initial-scale=1.0">
     <title>Barra de Loading Personalizada - Consumo de Bobinas</title>
     <style>
         body {
@@ -134,6 +134,7 @@
         let consumos = [0];
         let cores = ['#FFD700', '#00CED1', '#FF69B4', '#8A2BE2']; // Cores para cada bobina
         let velocidades = [0];
+        let segmentos = [];
 
         function calcular(op) {
             let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
@@ -173,6 +174,14 @@
             bobinaItem.style.backgroundColor = corBobina;
             bobinaItem.textContent = `Bobina: ${bobinaEntrada} m`;
             bobinaList.appendChild(bobinaItem);
+
+            // Adiciona a marcação da bobina na barra de consumo
+            let marcador = document.createElement('div');
+            marcador.classList.add('bobina-segment');
+            marcador.style.width = `${(bobinaEntrada / metragem) * 100}%`;
+            marcador.style.backgroundColor = corBobina;
+            document.getElementById(`loading-bar${op}`).appendChild(marcador);
+            segmentos.push(marcador);
         }
 
         function atualizarBarra(op, consumoAtual, metragem) {
