@@ -100,14 +100,6 @@
         .reset-button:hover {
             background-color: #e0e0e0;
         }
-        .start-button {
-            background-color: #28a745;
-            color: #fff;
-            margin-top: 10px;
-        }
-        .start-button:hover {
-            background-color: #218838;
-        }
     </style>
 </head>
 <body>
@@ -123,6 +115,8 @@
         <input type="number" id="inicial" value="2" disabled>
         <button onclick="calcular(1)">Calcular</button>
 
+        <button onclick="iniciarProgresso(1)">Iniciar</button> <!-- Novo botão Iniciar -->
+
         <div class="results">
             <h2>Resultados</h2>
             <p>Tempo de Consumo (min): <span id="tempo-consumo1">-</span></p>
@@ -136,9 +130,6 @@
             <button onclick="adicionarBobina(1)">Inserir Bobina</button>
             <div id="bobina-list1"></div>
         </div>
-
-        <!-- Novo botão "Iniciar" -->
-        <button class="start-button" id="start-button1" onclick="iniciarProgresso(1)">Iniciar</button>
 
         <div class="loading-bar-container">
             <div class="loading-bar" id="loading-bar1"></div>
@@ -180,8 +171,8 @@
         function iniciarProgresso(op) {
             let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
 
-            if (!metragem || consumos[op - 1] <= 0) {
-                alert("Preencha a metragem da OP e insira pelo menos uma bobina.");
+            if (!metragem) {
+                alert("Digite a metragem da OP.");
                 return;
             }
 
@@ -227,12 +218,11 @@
         function verificarMarca(op, consumoAtual) {
             // Verificar se a barra atingiu alguma marca de bobina
             for (let i = 0; i < marcacoes.length; i++) {
-                if (Math.abs(consumoAtual - marcacoes[i]) < 0.1) {  // Ajuste com tolerância
+                if (Math.abs(consumoAtual - marcacoes[i]) < 0.1) {  // Ajuste de tolerância para evitar precisão excessiva
                     document.getElementById(`circle${op}`).style.backgroundColor = "red";
-                    return;
+                    break;
                 }
             }
-            document.getElementById(`circle${op}`).style.backgroundColor = "yellow";
         }
 
         function atualizarBarra(op, consumoAtual, metragem) {
