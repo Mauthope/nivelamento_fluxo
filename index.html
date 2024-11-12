@@ -123,13 +123,7 @@
             <p>Velocidade de Consumo (m/min): <span id="velocidade-consumo1">-</span></p>
         </div>
 
-        <div class="bobinas">
-            <h2>Bobinas</h2>
-            <label for="bobina-entrada1">Bobina de Entrada (m):</label>
-            <input type="number" id="bobina-entrada1" placeholder="Digite a bobina de entrada">
-            <button onclick="adicionarBobina(1)">Inserir Bobina</button>
-            <div id="bobina-list1"></div>
-        </div>
+       
 
         <div class="loading-bar-container">
             <div class="loading-bar" id="loading-bar1"></div>
@@ -139,7 +133,13 @@
 
         
          <button onclick="iniciarProgresso(1)">Iniciar</button> <!-- Novo botão Iniciar -->
-        
+         <div class="bobinas">
+            <h2>Bobinas</h2>
+            <label for="bobina-entrada1">Bobina de Entrada (m):</label>
+            <input type="number" id="bobina-entrada1" placeholder="Digite a bobina de entrada">
+            <button onclick="adicionarBobina(1)">Inserir Bobina</button>
+            <div id="bobina-list1"></div>
+        </div>
 
         <div class="circle" id="circle1">
             <button class="reset-button" onclick="resetarCorCírculo(1)">Resetar</button>
