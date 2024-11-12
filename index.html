@@ -23,6 +23,19 @@
             border-radius: 10px;
             background-color: #2d2d2d;
         }
+
+        /* Estilo do select */
+        .container select {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background-color: #fff;
+            color: #333;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
         h2 {
             text-align: center;
         }
@@ -107,22 +120,24 @@
         <h2>Impressora 1</h2>
         <label for="metragem1">Metragem da OP (m):</label>
         <input type="number" id="metragem1" placeholder="Digite a metragem da OP">
+        
         <label for="material">Material:</label>
-<select id="material">
-    <option value="" disabled selected>Selecione o materal</option>
-    <option value="TECIDO POLIPROPILENO 045X104GR PLAST TUB PRETO FILME PP FOSCO FILME PP BRANCO II- VERDE PEQUENO 15KG
-        ">TECIDO POLIPROPILENO 045X104GR PLAST TUB PRETO FILME PP FOSCO FILME PP BRANCO II- VERDE PEQUENO 15KG
-    </option>
-    <option value="TECIDO POLIPROPILENO 050X57GR PLAST TUB BRANCO
-        ">TECIDO POLIPROPILENO 050X57GR PLAST TUB BRANCO
-    </option>
-    <option value="TECIDO POLIPROPILENO 050X68GR PLAST TUB BRANCO SOLDADO
-        ">TECIDO POLIPROPILENO 050X68GR PLAST TUB BRANCO SOLDADO
-    </option>
-    <option value="TECIDO POLIPROPILENO 055X65GR PLAST TUB BRANCO ANTIDERRAPANTE
-        ">TECIDO POLIPROPILENO 055X65GR PLAST TUB BRANCO ANTIDERRAPANTE
-    </option>
-</select>
+                <select id="material">
+                    <option value="" disabled selected>Selecione o materal</option>
+                    <option value="TECIDO POLIPROPILENO 045X104GR PLAST TUB PRETO FILME PP FOSCO FILME PP BRANCO II- VERDE PEQUENO 15KG
+                        ">TECIDO POLIPROPILENO 045X104GR PLAST TUB PRETO FILME PP FOSCO FILME PP BRANCO II- VERDE PEQUENO 15KG
+                    </option>
+                    <option value="TECIDO POLIPROPILENO 050X57GR PLAST TUB BRANCO
+                        ">TECIDO POLIPROPILENO 050X57GR PLAST TUB BRANCO
+                    </option>
+                    <option value="TECIDO POLIPROPILENO 050X68GR PLAST TUB BRANCO SOLDADO
+                        ">TECIDO POLIPROPILENO 050X68GR PLAST TUB BRANCO SOLDADO
+                    </option>
+                    <option value="TECIDO POLIPROPILENO 055X65GR PLAST TUB BRANCO ANTIDERRAPANTE
+                        ">TECIDO POLIPROPILENO 055X65GR PLAST TUB BRANCO ANTIDERRAPANTE
+                    </option>
+                </select>
+        
         <label for="er1">ER (m/min):</label>
         <input type="number" id="er1" placeholder="Digite a ER (m/min)">
         <label for="eficiencia1">Eficiência (%):</label>
