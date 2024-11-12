@@ -145,6 +145,7 @@
         let marcacoes = [0];
         let velocidades = [0];
         let intervalo;
+        let bobinas = [0];
 
         function calcular(op) {
             let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
@@ -192,6 +193,7 @@
             }
 
             consumos[op - 1] += bobinaEntrada;
+            bobinas.push(bobinaEntrada);
             marcarBobina(op, consumos[op - 1], metragem);
         }
 
@@ -206,9 +208,12 @@
         }
 
         function verificarMarca(op, consumoAtual) {
-            let marcacaoPassada = marcacoes.filter(marcacao => marcacao <= consumoAtual);
-            if (marcacaoPassada.length > 0) {
-                document.getElementById(`circle${op}`).style.backgroundColor = "red";
+            // Verifica se o consumo atual passou de alguma bobina de entrada
+            for (let i = 0; i < bobinas.length; i++) {
+                if (consumoAtual >= bobinas[i]) {
+                    document.getElementById(`circle${op}`).style.backgroundColor = "red";
+                    break;
+                }
             }
         }
 
@@ -221,6 +226,11 @@
 
         function resetarCorCírculo(op) {
             document.getElementById(`circle${op}`).style.backgroundColor = "green";
+            clearInterval(intervalo);
+            consumos[op - 1] = 0;
+            document.getElementById(`loading-bar${op}`).style.width = "0%";
+            document.getElementById(`progress-indicator${op}`).textContent = "0 m";
+            document.getElementById(`digital-display${op}`).textContent = "0 m";
         }
     </script>
 </body>
