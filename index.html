@@ -26,7 +26,6 @@
         }
         h2 {
             text-align: center;
-            color: #fff;
         }
         input, button {
             width: 100%;
@@ -37,11 +36,6 @@
             background-color: #333;
             color: #fff;
             font-size: 16px;
-        }
-        input:focus, button:focus {
-            outline: none;
-            border-color: #007bff;
-            background-color: #444;
         }
         button {
             background-color: #007bff;
@@ -60,7 +54,6 @@
             background-color: #444;
             border-radius: 5px;
             margin-top: 20px;
-            overflow: hidden;
         }
         .loading-bar {
             height: 100%;
@@ -74,65 +67,23 @@
             height: 100%;
             width: 2px;
             background-color: #ff0000;
-            top: 0;
         }
-        .progress-indicator {
-            position: absolute;
-            top: -25px;
-            right: 10px;
-            font-weight: bold;
-            color: #fff;
-        }
-        .bobina-list {
-            max-height: 150px;
-            overflow-y: auto;
-            margin-top: 10px;
-        }
-        .bobina-item {
-            background-color: #444;
-            padding: 5px;
-            border-radius: 5px;
-            margin-bottom: 5px;
-            color: #fff;
-        }
-        /* Novo estilo para o painel digital */
-        .digital-display {
-            font-family: 'Courier New', monospace;
-            font-size: 24px;
-            color: #fff;
-            background-color: #333;
-            padding: 10px;
-            border-radius: 10px;
-            text-align: center;
-            margin-top: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Estilo para o círculo */
         .circle {
             width: 200px;
             height: 200px;
             border-radius: 50%;
             background-color: green;
-            margin-top: 20px;
-            margin-left: 50%;
-            transform: translateX(-50%);
+            margin: 20px auto;
         }
-
-        /* Estilo para o botão de reset */
         .reset-button {
-            width: 20%;
-            margin-top: 10px;
             background-color: #ff0000;
-        }
-
-        .reset-button:hover {
-            background-color: #d10000;
+            width: 50%;
+            margin: 10px auto;
         }
     </style>
 </head>
 <body>
-    <div class="container" id="container1">
+    <div class="container">
         <h2>Impressora 1</h2>
         <label for="metragem1">Metragem da OP (m):</label>
         <input type="number" id="metragem1" placeholder="Digite a metragem da OP">
@@ -140,46 +91,26 @@
         <input type="number" id="er1" placeholder="Digite a ER (m/min)">
         <label for="eficiencia1">Eficiência (%):</label>
         <input type="number" id="eficiencia1" placeholder="Digite a eficiência (%)" value="0">
-        <label for="inicial">Quantidade inicial de bobinas 2:</label>
-        <input type="number" id="inicial" value="2" disabled>
         <button onclick="calcular(1)">Calcular</button>
-        
+
         <div class="results">
             <h2>Resultados</h2>
             <p>Tempo de Consumo (min): <span id="tempo-consumo1">-</span></p>
             <p>Velocidade de Consumo (m/min): <span id="velocidade-consumo1">-</span></p>
         </div>
 
-        <div class="bobinas">
-            <h2>Bobinas</h2>
-            <label for="bobina-entrada1">Bobina de Entrada (m):</label>
-            <input type="number" id="bobina-entrada1" placeholder="Digite a bobina de entrada">
-            <button onclick="adicionarBobina(1)">Inserir Bobina</button>
-            <div class="bobina-list" id="bobina-list1"></div>
+        <div class="loading-bar-container">
+            <div class="loading-bar" id="loading-bar1"></div>
         </div>
-
-        <div>
-            <h2>Barra de Consumo</h2>
-            <div class="loading-bar-container">
-                <div class="loading-bar" id="loading-bar1"></div>
-                <div class="progress-indicator" id="progress-indicator1">0 m</div>
-            </div>
-        </div>
-
-        <!-- Painel digital para metragem -->
-        <div class="digital-display" id="digital-display1">0 m</div>
 
         <!-- Círculo que muda de cor -->
         <div class="circle" id="circle1"></div>
-
-        <!-- Botão para resetar a cor do círculo -->
         <button class="reset-button" onclick="resetarCorCírculo(1)">Resetar Círculo</button>
     </div>
 
     <script>
         let consumos = [0];
-        let marcacoes = [0]; // Armazena as posições das marcações das bobinas
-        let velocidades = [0];
+        let marcacoes = [0];
 
         function calcular(op) {
             let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
@@ -196,78 +127,22 @@
 
             document.getElementById(`tempo-consumo${op}`).textContent = tempoConsumo.toFixed(2);
             document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
-            velocidades[op - 1] = velocidadeConsumo;
+
+            // Alterar o círculo para amarelo ao calcular
+            let circle = document.getElementById(`circle${op}`);
+            circle.style.backgroundColor = "yellow";
+
             iniciarBarraVermelha(op, metragem, velocidadeConsumo);
         }
 
-        function adicionarBobina(op) {
-            let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
-            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
+        function atualizarBarra(op, consumoAtual, metragem) {
+            let porcentagem = Math.min((consumoAtual / metragem) * 100, 100);
+            document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
 
-            if (!bobinaEntrada) {
-                alert("Por favor, preencha a bobina de entrada.");
-                return;
+            if (consumoAtual >= metragem) {
+                let circle = document.getElementById(`circle${op}`);
+                circle.style.backgroundColor = "red"; // Círculo fica vermelho ao completar o consumo
             }
-
-            consumos[op - 1] += bobinaEntrada;
-            marcacoes.push(consumos[op - 1]); // Adiciona a posição da marcação na lista
-            atualizarBarra(op, consumos[op - 1], metragem);
-
-            let bobinaList = document.getElementById(`bobina-list${op}`);
-            let bobinaItem = document.createElement('div');
-            bobinaItem.classList.add('bobina-item');
-            bobinaItem.textContent = `Bobina: ${bobinaEntrada} m`;
-            bobinaList.appendChild(bobinaItem);
-        }
-
-      function atualizarBarra(op, consumoAtual, metragem) {
-    let porcentagem = Math.min((consumoAtual / metragem) * 100, 100);
-    document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
-    document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual} m`;
-
-    // Atualiza o painel digital em tempo real
-    document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
-
-    // Adiciona as marcações de forma independente para cada bobina
-    let barraContainer = document.querySelector(".loading-bar-container");
-    let marcações = document.querySelectorAll('.marking');
-    marcações.forEach(marcacao => marcacao.remove()); // Remove todas as marcações anteriores
-
-    // Começa a partir da bobina 2, ignorando a 1
-    marcacoes.slice(1).forEach((marcacao, index) => {
-        let marking = document.createElement('div');
-        marking.classList.add('marking');
-        
-        // Cada marcação será colocada de forma proporcional ao valor da bobina na barra
-        let position = (marcacao / metragem) * 100;
-        marking.style.left = `${position}%`;
-        
-        // Adiciona a marcação à barra
-        barraContainer.appendChild(marking);
-
-        // Para exibir a posição da marcação de forma legível
-        let markerText = document.createElement('span');
-        markerText.textContent = `Bobina ${index + 2}`;  // Ajuste aqui para começar a numeração pela bobina 2
-        markerText.style.position = 'absolute';
-        markerText.style.left = `${position}%`;
-        markerText.style.top = '5px';
-        markerText.style.fontSize = '12px';
-        markerText.style.color = '#fff';
-        barraContainer.appendChild(markerText);
-    });
-
-    // Alterando a cor do círculo quando a barra passa pelas marcações
-    if (consumoAtual >= marcacoes[marcacoes.length - 1]) {
-        let circle = document.getElementById(`circle${op}`);
-        circle.style.backgroundColor = "red"; // Quando passar da marcação, o círculo fica vermelho
-    }
-}
-
-
-        // Função para restaurar a cor do círculo para verde
-        function resetarCorCírculo(op) {
-            let circle = document.getElementById(`circle${op}`);
-            circle.style.backgroundColor = "green"; // Resetando para verde
         }
 
         function iniciarBarraVermelha(op, metragem, velocidadeConsumo) {
@@ -280,6 +155,11 @@
                     atualizarBarra(op, consumoAtual, metragem);
                 }
             }, 1000);
+        }
+
+        function resetarCorCírculo(op) {
+            let circle = document.getElementById(`circle${op}`);
+            circle.style.backgroundColor = "green";
         }
     </script>
 </body>
