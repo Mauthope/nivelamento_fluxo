@@ -206,10 +206,11 @@
                 return;
             }
 
-    // Adiciona a nova bobina ao total acumulado e salva a marcação
-            acumulado += bobinaEntrada;
-            marcacoes.push(acumulado);
-            marcarBobina(acumulado, metragem);
+            // Atualiza o consumo e a soma das marcações
+            consumos[op - 1] += bobinaEntrada;
+            let somaMarcações = marcacoes.reduce((acc, val) => acc + val, 0); // Soma as marcações anteriores
+            marcacoes.push(somaMarcações + bobinaEntrada); // Adiciona a nova marcação com a soma acumulada
+            marcarBobina(op, somaMarcações + bobinaEntrada, metragem);
         }
 
         function marcarBobina(op, consumoAtual, metragem) {
