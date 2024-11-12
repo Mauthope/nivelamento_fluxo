@@ -42,6 +42,9 @@
         button:hover {
             background-color: #0056b3;
         }
+        .results, .bobinas {
+            margin-top: 20px;
+        }
         .loading-bar-container {
             position: relative;
             width: 100%;
@@ -108,19 +111,29 @@
         <input type="number" id="er1" placeholder="Digite a ER (m/min)">
         <label for="eficiencia1">Eficiência (%):</label>
         <input type="number" id="eficiencia1" placeholder="Digite a eficiência (%)" value="0">
+        <label for="inicial">Quantidade inicial de bobinas:</label>
+        <input type="number" id="inicial" value="2" disabled>
         <button onclick="calcular(1)">Calcular</button>
+
+        <div class="results">
+            <h2>Resultados</h2>
+            <p>Tempo de Consumo (min): <span id="tempo-consumo1">-</span></p>
+            <p>Velocidade de Consumo (m/min): <span id="velocidade-consumo1">-</span></p>
+        </div>
+
+        <div class="bobinas">
+            <h2>Bobinas</h2>
+            <label for="bobina-entrada1">Bobina de Entrada (m):</label>
+            <input type="number" id="bobina-entrada1" placeholder="Digite a bobina de entrada">
+            <button onclick="adicionarBobina(1)">Inserir Bobina</button>
+            <div id="bobina-list1"></div>
+        </div>
 
         <div class="loading-bar-container">
             <div class="loading-bar" id="loading-bar1"></div>
             <div class="progress-indicator" id="progress-indicator1">0 m</div>
         </div>
         <div class="digital-display" id="digital-display1">0 m</div>
-
-        <div class="bobinas">
-            <label for="bobina-entrada1">Bobina de Entrada (m):</label>
-            <input type="number" id="bobina-entrada1" placeholder="Digite a bobina de entrada">
-            <button onclick="adicionarBobina(1)">Inserir Bobina</button>
-        </div>
 
         <div class="circle" id="circle1">
             <button class="reset-button" onclick="resetarCorCírculo(1)">Resetar</button>
@@ -129,7 +142,7 @@
 
     <script>
         let consumos = [0];
-        let marcacoes = [[]];
+        let marcacoes = [0];
         let velocidades = [0];
         let intervalo;
 
@@ -146,8 +159,12 @@
             let tempoConsumo = metragem / (er * (eficiencia / 100));
             let velocidadeConsumo = metragem / tempoConsumo;
 
+            document.getElementById(`tempo-consumo${op}`).textContent = tempoConsumo.toFixed(2);
+            document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
+
             velocidades[op - 1] = velocidadeConsumo;
             iniciarLoading(op, metragem);
+            document.getElementById(`circle${op}`).style.backgroundColor = "yellow";
         }
 
         function iniciarLoading(op, metragem) {
@@ -159,10 +176,10 @@
                 consumoAtual += velocidade / 60; // Incremento por segundo
                 consumos[op - 1] = consumoAtual;
                 atualizarBarra(op, consumoAtual, metragem);
-                verificarMarcacao(op, consumoAtual);
+                verificarMarca(op, consumoAtual);
 
                 if (consumoAtual >= metragem) clearInterval(intervalo);
-            }, 1000);
+            }, 1000); // Atualiza a cada segundo
         }
 
         function adicionarBobina(op) {
@@ -174,9 +191,8 @@
                 return;
             }
 
-            let consumoAtual = consumos[op - 1];
-            marcacoes[op - 1].push(consumoAtual);
-            marcarBobina(op, consumoAtual, metragem);
+            consumos[op - 1] += bobinaEntrada;
+            marcarBobina(op, consumos[op - 1], metragem);
         }
 
         function marcarBobina(op, consumoAtual, metragem) {
@@ -186,14 +202,13 @@
             marcador.classList.add("marking");
             marcador.style.left = `${porcentagem}%`;
             container.appendChild(marcador);
+            marcacoes.push(consumoAtual);
         }
 
-        function verificarMarcacao(op, consumoAtual) {
-            let circle = document.getElementById(`circle${op}`);
-            for (let marca of marcacoes[op - 1]) {
-                if (consumoAtual >= marca) {
-                    circle.style.backgroundColor = "red";
-                }
+        function verificarMarca(op, consumoAtual) {
+            let marcacaoPassada = marcacoes.filter(marcacao => marcacao <= consumoAtual);
+            if (marcacaoPassada.length > 0) {
+                document.getElementById(`circle${op}`).style.backgroundColor = "red";
             }
         }
 
