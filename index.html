@@ -93,12 +93,20 @@
         .reset-button {
             background-color: #ffffff;
             color: #000;
-            padding: 5px;
+            padding: 10px;
             border-radius: 5px;
             cursor: pointer;
         }
         .reset-button:hover {
             background-color: #e0e0e0;
+        }
+        .start-button {
+            background-color: #28a745;
+            color: #fff;
+            margin-top: 10px;
+        }
+        .start-button:hover {
+            background-color: #218838;
         }
     </style>
 </head>
@@ -129,6 +137,9 @@
             <div id="bobina-list1"></div>
         </div>
 
+        <!-- Novo botão "Iniciar" -->
+        <button class="start-button" id="start-button1" onclick="iniciarProgresso(1)">Iniciar</button>
+
         <div class="loading-bar-container">
             <div class="loading-bar" id="loading-bar1"></div>
             <div class="progress-indicator" id="progress-indicator1">0 m</div>
@@ -136,7 +147,7 @@
         <div class="digital-display" id="digital-display1">0 m</div>
 
         <div class="circle" id="circle1">
-            <button class="reset-button" onclick="resetarCorCírculo(1)">Entregar</button>
+            <button class="reset-button" onclick="resetarCorCírculo(1)">Resetar</button>
         </div>
     </div>
 
@@ -163,11 +174,17 @@
             document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
 
             velocidades[op - 1] = velocidadeConsumo;
-            iniciarLoading(op, metragem);
             document.getElementById(`circle${op}`).style.backgroundColor = "yellow";
         }
 
-        function iniciarLoading(op, metragem) {
+        function iniciarProgresso(op) {
+            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
+
+            if (!metragem || consumos[op - 1] <= 0) {
+                alert("Preencha a metragem da OP e insira pelo menos uma bobina.");
+                return;
+            }
+
             let consumoAtual = consumos[op - 1];
             let velocidade = velocidades[op - 1];
 
@@ -210,15 +227,16 @@
         function verificarMarca(op, consumoAtual) {
             // Verificar se a barra atingiu alguma marca de bobina
             for (let i = 0; i < marcacoes.length; i++) {
-                if (Math.abs(consumoAtual - marcacoes[i]) < 0.1) {  // Ajuste de tolerância para evitar precisão excessiva
+                if (Math.abs(consumoAtual - marcacoes[i]) < 0.1) {  // Ajuste com tolerância
                     document.getElementById(`circle${op}`).style.backgroundColor = "red";
-                    break;
+                    return;
                 }
             }
+            document.getElementById(`circle${op}`).style.backgroundColor = "yellow";
         }
 
         function atualizarBarra(op, consumoAtual, metragem) {
-            let porcentagem = Math.min((consumoAtual / metragem) * 100, 100);
+            let porcentagem = (consumoAtual / metragem) * 100;
             document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
             document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
             document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
