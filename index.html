@@ -148,7 +148,7 @@
     </div>
 
     <script>
-        let consumos = [0];
+       let consumos = [0];
         let marcacoes = [0];
         let velocidades = [0];
         let intervalo;
@@ -212,6 +212,8 @@
         }
 
         function marcarBobina(op, consumoAtual, metragem) {
+            if (consumoAtual > metragem) return; // Não adicionar marcações além do 130% da metragem
+
             let container = document.querySelector(".loading-bar-container");
             let porcentagem = (consumoAtual / metragem) * 100;
             let marcador = document.createElement("div");
