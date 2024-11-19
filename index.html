@@ -218,8 +218,9 @@
     }
 
     function marcarBobina(op, consumoAtual, metragem) {
+        let metragemTotal = metragem * 1.3; // Considerando 130% da metragem
         let container = document.querySelector(".loading-bar-container");
-        let porcentagem = (consumoAtual / metragem) * 100;
+        let porcentagem = (consumoAtual / metragemTotal) * 100; // Ajustando para o comprimento total da barra
         let marcador = document.createElement("div");
         marcador.classList.add("marking");
         marcador.style.left = `${porcentagem}%`;
