@@ -23,23 +23,6 @@
             border-radius: 10px;
             background-color: #2d2d2d;
         }
-        
-       
-        /* Estilo do select */
-        .container select {
-            width: 100%;
-            padding: 10px;
-            font-size: 14px;
-            border: 2px solid #ccc;
-            border-radius: 20px;
-            background-color: #2d2d2d;
-            color: #fff;
-            cursor: pointer;
-            transition: border-color 0.3s ease;
-        }
-
-
-        
         h2 {
             text-align: center;
         }
@@ -81,6 +64,16 @@
             height: 100%;
             width: 2px;
             background-color: #ff0000;
+        }
+        .marking span {
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            background-color: #444;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 12px;
+            color: #fff;
         }
         .progress-indicator {
             position: absolute;
@@ -124,33 +117,11 @@
         <h2>Impressora 1</h2>
         <label for="metragem1">Metragem da OP (m):</label>
         <input type="number" id="metragem1" placeholder="Digite a metragem da OP">
-        
-        <label for="material">Material:</label>
-                <select id="material">
-                    <option value="" disabled selected>Selecione o materal</option>
-                    <option value="TECIDO POLIPROPILENO 045X104GR PLAST TUB PRETO FILME PP FOSCO FILME PP BRANCO II- VERDE PEQUENO 15KG
-                        ">TECIDO POLIPROPILENO 045X104GR PLAST TUB PRETO FILME PP FOSCO FILME PP BRANCO II- VERDE PEQUENO 15KG
-                    </option>
-                    <option value="TECIDO POLIPROPILENO 050X57GR PLAST TUB BRANCO
-                        ">TECIDO POLIPROPILENO 050X57GR PLAST TUB BRANCO
-                    </option>
-                    <option value="TECIDO POLIPROPILENO 050X68GR PLAST TUB BRANCO SOLDADO
-                        ">TECIDO POLIPROPILENO 050X68GR PLAST TUB BRANCO SOLDADO
-                    </option>
-                    <option value="TECIDO POLIPROPILENO 055X65GR PLAST TUB BRANCO ANTIDERRAPANTE
-                        ">TECIDO POLIPROPILENO 055X65GR PLAST TUB BRANCO ANTIDERRAPANTE
-                    </option>
-                </select>
-        
         <label for="er1">ER (m/min):</label>
         <input type="number" id="er1" placeholder="Digite a ER (m/min)">
         <label for="eficiencia1">Eficiência (%):</label>
         <input type="number" id="eficiencia1" placeholder="Digite a eficiência (%)" value="0">
-        <label for="inicial">Quantidade inicial de bobinas:</label>
-        <input type="number" id="inicial" value="2" disabled>
         <button onclick="calcular(1)">Pedir bobinas</button>
-
-       
 
         <div class="results">
             <h2>Resultados</h2>
@@ -158,32 +129,16 @@
             <p>Velocidade de Consumo (m/min): <span id="velocidade-consumo1">-</span></p>
         </div>
 
-       
-
         <div class="loading-bar-container">
             <div class="loading-bar" id="loading-bar1"></div>
             <div class="progress-indicator" id="progress-indicator1">0 m</div>
         </div>
         <div class="digital-display" id="digital-display1">0 m</div>
-
-        
-         <button onclick="iniciarProgresso(1)">Iniciar</button> <!-- Novo botão Iniciar -->
-         <div class="bobinas">
-            <h2>Bobinas</h2>
-            <label for="bobina-entrada1">Bobina de Entrada (m):</label>
-            <input type="number" id="bobina-entrada1" placeholder="Digite a bobina de entrada">
-            <button onclick="adicionarBobina(1)">Inserir Bobina</button>
-            <div id="bobina-list1"></div>
-        </div>
-
-        <div class="circle" id="circle1">
-            <button class="reset-button" onclick="resetarCorCírculo(1)">Resetar</button>
-        </div>
+        <button onclick="iniciarProgresso(1)">Iniciar</button>
     </div>
 
     <script>
         let consumos = [0];
-        let marcacoes = [0];  // Inicia a lista de marcações com 0
         let velocidades = [0];
         let intervalo;
 
@@ -204,98 +159,37 @@
             document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
 
             velocidades[op - 1] = velocidadeConsumo;
-            document.getElementById(`circle${op}`).style.backgroundColor = "yellow";
         }
 
         function iniciarProgresso(op) {
             let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
+            let metragemMax = metragem * 1.3; // Adiciona 30% à metragem
 
             if (!metragem) {
                 alert("Digite a metragem da OP.");
                 return;
             }
 
-            // Resetar o consumo para começar do 0
             consumos[op - 1] = 0;
-
             let consumoAtual = consumos[op - 1];
             let velocidade = velocidades[op - 1];
 
             clearInterval(intervalo);
             intervalo = setInterval(() => {
-                consumoAtual += velocidade / 60; // Incremento por segundo
+                consumoAtual += velocidade / 60;
                 consumos[op - 1] = consumoAtual;
-                atualizarBarra(op, consumoAtual, metragem);
+                atualizarBarra(op, consumoAtual, metragemMax);
                 verificarMarca(op, consumoAtual);
 
-                if (consumoAtual >= metragem) clearInterval(intervalo);
-            }, 1000); // Atualiza a cada segundo
+                if (consumoAtual >= metragemMax) clearInterval(intervalo);
+            }, 1000);
         }
 
-        function adicionarBobina(op) {
-            let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
-            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
-
-            if (!bobinaEntrada) {
-                alert("Digite a bobina de entrada.");
-                return;
-            }
-
-            // Atualiza o consumo e a soma das marcações
-            consumos[op - 1] += bobinaEntrada;
-            let somaMarcações = marcacoes.reduce((acc, val) => acc + val, 0); // Soma as marcações anteriores
-            marcacoes.push(somaMarcações + bobinaEntrada); // Adiciona a nova marcação com a soma acumulada
-            marcarBobina(op, somaMarcações + bobinaEntrada, metragem);
-        }
-
-        function marcarBobina(op, consumoAtual, metragem) {
-            let container = document.querySelector(".loading-bar-container");
-            let porcentagem = (consumoAtual / metragem) * 100;
-            let marcador = document.createElement("div");
-            marcador.classList.add("marking");
-            marcador.style.left = `${porcentagem}%`;
-            container.appendChild(marcador);
-        }
-
-        function verificarMarca(op, consumoAtual) {
-            // Verificar se a barra atingiu alguma marca de bobina
-            for (let i = 0; i < marcacoes.length; i++) {
-                if (Math.abs(consumoAtual - marcacoes[i]) < 0.1) {  // Ajuste de tolerância para evitar precisão excessiva
-                    document.getElementById(`circle${op}`).style.backgroundColor = "red";
-                }
-            }
-        }
-
-       function atualizarBarra(op, consumoAtual, metragem) {
-    let porcentagem = (consumoAtual / metragem) * 130; // Ajustado para 130% do valor total
-    document.getElementById(`loading-bar${op}`).style.width = `${Math.min(porcentagem, 130)}%`;
-    document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
-    document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
-}
-
-function marcarBobina(op, consumoAtual, metragem) {
-    let container = document.querySelector(".loading-bar-container");
-    let porcentagem = (consumoAtual / metragem) * 100;
-    let marcador = document.createElement("div");
-    marcador.classList.add("marking");
-    marcador.style.left = `${(consumoAtual / metragem) * 130}%`; // Ajustado para 130%
-    container.appendChild(marcador);
-
-    // Adiciona a legenda para a marcação
-    let legenda = document.createElement("span");
-    legenda.style.position = "absolute";
-    legenda.style.left = `${(consumoAtual / metragem) * 130}%`;
-    legenda.style.bottom = "-20px";
-    legenda.style.color = "#fff";
-    legenda.style.fontSize = "12px";
-    legenda.style.transform = "translateX(-50%)";
-    legenda.textContent = `${consumoAtual.toFixed(2)} m`;
-    container.appendChild(legenda);
-}
-
-
-        function resetarCorCírculo(op) {
-            document.getElementById(`circle${op}`).style.backgroundColor = "green";
+        function atualizarBarra(op, consumoAtual, metragemMax) {
+            let porcentagem = (consumoAtual / metragemMax) * 100;
+            document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
+            document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
+            document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
         }
     </script>
 </body>
