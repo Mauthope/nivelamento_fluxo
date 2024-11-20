@@ -106,7 +106,7 @@
         .reset-button:hover {
             background-color: #e0e0e0;
         }
-        #bobina-tabela {
+      #bobina-tabela {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
@@ -118,15 +118,15 @@
 }
 
 .loading-bar {
-    width: 0%;
     height: 20px;
     background-color: green;
     border-radius: 5px;
     transition: width 1s linear;  /* Animação suave */
+    width: 0%;  /* Começa com 0% de largura */
 }
 
 td {
-    width: 50%;  /* Ajuste a largura da célula conforme necessário */
+    width: 100%;  /* A célula vai ocupar 100% da largura disponível */
 }
 
 td:first-child {
@@ -136,6 +136,15 @@ td:first-child {
 td:last-child {
     width: 50%;  /* A coluna de progresso terá 50% de largura */
 }
+
+table, td {
+    table-layout: fixed;  /* Garantir que as células tenham o mesmo tamanho */
+}
+
+td:last-child {
+    padding-right: 0;
+}
+
 
     </style>
 </head>
@@ -300,7 +309,6 @@ function processarBobinas(op) {
 function resetarCorCírculo(op) {
     document.getElementById(`circle${op}`).style.backgroundColor = "green";
 }
-
 
     </script>
 </body>
