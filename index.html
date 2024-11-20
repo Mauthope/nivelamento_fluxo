@@ -160,8 +160,8 @@
 let consumos = [0];
 let velocidades = [0];
 let barras = [];  // Lista de bobinas
-let barraIndex = 0;  // Índice da barra em progresso
-let progressoAtivo = false;  // Indica se há progresso ativo
+let barraIndex = 0;  // Índice da barra atual em progresso
+let progressoAtivo = false;  // Controla o estado do progresso
 
 // Função para calcular tempo e velocidade de consumo
 function calcular(op) {
@@ -204,23 +204,31 @@ function adicionarBobina(op) {
     let progressBar = document.createElement("div");
     progressBar.classList.add("loading-bar");
     document.getElementById("loading-bar-container").appendChild(progressBar);
-
-    // Inicia o progresso se não houver outro ativo
-    if (!progressoAtivo) {
-        iniciarProgresso(op);
-    }
 }
 
-// Função para gerenciar o progresso das bobinas
+// Função para iniciar o progresso das bobinas
 function iniciarProgresso(op) {
-    if (barraIndex >= barras.length) {
-        progressoAtivo = false;  // Nenhum progresso ativo
+    if (progressoAtivo) return;  // Evita múltiplos inícios
+
+    if (barras.length === 0) {
+        alert("Nenhuma bobina adicionada.");
         return;
     }
 
-    progressoAtivo = true;
+    progressoAtivo = true;  // Marca o progresso como ativo
+    processarBobinas(op);  // Inicia o processamento
+}
+
+// Função para processar as bobinas em sequência
+function processarBobinas(op) {
+    if (barraIndex >= barras.length) {
+        progressoAtivo = false;  // Fim do processamento
+        barraIndex = 0;  // Reinicia o índice
+        return;
+    }
+
     let progressBars = document.querySelectorAll(".loading-bar");
-    let progressBar = progressBars[barraIndex];  // Barra atual
+    let progressBar = progressBars[barraIndex];
     let velocidade = velocidades[op - 1];
     let consumoAtual = barras[barraIndex].progresso;
 
@@ -230,7 +238,7 @@ function iniciarProgresso(op) {
             progressBar.remove();
             document.getElementById(`circle${op}`).style.backgroundColor = "red";  // Muda o círculo para vermelho
             barraIndex++;
-            iniciarProgresso(op);  // Inicia a próxima barra
+            processarBobinas(op);  // Processa a próxima barra
         } else {
             // Continua o progresso
             consumoAtual += velocidade / 60;  // Incrementa o consumo por minuto
@@ -246,10 +254,11 @@ function iniciarProgresso(op) {
     atualizarProgresso();
 }
 
-// Função para resetar a cor do círculo (apenas isso)
+// Função para resetar a cor do círculo
 function resetarCorCírculo(op) {
     document.getElementById(`circle${op}`).style.backgroundColor = "green";
 }
+
 
     </script>
 </body>
