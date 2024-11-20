@@ -233,29 +233,32 @@
         }
 
         function adicionarBobina(op) {
-            let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
-            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
+        let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
 
-            if (!bobinaEntrada) {
-                alert("Digite a bobina de entrada.");
-                return;
-            }
-
-            // Atualiza o consumo e a soma das marcações
-            consumos[op - 1] += bobinaEntrada;
-            let somaMarcações = marcacoes.reduce((acc, val) => acc + val, 0); // Soma as marcações anteriores
-            marcacoes.push(somaMarcações + bobinaEntrada); // Adiciona a nova marcação com a soma acumulada
-            marcarBobina(op, somaMarcações + bobinaEntrada, metragem);
+        if (!bobinaEntrada) {
+            alert("Digite a bobina de entrada.");
+            return;
         }
 
-        function marcarBobina(op, consumoAtual, metragem) {
-            let container = document.querySelector(".loading-bar-container");
-            let porcentagem = (consumoAtual / metragem) * 100;
-            let marcador = document.createElement("div");
-            marcador.classList.add("marking");
-            marcador.style.left = `${porcentagem}%`;
-            container.appendChild(marcador);
-        }
+        consumos[op - 1] += bobinaEntrada; // Atualiza o consumo diretamente
+        marcacoes.push(consumos[op - 1]); // Armazena o consumo atual como nova marcação
+        marcarBobina(op, consumos[op - 1]);
+    }
+
+    function marcarBobina(op, consumoAtual) {
+        let container = document.querySelector(".loading-bar-container");
+        let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
+        let metragemAjustada = metragem * 1.3;
+
+        let porcentagem = (consumoAtual / metragemAjustada) * 100;
+        let marcador = document.createElement("div");
+        marcador.classList.add("marking");
+        marcador.style.left = `${porcentagem}%`;
+
+        // Adiciona o marcador ao container, mesmo se o consumo ultrapassar 130%
+        container.appendChild(marcador);
+    }
+
 
         function verificarMarca(op, consumoAtual) {
             // Verificar se a barra atingiu alguma marca de bobina
