@@ -157,8 +157,8 @@
     </div>
 
     <script>
-let consumos = [];
-let velocidades = [];
+let consumos = [0];
+let velocidades = [0];
 let barras = [];
 let marcacoes = [];
 
@@ -218,10 +218,10 @@ function iniciarProgresso(op) {
     let barraIndex = 0;  // Variável para controlar o índice da bobina atual
     let consumoAtual = 0;
 
+    // Função que atualiza o progresso da barra
     function atualizarProgresso() {
         if (barraIndex >= barras.length) {
-            document.getElementById(`circle${op}`).style.backgroundColor = "red"; // Mudando a cor do círculo para vermelho quando terminar
-            return;
+            return; // Se todas as bobinas foram processadas, termina a execução
         }
 
         let progressBar = progressBars[barraIndex];
@@ -236,6 +236,7 @@ function iniciarProgresso(op) {
             progressBar.style.width = '0%'; // Reseta a barra para o início
             consumoAtual = 0;  // Reseta o consumo para a próxima bobina
             barraIndex++;  // Avança para a próxima bobina
+            document.getElementById(`circle${op}`).style.backgroundColor = "red"; // Mudando a cor do círculo para vermelho
             setTimeout(atualizarProgresso, 1000); // Espera 1 segundo antes de iniciar a próxima barra
         } else {
             // Continua atualizando o progresso da barra atual
@@ -247,7 +248,7 @@ function iniciarProgresso(op) {
     atualizarProgresso();
 }
 
-// Função para resetar o círculo
+// Função para resetar o círculo e as barras
 function resetarCorCírculo(op) {
     document.getElementById(`circle${op}`).style.backgroundColor = "green";
     barras = [];  // Limpar todas as barras para reiniciar o processo
