@@ -199,6 +199,7 @@ function adicionarBobina(op) {
     // Adiciona uma nova barra de progresso para cada bobina
     let progressBar = document.createElement("div");
     progressBar.classList.add("loading-bar");
+    progressBar.setAttribute("data-index", barras.length);  // Atribuindo um índice para cada barra
     document.getElementById("loading-bar-container").appendChild(progressBar);
 
     barras.push({ metragem: bobinaEntrada, progresso: 0 });
@@ -221,13 +222,16 @@ function iniciarProgresso(op) {
     function atualizarProgresso() {
         let progressBar = progressBars[barraIndex];
         let velocidade = velocidades[op - 1];
+        let bobinaAtual = barras[barraIndex];
+
         consumoAtual += velocidade / 60;  // Incrementa o consumo por minuto
-        let progress = (consumoAtual / barras[barraIndex].metragem) * 100;
+        let progress = (consumoAtual / bobinaAtual.metragem) * 100;
         progressBar.style.width = `${progress}%`;
         document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
 
-        // Sinaliza qual bobina está sendo preenchida
-        document.getElementById("bobina-status").textContent = `Preenchendo Bobina ${barraIndex + 1}`;
+        // Destacar a barra da bobina que está sendo preenchida
+        progressBar.style.border = "2px solid #f0ad4e"; // Cor laranja para indicar a bobina atual
+        document.getElementById(`bobina-status${op}`).textContent = `Processando Bobina ${barraIndex + 1} de ${barras.length}`;
 
         if (progress >= 100) {
             // Quando a barra de progresso atingir 100%, passa para a próxima bobina
@@ -250,12 +254,9 @@ function iniciarProgresso(op) {
     atualizarProgresso();
 }
 
-// Função para resetar o círculo
+// Função para resetar a cor do círculo para verde
 function resetarCorCírculo(op) {
     document.getElementById(`circle${op}`).style.backgroundColor = "green";
-    barras = [];  // Limpar todas as barras para reiniciar o processo
-    document.getElementById("loading-bar-container").innerHTML = ''; // Limpar as barras de progresso
-    document.getElementById("bobina-status").textContent = ""; // Limpar o status de qual bobina está sendo preenchida
 }
 
     </script>
