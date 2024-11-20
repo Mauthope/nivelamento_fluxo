@@ -232,8 +232,9 @@ function iniciarProgresso(op) {
         document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
 
         if (progress >= 100) {
-            // Quando a barra de progresso atingir 100%, remove a barra
+            // Quando a barra de progresso atingir 100%, remove a barra e muda a cor do círculo para vermelho
             progressBar.remove(); // Remove a barra atual
+            document.getElementById(`circle${op}`).style.backgroundColor = "red";  // Atualiza a cor do círculo para vermelho
 
             // Passa para a próxima bobina
             barraIndex++;
@@ -252,8 +253,7 @@ function iniciarProgresso(op) {
 // Função para resetar o círculo
 function resetarCorCírculo(op) {
     document.getElementById(`circle${op}`).style.backgroundColor = "green";
-    barras = [];  // Limpar todas as barras para reiniciar o processo
-    document.getElementById("loading-bar-container").innerHTML = ''; // Limpar as barras de progresso
+
 }
 
     </script>
