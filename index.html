@@ -106,48 +106,30 @@
         .reset-button:hover {
             background-color: #e0e0e0;
         }
-   #bobina-tabela {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
+        #bobina-tabela {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
 
-#bobina-tabela td {
-    padding: 10px;
-    text-align: left;
-}
+        #bobina-tabela td {
+            padding: 10px;
+            text-align: left;
+            width: 50%;
+        }
 
-.loading-bar {
-    height: 20px;
-    background-color: green;
-    border-radius: 5px;
-    transition: width 1s linear;
-    width: 0%;
-}
+        .loading-bar {
+            height: 20px;
+            background-color: green;
+            border-radius: 5px;
+            transition: width 1s linear;
+            max-width: 100%; /* Garante que a barra de progresso não ultrapasse a célula */
+            width: 0%;
+        }
 
-td {
-    width: 100%;
-}
-
-td:first-child {
-    width: 50%;
-}
-
-td:last-child {
-    width: 50%;
-    padding-right: 0;
-    max-width: 100%;  /* Garante que a célula não ultrapasse a largura disponível */
-}
-
-table {
-    table-layout: fixed; /* Ajusta a tabela para ter largura fixa nas células */
-}
-
-.loading-bar {
-    max-width: 100%; /* A largura da barra de progresso não ultrapassará a largura da célula */
-    width: 0; /* Inicialmente, a barra de progresso está em 0% */
-}
-
+        table {
+            table-layout: fixed; /* Ajusta a tabela para ter largura fixa nas células */
+        }
     </style>
 </head>
 <body>
@@ -232,82 +214,41 @@ function calcular(op) {
     document.getElementById(`tempo-consumo${op}`).textContent = tempoConsumo.toFixed(2);
     document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
 
-    velocidades[op - 1] = velocidadeConsumo;
-    document.getElementById(`circle${op}`).style.backgroundColor = "yellow";  // Cor amarela ao calcular
+    velocidades[op] = velocidadeConsumo;  // Salva a velocidade calculada
 }
 
-// Função para adicionar uma nova bobina
+// Função para adicionar bobina à tabela
 function adicionarBobina(op) {
-    let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
-    if (!bobinaEntrada) {
-        alert("Digite a bobina de entrada.");
+    let bobinaEntrada = document.getElementById(`bobina-entrada${op}`).value;
+
+    if (!bobinaEntrada || isNaN(bobinaEntrada)) {
+        alert("Por favor, insira um valor válido para a bobina.");
         return;
     }
 
-    // Adiciona a bobina na lista
-    bobinas.push({ metragem: bobinaEntrada, progresso: 0 });
+    bobinas.push(bobinaEntrada);
 
-    // Atualiza a tabela visualmente
-    let tabela = document.getElementById("bobina-tabela");
-    let novaLinha = tabela.insertRow();
-    novaLinha.setAttribute("id", `linha-${bobinas.length - 1}`);  // ID da linha
-
-    // Adiciona as células
+    let bobinaTabela = document.getElementById(`bobina-tabela`).getElementsByTagName('tbody')[0];
+    let novaLinha = bobinaTabela.insertRow();
     let celulaBobina = novaLinha.insertCell(0);
     let celulaProgresso = novaLinha.insertCell(1);
 
-    celulaBobina.textContent = `Bobina: ${bobinaEntrada} m`;
-    celulaProgresso.innerHTML = `<div class="loading-bar" id="progress-bar-${bobinas.length - 1}"></div>`;
-}
-
-// Função para iniciar o progresso das bobinas
-function iniciarProgresso(op) {
-    if (progressoAtivo) return;  // Evita múltiplos inícios
-
-    if (bobinas.length === 0) {
-        alert("Nenhuma bobina adicionada.");
-        return;
-    }
-
-    progressoAtivo = true;  // Marca o progresso como ativo
-    processarBobinas(op);  // Inicia o processamento
-}
-
-// Função para processar as bobinas linha por linha
-function processarBobinas(op) {
-    if (linhaAtual >= bobinas.length) {
-        progressoAtivo = false;  // Termina o processo
-        linhaAtual = 0;  // Reseta o índice para futuras execuções
-        return;
-    }
-
-    let velocidade = velocidades[op - 1];
-    let consumoAtual = bobinas[linhaAtual].progresso;
-    let progressBar = document.getElementById(`progress-bar-${linhaAtual}`);
-
-    function atualizarProgresso() {
-        if (consumoAtual >= bobinas[linhaAtual].metragem) {
-            // Linha completa: passa para a próxima
-            progressBar.style.width = "100%";
-            document.getElementById(`circle${op}`).style.backgroundColor = "red";  // Atualiza o círculo para vermelho
-            linhaAtual++;
-            processarBobinas(op);  // Processa a próxima linha
-        } else {
-            // Continua o progresso da linha atual
-            consumoAtual += velocidade / 60;  // Incrementa o consumo por minuto
-            let progress = (consumoAtual / bobinas[linhaAtual].metragem) * 100;
-            progressBar.style.width = `${progress}%`;
-            bobinas[linhaAtual].progresso = consumoAtual;  // Atualiza o progresso
-            setTimeout(atualizarProgresso, 1000);
-        }
-    }
-
-    atualizarProgresso();
-}
-
-// Função para resetar a cor do círculo
-function resetarCorCírculo(op) {
-    document.getElementById(`circle${op}`).style.backgroundColor = "green";
+    celulaBobina.textContent = `Bobina ${bobinas.length}`;
+    
+    // Barra de progresso
+    let barraProgresso = document.createElement('div');
+    barraProgresso.className = 'loading-bar-container';
+    let progresso = document.createElement('div');
+    progresso.className = 'loading-bar';
+    barraProgresso.appendChild(progresso);
+    
+    celulaProgresso.appendChild(barraProgresso);
+    // Atualiza a largura da barra
+    setTimeout(() => {
+        progresso.style.width = '100%';  // Define a largura como 100%
+    }, 500); // Simula o progresso após a inserção
+    
+    linhaAtual++;
 }
 
     </script>
