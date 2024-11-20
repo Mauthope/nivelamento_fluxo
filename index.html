@@ -260,13 +260,13 @@
     }
 
 function verificarMarca(op, consumoAtual) {
-    // Checa se o consumo atingiu alguma marcação registrada
-    marcacoes.forEach(marcacao => {
-        if (consumoAtual === marcacao) {  // Verifica igualdade exata
-            document.getElementById(`circle${op}`).style.backgroundColor = "red";
-        }
-    });
-}
+        // Checa se o consumo atingiu alguma marcação registrada
+        marcacoes.forEach(marcacao => {
+            if (Math.abs(consumoAtual - marcacao) < 5) {
+                document.getElementById(circle${op}).style.backgroundColor = "red";
+            }
+        });
+    }
         function atualizarBarra(op, consumoAtual, metragem) {
             let porcentagem = (consumoAtual / metragem) * 100;
             document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
