@@ -232,12 +232,12 @@ function iniciarProgresso(op) {
         document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
 
         if (progress >= 100) {
-            // Quando a barra de progresso atingir 100%, reseta para 0% e passa para a próxima bobina
-            progressBar.style.width = "0%"; // Reseta a barra para 0%
-            consumoAtual = 0;  // Reseta o consumo para a próxima bobina
+            // Quando a barra de progresso atingir 100%, remove a barra
+            progressBar.remove(); // Remove a barra atual
 
-            // Avança para a próxima bobina
+            // Passa para a próxima bobina
             barraIndex++;
+            consumoAtual = 0;  // Reseta o consumo para a próxima bobina
             setTimeout(atualizarProgresso, 1000); // Espera 1 segundo antes de iniciar a próxima barra
         } else {
             // Continua atualizando o progresso da barra atual
