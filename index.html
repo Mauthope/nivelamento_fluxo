@@ -243,7 +243,8 @@ function iniciarProgresso(op) {
         }
     }
 
-    atualizarProgresso();  // Inicia o processo de progresso para a primeira bobina
+    // Inicia o progresso das barras imediatamente ao apertar o botão
+    atualizarProgresso();
 }
 
 // Função para resetar o círculo
@@ -252,7 +253,6 @@ function resetarCorCírculo(op) {
     barras = [];  // Limpar todas as barras para reiniciar o processo
     document.getElementById("loading-bar-container").innerHTML = ''; // Limpar as barras de progresso
 }
-
 
     </script>
 </body>
