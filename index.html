@@ -3,110 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Bobinas</title>
+    <title>Barra de Loading Personalizada - Consumo de Bobinas</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #1a1a1a;
-            color: #fff;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-            margin: 20px;
-        }
-        .container {
-            width: 45%;
-            max-width: 600px;
-            padding: 20px;
-            border: 1px solid #333;
-            border-radius: 10px;
-            background-color: #2d2d2d;
-        }
-
-        .container select {
-            width: 100%;
-            padding: 10px;
-            font-size: 14px;
-            border: 2px solid #ccc;
-            border-radius: 20px;
-            background-color: #2d2d2d;
-            color: #fff;
-            cursor: pointer;
-            transition: border-color 0.3s ease;
-        }
-
-        h2 {
-            text-align: center;
-        }
-        input, button {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #444;
-            background-color: #333;
-            color: #fff;
-        }
-        button {
-            background-color: #007bff;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        .loading-bar-container {
-            position: relative;
-            width: 100%;
-            height: 30px;
-            background-color: #444;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-        .loading-bar {
-            height: 100%;
-            position: absolute;
-            background-color: #28a745;
-            width: 0%;
-        }
-        .progress-indicator {
-            position: absolute;
-            top: -25px;
-            right: 10px;
-            font-weight: bold;
-        }
-        .digital-display {
-            font-family: 'Courier New', monospace;
-            font-size: 24px;
-            background-color: #333;
-            padding: 10px;
-            border-radius: 10px;
-            text-align: center;
-        }
-        .circle {
-            position: relative;
-            width: 300px;
-            height: 300px;
-            border-radius: 50%;
-            background-color: green;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 20px auto;
-        }
-        .reset-button {
-            background-color: #ffffff;
-            color: #000;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .reset-button:hover {
-            background-color: #e0e0e0;
-        }
-   #bobina-tabela {
+#bobina-tabela {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
@@ -121,31 +21,28 @@
     height: 20px;
     background-color: green;
     border-radius: 5px;
-    transition: width 1s linear;
-    width: 0%;
+    transition: width 1s linear;  /* Animação suave */
+    width: 0%;  /* Começa com 0% de largura */
 }
 
 td {
-    width: 100%;
+    width: 100%;  /* A célula vai ocupar 100% da largura disponível */
 }
 
 td:first-child {
-    width: 50%;
+    width: 50%;  /* A coluna da bobina terá 50% de largura */
 }
 
 td:last-child {
-    width: 50%;
+    width: 50%;  /* A coluna de progresso terá 50% de largura */
+}
+
+table, td {
+    table-layout: fixed;  /* Garantir que as células tenham o mesmo tamanho */
+}
+
+td:last-child {
     padding-right: 0;
-    max-width: 100%;  /* Garante que a célula não ultrapasse a largura disponível */
-}
-
-table {
-    table-layout: fixed; /* Ajusta a tabela para ter largura fixa nas células */
-}
-
-.loading-bar {
-    max-width: 100%; /* A largura da barra de progresso não ultrapassará a largura da célula */
-    width: 0; /* Inicialmente, a barra de progresso está em 0% */
 }
 
     </style>
@@ -157,13 +54,21 @@ table {
         <input type="number" id="metragem1" placeholder="Digite a metragem da OP">
         
         <label for="material">Material:</label>
-        <select id="material">
-            <option value="" disabled selected>Selecione o material</option>
-            <option value="TECIDO POLIPROPILENO 045X104GR PLAST TUB PRETO FILME PP FOSCO FILME PP BRANCO II- VERDE PEQUENO 15KG">TECIDO POLIPROPILENO 045X104GR PLAST TUB PRETO FILME PP FOSCO FILME PP BRANCO II- VERDE PEQUENO 15KG</option>
-            <option value="TECIDO POLIPROPILENO 050X57GR PLAST TUB BRANCO">TECIDO POLIPROPILENO 050X57GR PLAST TUB BRANCO</option>
-            <option value="TECIDO POLIPROPILENO 050X68GR PLAST TUB BRANCO SOLDADO">TECIDO POLIPROPILENO 050X68GR PLAST TUB BRANCO SOLDADO</option>
-            <option value="TECIDO POLIPROPILENO 055X65GR PLAST TUB BRANCO ANTIDERRAPANTE">TECIDO POLIPROPILENO 055X65GR PLAST TUB BRANCO ANTIDERRAPANTE</option>
-        </select>
+                <select id="material">
+                    <option value="" disabled selected>Selecione o materal</option>
+                    <option value="TECIDO POLIPROPILENO 045X104GR PLAST TUB PRETO FILME PP FOSCO FILME PP BRANCO II- VERDE PEQUENO 15KG
+                        ">TECIDO POLIPROPILENO 045X104GR PLAST TUB PRETO FILME PP FOSCO FILME PP BRANCO II- VERDE PEQUENO 15KG
+                    </option>
+                    <option value="TECIDO POLIPROPILENO 050X57GR PLAST TUB BRANCO
+                        ">TECIDO POLIPROPILENO 050X57GR PLAST TUB BRANCO
+                    </option>
+                    <option value="TECIDO POLIPROPILENO 050X68GR PLAST TUB BRANCO SOLDADO
+                        ">TECIDO POLIPROPILENO 050X68GR PLAST TUB BRANCO SOLDADO
+                    </option>
+                    <option value="TECIDO POLIPROPILENO 055X65GR PLAST TUB BRANCO ANTIDERRAPANTE
+                        ">TECIDO POLIPROPILENO 055X65GR PLAST TUB BRANCO ANTIDERRAPANTE
+                    </option>
+                </select>
         
         <label for="er1">ER (m/min):</label>
         <input type="number" id="er1" placeholder="Digite a ER (m/min)">
@@ -173,27 +78,35 @@ table {
         <input type="number" id="inicial" value="2" disabled>
         <button onclick="calcular(1)">Pedir bobinas</button>
 
+       
+
         <div class="results">
             <h2>Resultados</h2>
             <p>Tempo de Consumo (min): <span id="tempo-consumo1">-</span></p>
             <p>Velocidade de Consumo (m/min): <span id="velocidade-consumo1">-</span></p>
         </div>
 
-         <div class="circle" id="circle1">
-            <button class="reset-button" onclick="resetarCorCírculo(1)">Resetar</button>
-        </div>
+       
 
-        <div class="bobinas">
+        <div class="loading-bar-container">
+            <div class="loading-bar" id="loading-bar1"></div>
+            <div class="progress-indicator" id="progress-indicator1">0 m</div>
+        </div>
+        <div class="digital-display" id="digital-display1">0 m</div>
+
+        
+         <button onclick="iniciarProgresso(1)">Iniciar</button> <!-- Novo botão Iniciar -->
+         <div class="bobinas">
             <h2>Bobinas</h2>
             <label for="bobina-entrada1">Bobina de Entrada (m):</label>
             <input type="number" id="bobina-entrada1" placeholder="Digite a bobina de entrada">
             <button onclick="adicionarBobina(1)">Inserir Bobina</button>
             <div id="bobina-list1"></div>
         </div>
-        
-<button onclick="iniciarProgresso(1)">Iniciar</button>
-        
-       
+
+        <div class="circle" id="circle1">
+            <button class="reset-button" onclick="resetarCorCírculo(1)">Resetar</button>
+        </div>
         <div id="bobina-container">
     <table id="bobina-tabela" border="1">
         <thead>
@@ -207,6 +120,7 @@ table {
         </tbody>
     </table>
 </div>
+
     </div>
 
     <script>
@@ -217,9 +131,9 @@ let linhaAtual = 0;  // Índice da linha atual sendo processada
 
 // Função para calcular tempo e velocidade de consumo
 function calcular(op) {
-    let metragem = parseFloat(document.getElementById(metragem${op}).value);
-    let er = parseFloat(document.getElementById(er${op}).value);
-    let eficiencia = parseFloat(document.getElementById(eficiencia${op}).value);
+    let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
+    let er = parseFloat(document.getElementById(`er${op}`).value);
+    let eficiencia = parseFloat(document.getElementById(`eficiencia${op}`).value);
 
     if (!metragem || !er || !eficiencia) {
         alert("Preencha todos os campos.");
@@ -229,16 +143,16 @@ function calcular(op) {
     let tempoConsumo = metragem / (er * (eficiencia / 100));
     let velocidadeConsumo = metragem / tempoConsumo;
 
-    document.getElementById(tempo-consumo${op}).textContent = tempoConsumo.toFixed(2);
-    document.getElementById(velocidade-consumo${op}).textContent = velocidadeConsumo.toFixed(2);
+    document.getElementById(`tempo-consumo${op}`).textContent = tempoConsumo.toFixed(2);
+    document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
 
     velocidades[op - 1] = velocidadeConsumo;
-    document.getElementById(circle${op}).style.backgroundColor = "yellow";  // Cor amarela ao calcular
+    document.getElementById(`circle${op}`).style.backgroundColor = "yellow";  // Cor amarela ao calcular
 }
 
 // Função para adicionar uma nova bobina
 function adicionarBobina(op) {
-    let bobinaEntrada = parseFloat(document.getElementById(bobina-entrada${op}).value);
+    let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
     if (!bobinaEntrada) {
         alert("Digite a bobina de entrada.");
         return;
@@ -250,14 +164,14 @@ function adicionarBobina(op) {
     // Atualiza a tabela visualmente
     let tabela = document.getElementById("bobina-tabela");
     let novaLinha = tabela.insertRow();
-    novaLinha.setAttribute("id", linha-${bobinas.length - 1});  // ID da linha
+    novaLinha.setAttribute("id", `linha-${bobinas.length - 1}`);  // ID da linha
 
     // Adiciona as células
     let celulaBobina = novaLinha.insertCell(0);
     let celulaProgresso = novaLinha.insertCell(1);
 
-    celulaBobina.textContent = Bobina: ${bobinaEntrada} m;
-    celulaProgresso.innerHTML = <div class="loading-bar" id="progress-bar-${bobinas.length - 1}"></div>;
+    celulaBobina.textContent = `Bobina: ${bobinaEntrada} m`;
+    celulaProgresso.innerHTML = `<div class="loading-bar" id="progress-bar-${bobinas.length - 1}"></div>`;
 }
 
 // Função para iniciar o progresso das bobinas
@@ -283,20 +197,20 @@ function processarBobinas(op) {
 
     let velocidade = velocidades[op - 1];
     let consumoAtual = bobinas[linhaAtual].progresso;
-    let progressBar = document.getElementById(progress-bar-${linhaAtual});
+    let progressBar = document.getElementById(`progress-bar-${linhaAtual}`);
 
     function atualizarProgresso() {
         if (consumoAtual >= bobinas[linhaAtual].metragem) {
             // Linha completa: passa para a próxima
             progressBar.style.width = "100%";
-            document.getElementById(circle${op}).style.backgroundColor = "red";  // Atualiza o círculo para vermelho
+            document.getElementById(`circle${op}`).style.backgroundColor = "red";  // Atualiza o círculo para vermelho
             linhaAtual++;
             processarBobinas(op);  // Processa a próxima linha
         } else {
             // Continua o progresso da linha atual
             consumoAtual += velocidade / 60;  // Incrementa o consumo por minuto
             let progress = (consumoAtual / bobinas[linhaAtual].metragem) * 100;
-            progressBar.style.width = ${progress}%;
+            progressBar.style.width = `${progress}%`;
             bobinas[linhaAtual].progresso = consumoAtual;  // Atualiza o progresso
             setTimeout(atualizarProgresso, 1000);
         }
@@ -307,7 +221,7 @@ function processarBobinas(op) {
 
 // Função para resetar a cor do círculo
 function resetarCorCírculo(op) {
-    document.getElementById(circle${op}).style.backgroundColor = "green";
+    document.getElementById(`circle${op}`).style.backgroundColor = "green";
 }
 
     </script>
