@@ -254,7 +254,7 @@
         let porcentagem = (consumoAtual / metragemAjustada) * 100;
         let marcador = document.createElement("div");
         marcador.classList.add("marking");
-        marcador.style.left = `${Math.min(porcentagem, 100)}%`; // Garantir que a marcação não ultrapasse visualmente a barra
+        marcador.style.left = `${Math.min(porcentagem, 129)}%`; // Garantir que a marcação não ultrapasse visualmente a barra
         container.appendChild(marcador);
     }
 
