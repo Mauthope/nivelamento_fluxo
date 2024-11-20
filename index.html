@@ -183,7 +183,9 @@ table {
 
         <div class="digital-display" id="digital-display1">0 m</div>
 
-        <button onclick="iniciarProgresso(1)">Iniciar</button>
+         <div class="circle" id="circle1">
+            <button class="reset-button" onclick="resetarCorCírculo(1)">Resetar</button>
+        </div>
 
         <div class="bobinas">
             <h2>Bobinas</h2>
@@ -192,10 +194,10 @@ table {
             <button onclick="adicionarBobina(1)">Inserir Bobina</button>
             <div id="bobina-list1"></div>
         </div>
-
-        <div class="circle" id="circle1">
-            <button class="reset-button" onclick="resetarCorCírculo(1)">Resetar</button>
-        </div>
+        
+<button onclick="iniciarProgresso(1)">Iniciar</button>
+        
+       
         <div id="bobina-container">
     <table id="bobina-tabela" border="1">
         <thead>
