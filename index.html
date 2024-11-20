@@ -36,7 +36,7 @@
             cursor: pointer;
             transition: border-color 0.3s ease;
         }
-
+        
         h2 {
             text-align: center;
         }
@@ -58,6 +58,40 @@
         }
         .results, .bobinas {
             margin-top: 20px;
+        }
+        .loading-bar-container {
+            position: relative;
+            width: 100%;
+            height: 20px;
+            background-color: #444;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .loading-bar {
+            height: 100%;
+            background-color: #28a745;
+            transition: width 1s linear;
+            width: 0%;
+        }
+        .marking {
+            position: absolute;
+            height: 100%;
+            width: 2px;
+            background-color: #ff0000;
+        }
+        .progress-indicator {
+            position: absolute;
+            top: -25px;
+            right: 10px;
+            font-weight: bold;
+        }
+        .digital-display {
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            background-color: #333;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
         }
         .circle {
             position: relative;
@@ -92,54 +126,14 @@
             text-align: left;
         }
 
-        .loading-bar-container {
-            width: 100%;
-            height: 20px;
-            background-color: #444;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-
-        .loading-bar {
-            height: 100%;
-            background-color: #28a745;
-            width: 0%;
-            transition: width 1s linear;
-        }
-
-        .marking {
-            position: absolute;
-            height: 100%;
-            width: 2px;
-            background-color: #ff0000;
-        }
-
-        .progress-indicator {
-            position: absolute;
-            top: -25px;
-            right: 10px;
-            font-weight: bold;
-        }
-
         td {
-            width: 50%;  /* A célula vai ocupar 50% da largura */
-        }
-
-        td:first-child {
-            width: 50%;  /* A coluna da bobina terá 50% de largura */
-        }
-
-        td:last-child {
-            width: 50%;  /* A coluna de progresso terá 50% de largura */
+            width: 50%;  /* Cada célula tem a largura de 50% */
         }
 
         table, td {
-            table-layout: fixed;  /* Garantir que as células tenham o mesmo tamanho */
+            table-layout: fixed;  /* As células terão o mesmo tamanho */
         }
 
-        td:last-child {
-            padding-right: 0;
-        }
     </style>
 </head>
 <body>
@@ -183,8 +177,8 @@
             <div id="bobina-list1"></div>
         </div>
         
-        <button onclick="iniciarProgresso(1)">Iniciar</button> <!-- Novo botão Iniciar -->
-        
+        <button onclick="iniciarProgresso(1)">Iniciar</button>
+
         <div id="bobina-container">
             <table id="bobina-tabela" border="1">
                 <thead>
@@ -202,11 +196,10 @@
 
     <script>
         let velocidades = [0];
-        let bobinas = [];  // Lista de bobinas inseridas
-        let progressoAtivo = false;  // Controla se o progresso está ativo
-        let linhaAtual = 0;  // Índice da linha atual sendo processada
+        let bobinas = [];
+        let progressoAtivo = false;
+        let linhaAtual = 0;
 
-        // Função para calcular tempo e velocidade de consumo
         function calcular(op) {
             let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
             let er = parseFloat(document.getElementById(`er${op}`).value);
@@ -224,10 +217,9 @@
             document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
 
             velocidades[op - 1] = velocidadeConsumo;
-            document.getElementById(`circle${op}`).style.backgroundColor = "yellow";  // Cor amarela ao calcular
+            document.getElementById(`circle${op}`).style.backgroundColor = "yellow";
         }
 
-        // Função para adicionar uma nova bobina
         function adicionarBobina(op) {
             let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
             if (!bobinaEntrada) {
@@ -235,64 +227,56 @@
                 return;
             }
 
-            bobinas.push(bobinaEntrada);
+            bobinas.push({ metragem: bobinaEntrada, progresso: 0 });
 
-            let bobinaList = document.getElementById(`bobina-list${op}`);
-            let newBobina = document.createElement("div");
-            newBobina.textContent = `Bobina de Entrada: ${bobinaEntrada} metros`;
-            bobinaList.appendChild(newBobina);
+            let tabela = document.getElementById("bobina-tabela");
+            let novaLinha = tabela.insertRow();
+            novaLinha.setAttribute("id", `linha-${bobinas.length - 1}`);
 
-            let tableBody = document.querySelector("#bobina-tabela tbody");
-            let newRow = document.createElement("tr");
+            let celula1 = novaLinha.insertCell(0);
+            let celula2 = novaLinha.insertCell(1);
 
-            newRow.innerHTML = `
-                <td>Bobina ${bobinas.length}</td>
-                <td>
-                    <div class="loading-bar-container">
-                        <div class="loading-bar" id="bar${bobinas.length}" style="width: 0%;"></div>
-                    </div>
-                </td>
-            `;
-            tableBody.appendChild(newRow);
+            celula1.textContent = `Bobina ${bobinas.length}`;
+            
+            let progressBarContainer = document.createElement("div");
+            progressBarContainer.classList.add("loading-bar-container");
+
+            let progressBar = document.createElement("div");
+            progressBar.classList.add("loading-bar");
+
+            progressBarContainer.appendChild(progressBar);
+            celula2.appendChild(progressBarContainer);
         }
 
-        // Função para iniciar o progresso de consumo da bobina
         function iniciarProgresso(op) {
-            if (progressoAtivo) {
-                alert("Progresso já iniciado.");
-                return;
-            }
+            if (progressoAtivo) return;
 
             progressoAtivo = true;
-            let bobinaIndex = 0;  // Começa com a primeira bobina
+            let intervalo = setInterval(function() {
+                for (let i = 0; i < bobinas.length; i++) {
+                    let bobina = bobinas[i];
+                    if (bobina.progresso < 100) {
+                        bobina.progresso += 0.5; // Ajuste a velocidade do progresso
+                        let progressoBar = document.querySelector(`#linha-${i} .loading-bar`);
+                        progressoBar.style.width = `${bobina.progresso}%`;
 
-            function atualizarProgresso() {
-                if (bobinaIndex >= bobinas.length) {
-                    progressoAtivo = false;
-                    return;
+                        // Adiciona a linha de marcação
+                        let marking = document.querySelector(`#linha-${i} .marking`);
+                        if (!marking) {
+                            marking = document.createElement("div");
+                            marking.classList.add("marking");
+                            document.querySelector(`#linha-${i} .loading-bar-container`).appendChild(marking);
+                        }
+                    }
                 }
-
-                let progresso = document.getElementById(`bar${bobinaIndex + 1}`);
-                let larguraAtual = parseFloat(progresso.style.width);
-
-                if (larguraAtual < 100) {
-                    progresso.style.width = `${larguraAtual + 10}%`; // Aumenta o progresso em 10%
-                } else {
-                    bobinaIndex++;
-                }
-            }
-
-            // Inicia o progresso a cada 1 segundo
-            let intervalo = setInterval(() => {
-                if (!progressoAtivo) {
+                
+                if (bobinas.every(bobina => bobina.progresso >= 100)) {
                     clearInterval(intervalo);
-                } else {
-                    atualizarProgresso();
+                    progressoAtivo = false;
                 }
-            }, 1000);
+            }, 100);
         }
 
-        // Função para resetar a cor do círculo
         function resetarCorCírculo(op) {
             document.getElementById(`circle${op}`).style.backgroundColor = "green";
         }
