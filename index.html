@@ -40,7 +40,6 @@
         h2 {
             text-align: center;
         }
-
         input, button {
             width: 100%;
             padding: 10px;
@@ -50,35 +49,62 @@
             background-color: #333;
             color: #fff;
         }
-
         button {
             background-color: #007bff;
             cursor: pointer;
         }
-
         button:hover {
             background-color: #0056b3;
         }
-
         .results, .bobinas {
             margin-top: 20px;
         }
+        .circle {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background-color: green;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+        }
+        .reset-button {
+            background-color: #ffffff;
+            color: #000;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .reset-button:hover {
+            background-color: #e0e0e0;
+        }
+
+        #bobina-tabela {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        #bobina-tabela td {
+            padding: 10px;
+            text-align: left;
+        }
 
         .loading-bar-container {
-            position: relative;
             width: 100%;
-            height: 100px;
+            height: 20px;
             background-color: #444;
             border-radius: 5px;
             overflow: hidden;
         }
 
         .loading-bar {
-            height: 20px;
+            height: 100%;
             background-color: #28a745;
-            border-radius: 5px;
-            transition: width 1s linear;
             width: 0%;
+            transition: width 1s linear;
         }
 
         .marking {
@@ -95,68 +121,25 @@
             font-weight: bold;
         }
 
-        .digital-display {
-            font-family: 'Courier New', monospace;
-            font-size: 24px;
-            background-color: #333;
-            padding: 10px;
-            border-radius: 10px;
-            text-align: center;
+        td {
+            width: 50%;  /* A célula vai ocupar 50% da largura */
         }
 
-        .circle {
-            position: relative;
-            width: 300px;
-            height: 300px;
-            border-radius: 50%;
-            background-color: green;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 20px auto;
+        td:first-child {
+            width: 50%;  /* A coluna da bobina terá 50% de largura */
         }
 
-        .reset-button {
-            background-color: #ffffff;
-            color: #000;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .reset-button:hover {
-            background-color: #e0e0e0;
-        }
-
-        #bobina-tabela {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        #bobina-tabela td {
-            padding: 10px;
-            text-align: left;
-            width: 50%;  /* As células terão a mesma largura */
+        td:last-child {
+            width: 50%;  /* A coluna de progresso terá 50% de largura */
         }
 
         table, td {
-            table-layout: fixed;  /* Garante que as células tenham o mesmo tamanho */
+            table-layout: fixed;  /* Garantir que as células tenham o mesmo tamanho */
         }
 
         td:last-child {
             padding-right: 0;
         }
-
-        /* Estilo para a barra de progresso */
-        .loading-bar {
-            height: 20px;
-            background-color: green;
-            border-radius: 5px;
-            transition: width 1s linear;  /* Animação suave */
-            width: 0%;  /* Começa com 0% de largura */
-        }
-
     </style>
 </head>
 <body>
@@ -199,7 +182,7 @@
             <button onclick="adicionarBobina(1)">Inserir Bobina</button>
             <div id="bobina-list1"></div>
         </div>
-
+        
         <button onclick="iniciarProgresso(1)">Iniciar</button> <!-- Novo botão Iniciar -->
         
         <div id="bobina-container">
@@ -240,70 +223,78 @@
             document.getElementById(`tempo-consumo${op}`).textContent = tempoConsumo.toFixed(2);
             document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
 
-            velocidades[op - 1] = velocidadeConsumo;  // Armazena a velocidade de consumo
+            velocidades[op - 1] = velocidadeConsumo;
+            document.getElementById(`circle${op}`).style.backgroundColor = "yellow";  // Cor amarela ao calcular
         }
 
-        // Função para adicionar bobina
+        // Função para adicionar uma nova bobina
         function adicionarBobina(op) {
-            let bobinaEntrada = document.getElementById(`bobina-entrada${op}`).value;
+            let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
             if (!bobinaEntrada) {
-                alert("Digite a metragem da bobina.");
+                alert("Digite a bobina de entrada.");
                 return;
             }
 
-            bobinas.push(parseFloat(bobinaEntrada));  // Adiciona a bobina na lista
-            atualizarTabela(op);
+            bobinas.push(bobinaEntrada);
+
+            let bobinaList = document.getElementById(`bobina-list${op}`);
+            let newBobina = document.createElement("div");
+            newBobina.textContent = `Bobina de Entrada: ${bobinaEntrada} metros`;
+            bobinaList.appendChild(newBobina);
+
+            let tableBody = document.querySelector("#bobina-tabela tbody");
+            let newRow = document.createElement("tr");
+
+            newRow.innerHTML = `
+                <td>Bobina ${bobinas.length}</td>
+                <td>
+                    <div class="loading-bar-container">
+                        <div class="loading-bar" id="bar${bobinas.length}" style="width: 0%;"></div>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(newRow);
         }
 
-        // Atualiza a tabela de bobinas com a barra de progresso
-        function atualizarTabela(op) {
-            let tabela = document.getElementById('bobina-tabela').getElementsByTagName('tbody')[0];
-            tabela.innerHTML = "";  // Limpa a tabela antes de adicionar os novos dados
-
-            bobinas.forEach((bobina, index) => {
-                let linha = tabela.insertRow();
-                let celula1 = linha.insertCell(0);
-                let celula2 = linha.insertCell(1);
-
-                celula1.textContent = `Bobina ${index + 1}`;
-                
-                let progressBarContainer = document.createElement('div');
-                progressBarContainer.className = 'loading-bar-container';
-                
-                let progressBar = document.createElement('div');
-                progressBar.className = 'loading-bar';
-                progressBar.style.width = (bobina / 100) * 100 + "%";  // Ajuste do progresso
-                
-                let marking = document.createElement('div');
-                marking.className = 'marking';
-                progressBarContainer.appendChild(progressBar);
-                progressBarContainer.appendChild(marking);
-                
-                celula2.appendChild(progressBarContainer);
-            });
-        }
-
-        // Função para iniciar o progresso
+        // Função para iniciar o progresso de consumo da bobina
         function iniciarProgresso(op) {
-            if (progressoAtivo) return;  // Se já estiver em progresso, não inicia novamente
+            if (progressoAtivo) {
+                alert("Progresso já iniciado.");
+                return;
+            }
 
             progressoAtivo = true;
-            let progressBar = document.querySelector(".loading-bar");
-            let interval = setInterval(() => {
-                let larguraAtual = parseFloat(progressBar.style.width);
-                if (larguraAtual < 100) {
-                    progressBar.style.width = (larguraAtual + 1) + "%";  // Aumenta a largura da barra de progresso
-                } else {
-                    clearInterval(interval);  // Para o intervalo quando o progresso atingir 100%
-                    progressoAtivo = false;  // Reseta o estado de progresso
+            let bobinaIndex = 0;  // Começa com a primeira bobina
+
+            function atualizarProgresso() {
+                if (bobinaIndex >= bobinas.length) {
+                    progressoAtivo = false;
+                    return;
                 }
-            }, 100);
+
+                let progresso = document.getElementById(`bar${bobinaIndex + 1}`);
+                let larguraAtual = parseFloat(progresso.style.width);
+
+                if (larguraAtual < 100) {
+                    progresso.style.width = `${larguraAtual + 10}%`; // Aumenta o progresso em 10%
+                } else {
+                    bobinaIndex++;
+                }
+            }
+
+            // Inicia o progresso a cada 1 segundo
+            let intervalo = setInterval(() => {
+                if (!progressoAtivo) {
+                    clearInterval(intervalo);
+                } else {
+                    atualizarProgresso();
+                }
+            }, 1000);
         }
 
         // Função para resetar a cor do círculo
         function resetarCorCírculo(op) {
-            let circle = document.getElementById(`circle${op}`);
-            circle.style.backgroundColor = 'green';  // Cor padrão
+            document.getElementById(`circle${op}`).style.backgroundColor = "green";
         }
     </script>
 </body>
