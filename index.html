@@ -130,11 +130,9 @@
 }
 
 .loading-bar {
-    height: 20px;
-    background-color: green;
-    border-radius: 5px;
-    transition: width 1s linear;  /* Animação suave */
-    width: 0%;  /* Começa com 0% de largura */
+    max-width: 100%; /* A largura da barra de progresso não ultrapassará a largura da célula */
+    width: 0%;
+    box-sizing: border-box; /* Inclui as bordas da célula na largura da barra de progresso */
 }
 
 td {
