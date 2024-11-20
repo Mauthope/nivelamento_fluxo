@@ -106,30 +106,49 @@
         .reset-button:hover {
             background-color: #e0e0e0;
         }
-        #bobina-tabela {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
+   #bobina-tabela {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
 
-        #bobina-tabela td {
-            padding: 10px;
-            text-align: left;
-            width: 50%;
-        }
+#bobina-tabela td {
+    padding: 10px;
+    text-align: left;
+}
 
-        .loading-bar {
-            height: 20px;
-            background-color: green;
-            border-radius: 5px;
-            transition: width 1s linear;
-            max-width: 100%; /* Garante que a barra de progresso não ultrapasse a célula */
-            width: 0%;
-        }
+.loading-bar {
+    height: 20px;
+    background-color: green;
+    border-radius: 5px;
+    transition: width 1s linear;
+    width: 0%;
+}
 
-        table {
-            table-layout: fixed; /* Ajusta a tabela para ter largura fixa nas células */
-        }
+td {
+    width: 100%;
+}
+
+td:first-child {
+    width: 50%;
+}
+
+td:last-child {
+    width: 50%;
+    padding-right: 0;
+    max-width: 100%;  /* Garante que a célula não ultrapasse a largura disponível */
+}
+
+table {
+    table-layout: fixed; /* Ajusta a tabela para ter largura fixa nas células */
+}
+
+.loading-bar {
+    max-width: 100%; /* A largura da barra de progresso não ultrapassará a largura da célula */
+    width: 0%;
+    box-sizing: border-box; /* Inclui as bordas da célula na largura da barra de progresso */
+}
+
     </style>
 </head>
 <body>
