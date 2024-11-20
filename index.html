@@ -5,118 +5,117 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Barra de Loading Personalizada - Consumo de Bobinas</title>
     <style>
-                body {
-            font-family: Arial, sans-serif;
-            background-color: #1a1a1a;
-            color: #fff;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-            margin: 20px;
-        }
-        .container {
-            width: 45%;
-            max-width: 600px;
-            padding: 20px;
-            border: 1px solid #333;
-            border-radius: 10px;
-            background-color: #2d2d2d;
-        }
-        
-       
-        /* Estilo do select */
-        .container select {
-            width: 100%;
-            padding: 10px;
-            font-size: 14px;
-            border: 2px solid #ccc;
-            border-radius: 20px;
-            background-color: #2d2d2d;
-            color: #fff;
-            cursor: pointer;
-            transition: border-color 0.3s ease;
-        }
+body {
+    font-family: Arial, sans-serif;
+    background-color: #1a1a1a;
+    color: #fff;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin: 20px;
+}
+.container {
+    width: 45%;
+    max-width: 600px;
+    padding: 20px;
+    border: 1px solid #333;
+    border-radius: 10px;
+    background-color: #2d2d2d;
+}
 
+.container select {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 2px solid #ccc;
+    border-radius: 20px;
+    background-color: #2d2d2d;
+    color: #fff;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
 
-        
-        h2 {
-            text-align: center;
-        }
-        input, button {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #444;
-            background-color: #333;
-            color: #fff;
-        }
-        button {
-            background-color: #007bff;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .results, .bobinas {
-            margin-top: 20px;
-        }
-        .loading-bar-container {
-            position: relative;
-            width: 100%;
-            height: 100px;
-            background-color: #444;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-        .loading-bar {
-            height: 100%;
-            position: absolute;
-            background-color: #28a745;
-            width: 0%;
-        }
-        .marking {
-            position: absolute;
-            height: 100%;
-            width: 2px;
-            background-color: #ff0000;
-        }
-        .progress-indicator {
-            position: absolute;
-            top: -25px;
-            right: 10px;
-            font-weight: bold;
-        }
-        .digital-display {
-            font-family: 'Courier New', monospace;
-            font-size: 24px;
-            background-color: #333;
-            padding: 10px;
-            border-radius: 10px;
-            text-align: center;
-        }
-        .circle {
-            position: relative;
-            width: 300px;
-            height: 300px;
-            border-radius: 50%;
-            background-color: green;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 20px auto;
-        }
-        .reset-button {
-            background-color: #ffffff;
-            color: #000;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .reset-button:hover {
-            background-color: #e0e0e0;
-        }
+h2 {
+    text-align: center;
+}
+
+input, button {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #444;
+    background-color: #333;
+    color: #fff;
+}
+
+button {
+    background-color: #007bff;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.loading-bar-container {
+    position: relative;
+    width: 100%;
+    height: 30px;
+    background-color: #444;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.loading-bar {
+    height: 100%;
+    position: absolute;
+    background-color: #28a745;
+    width: 0%;
+    transition: width 1s linear;
+}
+
+.progress-indicator {
+    position: absolute;
+    top: -25px;
+    right: 10px;
+    font-weight: bold;
+}
+
+.digital-display {
+    font-family: 'Courier New', monospace;
+    font-size: 24px;
+    background-color: #333;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.circle {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background-color: green;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto;
+}
+
+.reset-button {
+    background-color: #ffffff;
+    color: #000;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.reset-button:hover {
+    background-color: #e0e0e0;
+}
 
 #bobina-tabela {
     width: 100%;
@@ -127,6 +126,21 @@
 #bobina-tabela td {
     padding: 10px;
     text-align: left;
+    box-sizing: border-box; /* Inclui padding e bordas no cálculo da largura */
+}
+
+td:first-child {
+    width: 50%;
+}
+
+td:last-child {
+    width: 50%;
+    padding-right: 0;
+    max-width: 100%;
+}
+
+table {
+    table-layout: fixed;
 }
 
 .loading-bar {
@@ -135,25 +149,6 @@
     box-sizing: border-box; /* Inclui as bordas da célula na largura da barra de progresso */
 }
 
-td {
-    width: 100%;  /* A célula vai ocupar 100% da largura disponível */
-}
-
-td:first-child {
-    width: 50%;  /* A coluna da bobina terá 50% de largura */
-}
-
-td:last-child {
-    width: 50%;  /* A coluna de progresso terá 50% de largura */
-}
-
-table, td {
-    table-layout: fixed;  /* Garantir que as células tenham o mesmo tamanho */
-}
-
-td:last-child {
-    padding-right: 0;
-}
 
     </style>
 </head>
