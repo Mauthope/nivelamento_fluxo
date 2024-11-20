@@ -106,6 +106,37 @@
         .reset-button:hover {
             background-color: #e0e0e0;
         }
+        #bobina-tabela {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#bobina-tabela td {
+    padding: 10px;
+    text-align: left;
+}
+
+.loading-bar {
+    width: 0%;
+    height: 20px;
+    background-color: green;
+    border-radius: 5px;
+    transition: width 1s linear;  /* Animação suave */
+}
+
+td {
+    width: 50%;  /* Ajuste a largura da célula conforme necessário */
+}
+
+td:first-child {
+    width: 50%;  /* A coluna da bobina terá 50% de largura */
+}
+
+td:last-child {
+    width: 50%;  /* A coluna de progresso terá 50% de largura */
+}
+
     </style>
 </head>
 <body>
