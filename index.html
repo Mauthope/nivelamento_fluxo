@@ -157,10 +157,11 @@
     </div>
 
     <script>
-let consumos = [];
-let velocidades = [];
+let consumos = [0];
+let velocidades = [0];
 let barras = [];
-let barraIndex = 0; // Controla o índice da bobina atual
+let marcacoes = [];
+let barraIndex = 0;  // Para controlar o índice das barras de progresso
 
 // Função para calcular o tempo e a velocidade de consumo
 function calcular(op) {
@@ -180,7 +181,7 @@ function calcular(op) {
     document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
 
     velocidades[op - 1] = velocidadeConsumo;
-    document.getElementById(`circle${op}`).style.backgroundColor = "yellow"; // Cor amarela ao calcular
+    document.getElementById(`circle${op}`).style.backgroundColor = "yellow";  // Cor amarela ao calcular
 }
 
 // Função para adicionar bobinas e criar barras de progresso
@@ -203,68 +204,63 @@ function adicionarBobina(op) {
 
     barras.push({ metragem: bobinaEntrada, progresso: 0 });
 
-    // Atualiza a barra se o progresso já estiver em andamento
-    if (barraIndex < barras.length) {
-        iniciarProgresso(op);
-    }
+    // Atualiza o número de bobinas
+    marcacoes.push(bobinaEntrada);
 }
 
 // Função para iniciar o progresso das barras de cada bobina
 function iniciarProgresso(op) {
-    if (barras.length === 0) {
+    if (marcacoes.length === 0) {
         alert("Nenhuma bobina foi inserida.");
         return;
     }
 
+    let progressBars = document.querySelectorAll(".loading-bar");
+
+    // Função para atualizar o progresso das barras de cada bobina
     function atualizarProgresso() {
         if (barraIndex >= barras.length) {
-            document.getElementById(`circle${op}`).style.backgroundColor = "red"; // Círculo vermelho ao terminar
+            document.getElementById(`circle${op}`).style.backgroundColor = "red"; // Mudando a cor do círculo para vermelho quando terminar
             return;
         }
 
-        let progressBarContainer = document.getElementById("loading-bar-container");
-        let progressBars = progressBarContainer.querySelectorAll(".loading-bar");
-        let barraAtual = barras[barraIndex];
+        let progressBar = progressBars[barraIndex];
         let velocidade = velocidades[op - 1];
+        let consumoAtual = barras[barraIndex].progresso;
+        consumoAtual += velocidade / 60;  // Incrementa o consumo por minuto
+        let progress = (consumoAtual / barras[barraIndex].metragem) * 100;
+        progressBar.style.width = `${progress}%`;
+        document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
 
-        barraAtual.progresso += velocidade / 60; // Incrementa o consumo por minuto
-        let progress = (barraAtual.progresso / barraAtual.metragem) * 100;
-
-        // Atualiza a barra de progresso visualmente
-        if (progressBars[barraIndex]) {
-            progressBars[barraIndex].style.width = `${progress}%`;
-        }
-        document.getElementById(`digital-display${op}`).textContent = `${barraAtual.progresso.toFixed(2)} m`;
+        barras[barraIndex].progresso = consumoAtual;  // Atualiza o progresso da bobina
 
         if (progress >= 100) {
-            // Remove a barra e muda a cor do círculo para vermelho
-            if (progressBars[barraIndex]) {
-                progressBars[barraIndex].remove(); // Remove a barra atual
+            // Quando a barra de progresso atingir 100%, remove a barra e passa para a próxima
+            progressBar.remove(); // Remove a barra atual
+            document.getElementById(`circle${op}`).style.backgroundColor = "red";  // Atualiza a cor do círculo para vermelho
+            barraIndex++;  // Avança para a próxima bobina
+            if (barraIndex < barras.length) {
+                setTimeout(atualizarProgresso, 1000); // Espera 1 segundo antes de iniciar a próxima barra
             }
-            document.getElementById(`circle${op}`).style.backgroundColor = "red";
-
-            // Avança para a próxima bobina
-            barraIndex++;
-            setTimeout(atualizarProgresso, 1000); // Inicia a próxima bobina
         } else {
-            // Continua atualizando a barra atual
+            // Continua atualizando o progresso da barra atual
             setTimeout(atualizarProgresso, 1000);
         }
     }
 
-    // Inicia o progresso imediatamente se for a primeira vez
-    if (barraIndex < barras.length) {
-        atualizarProgresso();
-    }
+    // Inicia o progresso das barras imediatamente ao apertar o botão
+    atualizarProgresso();
 }
 
-// Função para resetar o progresso e as configurações
+// Função para resetar o círculo
 function resetarCorCírculo(op) {
     document.getElementById(`circle${op}`).style.backgroundColor = "green";
-    barras = []; // Limpa todas as bobinas
-    barraIndex = 0; // Reinicia o índice
-    document.getElementById("loading-bar-container").innerHTML = ''; // Remove as barras visuais
+    barras = [];  // Limpar todas as barras para reiniciar o processo
+    marcacoes = []; // Limpar as marcações para reiniciar
+    barraIndex = 0; // Resetar o índice da barra
+    document.getElementById("loading-bar-container").innerHTML = ''; // Limpar as barras de progresso
 }
+
 
 
     </script>
