@@ -157,8 +157,8 @@
     </div>
 
     <script>
-let consumos = [];
-let velocidades = [];
+let consumos = [0];
+let velocidades = [0];
 let barras = [];
 let marcacoes = [];
 
@@ -205,9 +205,6 @@ function adicionarBobina(op) {
 
     // Atualiza o número de bobinas
     marcacoes.push(bobinaEntrada);
-
-    // Inicia o progresso automaticamente
-    iniciarProgresso(op);
 }
 
 // Função para iniciar o progresso das barras de cada bobina
@@ -223,7 +220,8 @@ function iniciarProgresso(op) {
 
     function atualizarProgresso() {
         if (barraIndex >= barras.length) {
-            return;  // Não faz nada se todas as barras foram processadas
+            document.getElementById(`circle${op}`).style.backgroundColor = "red"; // Mudando a cor do círculo para vermelho quando terminar
+            return;
         }
 
         let progressBar = progressBars[barraIndex];
@@ -234,13 +232,10 @@ function iniciarProgresso(op) {
         document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
 
         if (progress >= 100) {
-            // Quando a barra de progresso atingir 100%, passa para a próxima bobina
-            document.getElementById(`circle${op}`).style.backgroundColor = "red"; // Mudando a cor do círculo para vermelho
-
-            // Resetar a barra e passar para a próxima bobina
-            progressBar.style.width = "0%";  // Reseta o progresso da barra
+            // Quando a barra de progresso atingir 100%, reinicia a barra e passa para a próxima bobina
+            progressBar.style.width = '0%'; // Reseta a barra para o início
             consumoAtual = 0;  // Reseta o consumo para a próxima bobina
-            barraIndex++;  // Avança para a próxima barra
+            barraIndex++;  // Avança para a próxima bobina
             setTimeout(atualizarProgresso, 1000); // Espera 1 segundo antes de iniciar a próxima barra
         } else {
             // Continua atualizando o progresso da barra atual
@@ -258,6 +253,7 @@ function resetarCorCírculo(op) {
     barras = [];  // Limpar todas as barras para reiniciar o processo
     document.getElementById("loading-bar-container").innerHTML = ''; // Limpar as barras de progresso
 }
+
 
     </script>
 </body>
