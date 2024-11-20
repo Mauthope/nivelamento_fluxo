@@ -259,14 +259,14 @@
         container.appendChild(marcador);
     }
 
-    function verificarMarca(op, consumoAtual) {
-        // Checa se o consumo atingiu alguma marcação registrada
-        marcacoes.forEach(marcacao => {
-            if (Math.abs(consumoAtual - marcacao) < 0.1) {
-                document.getElementById(`circle${op}`).style.backgroundColor = "red";
-            }
-        });
-    }
+   function verificarMarca(op, consumoAtual) {
+    // Checa se o consumo atingiu alguma marcação registrada
+    marcacoes.forEach(marcacao => {
+        if (Math.abs(consumoAtual - marcacao) < 0.1) {  // Ajuste o valor da diferença se necessário
+            document.getElementById(`circle${op}`).style.backgroundColor = "red";
+        }
+    });
+}
         function atualizarBarra(op, consumoAtual, metragem) {
             let porcentagem = (consumoAtual / metragem) * 100;
             document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
