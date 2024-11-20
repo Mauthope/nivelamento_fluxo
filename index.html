@@ -215,25 +215,35 @@ function iniciarProgresso(op) {
     }
 
     let progressBars = document.querySelectorAll(".loading-bar");
-    barras.forEach((barra, index) => {
-        let consumoAtual = 0;
-        let velocidade = velocidades[op - 1];
-        let progressBar = progressBars[index];
-        let barraIntervalo = setInterval(() => {
-            consumoAtual += velocidade / 60;  // Incrementa o consumo por minuto
-            let progress = (consumoAtual / barra.metragem) * 100;
-            progressBar.style.width = `${progress}%`;
-            document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
+    let barraIndex = 0;  // Variável para controlar o índice da bobina atual
+    let consumoAtual = 0;
 
-            if (progress >= 100) {
-                clearInterval(barraIntervalo);
-                alert(`Alvo atingido para a bobina ${index + 1}!`);
-                if (index === barras.length - 1) {
-                    document.getElementById(`circle${op}`).style.backgroundColor = "red";  // Muda para vermelho no final
-                }
+    function atualizarProgresso() {
+        let progressBar = progressBars[barraIndex];
+        let velocidade = velocidades[op - 1];
+        consumoAtual += velocidade / 60;  // Incrementa o consumo por minuto
+        let progress = (consumoAtual / barras[barraIndex].metragem) * 100;
+        progressBar.style.width = `${progress}%`;
+        document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
+
+        if (progress >= 100) {
+            // Quando a barra de progresso atingir 100%, passa para a próxima bobina
+            barraIndex++;
+
+            if (barraIndex < barras.length) {
+                consumoAtual = 0;  // Reseta o consumo para a próxima bobina
+                atualizarProgresso();  // Chama a função novamente para a próxima bobina
+            } else {
+                // Se não houver mais barras, muda o círculo para vermelho
+                document.getElementById(`circle${op}`).style.backgroundColor = "red";
             }
-        }, 1000);
-    });
+        } else {
+            // Continua atualizando o progresso da barra atual
+            setTimeout(atualizarProgresso, 1000);
+        }
+    }
+
+    atualizarProgresso();  // Inicia o processo de progresso para a primeira bobina
 }
 
 // Função para resetar o círculo
@@ -242,6 +252,7 @@ function resetarCorCírculo(op) {
     barras = [];  // Limpar todas as barras para reiniciar o processo
     document.getElementById("loading-bar-container").innerHTML = ''; // Limpar as barras de progresso
 }
+
 
     </script>
 </body>
