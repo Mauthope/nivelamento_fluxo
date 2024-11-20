@@ -180,7 +180,6 @@ function calcular(op) {
     document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
 
     velocidades[op - 1] = velocidadeConsumo;
-    document.getElementById(`circle${op}`).style.backgroundColor = "yellow";  // Cor amarela ao calcular
 }
 
 // Função para adicionar bobinas e criar barras de progresso
@@ -219,14 +218,7 @@ function iniciarProgresso(op) {
     let barraIndex = 0;  // Variável para controlar o índice da bobina atual
     let consumoAtual = 0;
 
-    // Função recursiva para atualizar o progresso de cada barra
     function atualizarProgresso() {
-        if (barraIndex >= barras.length) {
-            // Quando todas as barras forem completadas, mudar o círculo para vermelho
-            document.getElementById(`circle${op}`).style.backgroundColor = "red";
-            return;
-        }
-
         let progressBar = progressBars[barraIndex];
         let velocidade = velocidades[op - 1];
         let bobinaAtual = barras[barraIndex];
@@ -244,10 +236,12 @@ function iniciarProgresso(op) {
             // Quando a barra de progresso atingir 100%, passa para a próxima bobina
             barraIndex++;
 
-            // Se houver mais barras, chama novamente a função para iniciar a próxima
             if (barraIndex < barras.length) {
                 consumoAtual = 0;  // Reseta o consumo para a próxima bobina
-                setTimeout(atualizarProgresso, 500);  // Chama a função novamente após meio segundo
+                atualizarProgresso();  // Chama a função novamente para a próxima bobina
+            } else {
+                // Se não houver mais barras, muda o círculo para vermelho
+                document.getElementById(`circle${op}`).style.backgroundColor = "red";
             }
         } else {
             // Continua atualizando o progresso da barra atual
@@ -255,7 +249,7 @@ function iniciarProgresso(op) {
         }
     }
 
-    // Inicia o progresso das barras
+    // Inicia o progresso das barras imediatamente ao apertar o botão
     atualizarProgresso();
 }
 
