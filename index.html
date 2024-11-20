@@ -24,7 +24,6 @@
             background-color: #2d2d2d;
         }
         
-       
         /* Estilo do select */
         .container select {
             width: 100%;
@@ -38,8 +37,6 @@
             transition: border-color 0.3s ease;
         }
 
-
-        
         h2 {
             text-align: center;
         }
@@ -126,21 +123,13 @@
         <input type="number" id="metragem1" placeholder="Digite a metragem da OP">
         
         <label for="material">Material:</label>
-                <select id="material">
-                    <option value="" disabled selected>Selecione o materal</option>
-                    <option value="TECIDO POLIPROPILENO 045X104GR PLAST TUB PRETO FILME PP FOSCO FILME PP BRANCO II- VERDE PEQUENO 15KG
-                        ">TECIDO POLIPROPILENO 045X104GR PLAST TUB PRETO FILME PP FOSCO FILME PP BRANCO II- VERDE PEQUENO 15KG
-                    </option>
-                    <option value="TECIDO POLIPROPILENO 050X57GR PLAST TUB BRANCO
-                        ">TECIDO POLIPROPILENO 050X57GR PLAST TUB BRANCO
-                    </option>
-                    <option value="TECIDO POLIPROPILENO 050X68GR PLAST TUB BRANCO SOLDADO
-                        ">TECIDO POLIPROPILENO 050X68GR PLAST TUB BRANCO SOLDADO
-                    </option>
-                    <option value="TECIDO POLIPROPILENO 055X65GR PLAST TUB BRANCO ANTIDERRAPANTE
-                        ">TECIDO POLIPROPILENO 055X65GR PLAST TUB BRANCO ANTIDERRAPANTE
-                    </option>
-                </select>
+        <select id="material">
+            <option value="" disabled selected>Selecione o material</option>
+            <option value="TECIDO POLIPROPILENO 045X104GR PLAST TUB PRETO FILME PP FOSCO FILME PP BRANCO II- VERDE PEQUENO 15KG">TECIDO POLIPROPILENO 045X104GR PLAST TUB PRETO FILME PP FOSCO FILME PP BRANCO II- VERDE PEQUENO 15KG</option>
+            <option value="TECIDO POLIPROPILENO 050X57GR PLAST TUB BRANCO">TECIDO POLIPROPILENO 050X57GR PLAST TUB BRANCO</option>
+            <option value="TECIDO POLIPROPILENO 050X68GR PLAST TUB BRANCO SOLDADO">TECIDO POLIPROPILENO 050X68GR PLAST TUB BRANCO SOLDADO</option>
+            <option value="TECIDO POLIPROPILENO 055X65GR PLAST TUB BRANCO ANTIDERRAPANTE">TECIDO POLIPROPILENO 055X65GR PLAST TUB BRANCO ANTIDERRAPANTE</option>
+        </select>
         
         <label for="er1">ER (m/min):</label>
         <input type="number" id="er1" placeholder="Digite a ER (m/min)">
@@ -150,15 +139,11 @@
         <input type="number" id="inicial" value="2" disabled>
         <button onclick="calcular(1)">Pedir bobinas</button>
 
-       
-
         <div class="results">
             <h2>Resultados</h2>
             <p>Tempo de Consumo (min): <span id="tempo-consumo1">-</span></p>
             <p>Velocidade de Consumo (m/min): <span id="velocidade-consumo1">-</span></p>
         </div>
-
-       
 
         <div class="loading-bar-container">
             <div class="loading-bar" id="loading-bar1"></div>
@@ -166,9 +151,9 @@
         </div>
         <div class="digital-display" id="digital-display1">0 m</div>
 
-        
-         <button onclick="iniciarProgresso(1)">Iniciar</button> <!-- Novo botão Iniciar -->
-         <div class="bobinas">
+        <button onclick="iniciarProgresso(1)">Iniciar</button>
+
+        <div class="bobinas">
             <h2>Bobinas</h2>
             <label for="bobina-entrada1">Bobina de Entrada (m):</label>
             <input type="number" id="bobina-entrada1" placeholder="Digite a bobina de entrada">
@@ -181,105 +166,97 @@
         </div>
     </div>
 
-<script>
-    let consumos = [0];
-    let marcacoes = [0]; // Lista de marcações acumuladas
-    let velocidades = [0];
-    let intervalo;
+    <script>
+        let consumos = [0];
+        let marcacoes = [0];  // Inicia a lista de marcações com 0
+        let velocidades = [0];
+        let intervalo;
 
-    function calcular(op) {
-        let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
-        let er = parseFloat(document.getElementById(`er${op}`).value);
-        let eficiencia = parseFloat(document.getElementById(`eficiencia${op}`).value);
+        function calcular(op) {
+            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
+            let er = parseFloat(document.getElementById(`er${op}`).value);
+            let eficiencia = parseFloat(document.getElementById(`eficiencia${op}`).value);
 
-        if (!metragem || !er || !eficiencia) {
-            alert("Preencha todos os campos.");
-            return;
-        }
-
-        let tempoConsumo = metragem / (er * (eficiencia / 100));
-        let velocidadeConsumo = metragem / tempoConsumo;
-
-        document.getElementById(`tempo-consumo${op}`).textContent = tempoConsumo.toFixed(2);
-        document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
-
-        velocidades[op - 1] = velocidadeConsumo;
-        document.getElementById(`circle${op}`).style.backgroundColor = "yellow";
-    }
-
-    function iniciarProgresso(op) {
-        let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
-
-        if (!metragem) {
-            alert("Digite a metragem da OP.");
-            return;
-        }
-
-        consumos[op - 1] = 0; // Reseta o consumo para começar do zero
-        let velocidade = velocidades[op - 1];
-        let metragemAjustada = metragem * 1.3; // Ajusta a metragem para 130%
-
-        clearInterval(intervalo);
-        intervalo = setInterval(() => {
-            consumos[op - 1] += velocidade / 60; // Incrementa por segundo
-            atualizarBarra(op, consumos[op - 1], metragemAjustada);
-            verificarMarca(op, consumos[op - 1]);
-
-            // A barra para de atualizar, mas as marcações continuam
-            if (consumos[op - 1] >= metragemAjustada) {
-                clearInterval(intervalo);
+            if (!metragem || !er || !eficiencia) {
+                alert("Preencha todos os campos.");
+                return;
             }
-        }, 1000);
-    }
 
-    function adicionarBobina(op) {
-        let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
+            let tempoConsumo = metragem / (er * (eficiencia / 100));
+            let velocidadeConsumo = metragem / tempoConsumo;
 
-        if (!bobinaEntrada) {
-            alert("Digite a bobina de entrada.");
-            return;
+            document.getElementById(`tempo-consumo${op}`).textContent = tempoConsumo.toFixed(2);
+            document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
+
+            velocidades[op - 1] = velocidadeConsumo;
+            document.getElementById(`circle${op}`).style.backgroundColor = "yellow";
         }
 
-        consumos[op - 1] += bobinaEntrada; // Atualiza o consumo diretamente
-        marcacoes.push(consumos[op - 1]); // Armazena o consumo atual como nova marcação
-        marcarBobina(op, consumos[op - 1]);
-    }
+        function iniciarProgresso(op) {
+            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
 
-    function marcarBobina(op, consumoAtual) {
-        let container = document.querySelector(".loading-bar-container");
-        let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
-        let metragemAjustada = metragem * 1.3;
-
-        let porcentagem = (consumoAtual / metragemAjustada) * 100;
-        let marcador = document.createElement("div");
-        marcador.classList.add("marking");
-        marcador.style.left = `${porcentagem}%`;
-
-        // Adiciona o marcador ao container, mesmo se o consumo ultrapassar 130%
-        container.appendChild(marcador);
-    }
-
-    function verificarMarca(op, consumoAtual) {
-        // Checa se o consumo atingiu alguma marcação registrada
-         for (let i = 0; i < marcacoes.length; i++) {
-            if (Math.abs(consumoAtual - marcacao) < 0.1) {
-                document.getElementById(`circle${op}`).style.backgroundColor = "red";
+            if (!metragem) {
+                alert("Digite a metragem da OP.");
+                return;
             }
-        });
-    }
 
-    function atualizarBarra(op, consumoAtual, metragemAjustada) {
-        let porcentagem = (consumoAtual / metragemAjustada) * 100;
-        document.getElementById(`loading-bar${op}`).style.width = `${Math.min(porcentagem, 100)}%`;
-        document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
-        document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
-    }
+            metragem = metragem * 1.3;  // Considera 130% da metragem da OP
+            consumos[op - 1] = 0;
 
-    function resetarCorCírculo(op) {
-        document.getElementById(`circle${op}`).style.backgroundColor = "green";
-    }
-</script>
+            let consumoAtual = consumos[op - 1];
+            let velocidade = velocidades[op - 1];
 
+            clearInterval(intervalo);
+            intervalo = setInterval(() => {
+                consumoAtual += velocidade / 60;  // Incrementa o consumo por minuto
+                consumos[op - 1] = consumoAtual;
 
+                if (consumoAtual >= metragem) {
+                    consumoAtual = metragem;  // Garante que não ultrapasse 130% da metragem
+                    clearInterval(intervalo);
+                }
+
+                let progress = (consumoAtual / metragem) * 100;
+                document.getElementById(`loading-bar${op}`).style.width = `${progress}%`;
+                document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
+                document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
+
+                if (progress >= 100) {
+                    alert("Alvo atingido!");
+                }
+            }, 1000);
+        }
+
+        function resetarCorCírculo(op) {
+            document.getElementById(`circle${op}`).style.backgroundColor = "green";
+        }
+
+        function adicionarBobina(op) {
+            let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
+            if (!bobinaEntrada) {
+                alert("Digite a bobina de entrada.");
+                return;
+            }
+            let bobinaList = document.getElementById(`bobina-list${op}`);
+            let bobinaDiv = document.createElement("div");
+            bobinaDiv.textContent = `Bobina adicionada: ${bobinaEntrada} m`;
+            bobinaList.appendChild(bobinaDiv);
+
+            marcacoes.push(bobinaEntrada);
+            atualizarMarcacoes(op);
+        }
+
+        function atualizarMarcacoes(op) {
+            let marcacoesDiv = document.getElementById(`loading-bar${op}`);
+            marcacoesDiv.innerHTML = "";  // Limpar a div de marcações
+
+            marcacoes.forEach(marcacao => {
+                let marca = document.createElement("div");
+                marca.style.left = `${(marcacao / (parseFloat(document.getElementById(`metragem${op}`).value) * 1.3)) * 100}%`;  // Adapta a posição
+                marca.classList.add("marking");
+                marcacoesDiv.appendChild(marca);
+            });
+        }
+    </script>
 </body>
 </html>
