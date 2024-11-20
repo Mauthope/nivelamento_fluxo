@@ -223,11 +223,10 @@
         intervalo = setInterval(() => {
             consumos[op - 1] += velocidade / 60; // Incrementa por segundo
             atualizarBarra(op, consumos[op - 1], metragemAjustada);
-            verificarMarca(op, consumos[op - 1]);
+            verificarMarca(op, consumos[op - 1]); // Verifica se atingiu marcação
 
-            // A barra para de atualizar, mas as marcações continuam
             if (consumos[op - 1] >= metragemAjustada) {
-                clearInterval(intervalo);
+                clearInterval(intervalo); // Para a barra ao atingir 130%
             }
         }, 1000);
     }
@@ -253,16 +252,15 @@
         let porcentagem = (consumoAtual / metragemAjustada) * 100;
         let marcador = document.createElement("div");
         marcador.classList.add("marking");
-        marcador.style.left = `${porcentagem}%`;
+        marcador.style.left = `${Math.min(porcentagem, 100)}%`; // Evita ultrapassar visualmente a barra
 
-        // Adiciona o marcador ao container, mesmo se o consumo ultrapassar 130%
         container.appendChild(marcador);
     }
 
     function verificarMarca(op, consumoAtual) {
         // Checa se o consumo atingiu alguma marcação registrada
         marcacoes.forEach(marcacao => {
-            if (Math.abs(consumoAtual - marcacao) < 0.1) {
+            if (Math.abs(consumoAtual - marcacao) <= 0.5) { // Tolerância ajustada para 0.5
                 document.getElementById(`circle${op}`).style.backgroundColor = "red";
             }
         });
@@ -279,6 +277,7 @@
         document.getElementById(`circle${op}`).style.backgroundColor = "green";
     }
 </script>
+
 
 
 </body>
