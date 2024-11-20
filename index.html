@@ -262,7 +262,7 @@
     function verificarMarca(op, consumoAtual) {
         // Checa se o consumo atingiu alguma marcação registrada
         marcacoes.forEach(marcacao => {
-            if (Math.abs(consumoAtual - marcacao) < 0.9) {
+            if (Math.abs(consumoAtual - marcacao) < 0.1) {
                 document.getElementById(circle${op}).style.backgroundColor = "red";
             }
         });
