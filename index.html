@@ -135,7 +135,6 @@
     border-radius: 5px;
     transition: width 1s linear;  /* Animação suave */
     width: 0%;  /* Começa com 0% de largura */
-    max-width: 100%;  /* Garante que a largura não ultrapasse 100% da célula */
 }
 
 td {
@@ -148,7 +147,6 @@ td:first-child {
 
 td:last-child {
     width: 50%;  /* A coluna de progresso terá 50% de largura */
-    padding-right: 0;  /* Remove o padding direito para ajustar a largura */
 }
 
 table, td {
@@ -156,8 +154,9 @@ table, td {
 }
 
 td:last-child {
-    padding-right: 0;  /* Remove o padding direito para ajustar a largura */
+    padding-right: 0;
 }
+
     </style>
 </head>
 <body>
