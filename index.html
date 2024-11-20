@@ -189,7 +189,7 @@
             document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
 
             velocidades[op - 1] = velocidadeConsumo;
-            document.getElementById(`circle${op}`).style.backgroundColor = "yellow";
+            document.getElementById(`circle${op}`).style.backgroundColor = "yellow";  // Cor amarela ao calcular
         }
 
         function iniciarProgresso(op) {
@@ -223,6 +223,7 @@
 
                 if (progress >= 100) {
                     alert("Alvo atingido!");
+                    document.getElementById(`circle${op}`).style.backgroundColor = "red";  // Muda a cor para vermelho quando atingir o alvo
                 }
             }, 1000);
         }
