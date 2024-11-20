@@ -259,11 +259,10 @@
         container.appendChild(marcador);
     }
 
- function verificarMarca(op, consumoAtual) {
+function verificarMarca(op, consumoAtual) {
     // Checa se o consumo atingiu alguma marcação registrada
     marcacoes.forEach(marcacao => {
-        if (Math.abs(consumoAtual - marcacao) < 0.1) {
-            // Altera a cor do círculo quando atingir a marcação
+        if (consumoAtual === marcacao) {  // Verifica igualdade exata
             document.getElementById(`circle${op}`).style.backgroundColor = "red";
         }
     });
