@@ -193,7 +193,7 @@
             <div id="bobina-list1"></div>
         </div>
 
-        <button onclick="iniciarProgresso(1)">Iniciar</button>
+        <button onclick="iniciarProgresso()">Iniciar</button>
 
         <div id="bobina-container">
             <table id="bobina-tabela" border="1">
@@ -216,10 +216,8 @@
     </div>
 
     <script>
-        let velocidades = [0];
         let bobinas = [];  // Lista de bobinas inseridas
         let progressoAtivo = false;  // Controla se o progresso está ativo
-        let linhaAtual = 0;  // Índice da linha atual sendo processada
         let totalConsumo = 0;  // Armazena o total de metros consumidos
 
         // Função para calcular tempo e velocidade de consumo
@@ -278,7 +276,7 @@
         }
 
         // Função para iniciar o progresso
-        function iniciarProgresso(op) {
+        function iniciarProgresso() {
             if (progressoAtivo) return;
             progressoAtivo = true;
             let linhaAtual = 0;
@@ -292,6 +290,12 @@
                 barra.style.width = `${(bobinas[linhaAtual] / 100)}%`;  // Atualiza o progresso
                 linhaAtual++;
             }, 1000);
+        }
+
+        // Função para resetar a cor do círculo
+        function resetarCorCírculo(op) {
+            let circle = document.getElementById(`circle${op}`);
+            circle.style.backgroundColor = "green"; // Reset para a cor inicial
         }
     </script>
 </body>
