@@ -157,8 +157,8 @@
     </div>
 
     <script>
-let consumos = [0];
-let velocidades = [0];
+let consumos = [];
+let velocidades = [];
 let barras = [];
 let marcacoes = [];
 
@@ -205,6 +205,9 @@ function adicionarBobina(op) {
 
     // Atualiza o número de bobinas
     marcacoes.push(bobinaEntrada);
+
+    // Inicia o progresso automaticamente
+    iniciarProgresso(op);
 }
 
 // Função para iniciar o progresso das barras de cada bobina
@@ -220,7 +223,7 @@ function iniciarProgresso(op) {
 
     function atualizarProgresso() {
         if (barraIndex >= barras.length) {
-            return;
+            return;  // Não faz nada se todas as barras foram processadas
         }
 
         let progressBar = progressBars[barraIndex];
