@@ -239,9 +239,16 @@
             return;
         }
 
-        consumos[op - 1] += bobinaEntrada; // Atualiza o consumo diretamente
-        marcacoes.push(consumos[op - 1]); // Armazena o consumo atual como nova marcação
-        marcarBobina(op, consumos[op - 1]);
+        // Salva o consumo anterior antes de adicionar a bobina
+        let consumoAnterior = consumos[op - 1];
+
+        // Adiciona o valor da bobina de forma gradual à barra de loading
+        let consumoTotal = consumoAnterior + bobinaEntrada;
+        consumos[op - 1] = consumoTotal;
+
+        // Atualiza a barra de loading gradualmente
+        atualizarBarra(op, consumoTotal, parseFloat(document.getElementById(`metragem${op}`).value) * 1.3);
+        marcarBobina(op, consumoTotal);
     }
 
     function marcarBobina(op, consumoAtual) {
@@ -277,6 +284,7 @@
         document.getElementById(`circle${op}`).style.backgroundColor = "green";
     }
 </script>
+
 
 
 
