@@ -199,9 +199,9 @@ let linhaAtual = 0;  // Índice da linha atual sendo processada
 
 // Função para calcular tempo e velocidade de consumo
 function calcular(op) {
-    let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
-    let er = parseFloat(document.getElementById(`er${op}`).value);
-    let eficiencia = parseFloat(document.getElementById(`eficiencia${op}`).value);
+    let metragem = parseFloat(document.getElementById(metragem${op}).value);
+    let er = parseFloat(document.getElementById(er${op}).value);
+    let eficiencia = parseFloat(document.getElementById(eficiencia${op}).value);
 
     if (!metragem || !er || !eficiencia) {
         alert("Preencha todos os campos.");
@@ -211,44 +211,85 @@ function calcular(op) {
     let tempoConsumo = metragem / (er * (eficiencia / 100));
     let velocidadeConsumo = metragem / tempoConsumo;
 
-    document.getElementById(`tempo-consumo${op}`).textContent = tempoConsumo.toFixed(2);
-    document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
+    document.getElementById(tempo-consumo${op}).textContent = tempoConsumo.toFixed(2);
+    document.getElementById(velocidade-consumo${op}).textContent = velocidadeConsumo.toFixed(2);
 
-    velocidades[op] = velocidadeConsumo;  // Salva a velocidade calculada
+    velocidades[op - 1] = velocidadeConsumo;
+    document.getElementById(circle${op}).style.backgroundColor = "yellow";  // Cor amarela ao calcular
 }
 
-// Função para adicionar bobina à tabela
+// Função para adicionar uma nova bobina
 function adicionarBobina(op) {
-    let bobinaEntrada = document.getElementById(`bobina-entrada${op}`).value;
-
-    if (!bobinaEntrada || isNaN(bobinaEntrada)) {
-        alert("Por favor, insira um valor válido para a bobina.");
+    let bobinaEntrada = parseFloat(document.getElementById(bobina-entrada${op}).value);
+    if (!bobinaEntrada) {
+        alert("Digite a bobina de entrada.");
         return;
     }
 
-    bobinas.push(bobinaEntrada);
+    // Adiciona a bobina na lista
+    bobinas.push({ metragem: bobinaEntrada, progresso: 0 });
 
-    let bobinaTabela = document.getElementById(`bobina-tabela`).getElementsByTagName('tbody')[0];
-    let novaLinha = bobinaTabela.insertRow();
+    // Atualiza a tabela visualmente
+    let tabela = document.getElementById("bobina-tabela");
+    let novaLinha = tabela.insertRow();
+    novaLinha.setAttribute("id", linha-${bobinas.length - 1});  // ID da linha
+
+    // Adiciona as células
     let celulaBobina = novaLinha.insertCell(0);
     let celulaProgresso = novaLinha.insertCell(1);
 
-    celulaBobina.textContent = `Bobina ${bobinas.length}`;
-    
-    // Barra de progresso
-    let barraProgresso = document.createElement('div');
-    barraProgresso.className = 'loading-bar-container';
-    let progresso = document.createElement('div');
-    progresso.className = 'loading-bar';
-    barraProgresso.appendChild(progresso);
-    
-    celulaProgresso.appendChild(barraProgresso);
-    // Atualiza a largura da barra
-    setTimeout(() => {
-        progresso.style.width = '100%';  // Define a largura como 100%
-    }, 500); // Simula o progresso após a inserção
-    
-    linhaAtual++;
+    celulaBobina.textContent = Bobina: ${bobinaEntrada} m;
+    celulaProgresso.innerHTML = <div class="loading-bar" id="progress-bar-${bobinas.length - 1}"></div>;
+}
+
+// Função para iniciar o progresso das bobinas
+function iniciarProgresso(op) {
+    if (progressoAtivo) return;  // Evita múltiplos inícios
+
+    if (bobinas.length === 0) {
+        alert("Nenhuma bobina adicionada.");
+        return;
+    }
+
+    progressoAtivo = true;  // Marca o progresso como ativo
+    processarBobinas(op);  // Inicia o processamento
+}
+
+// Função para processar as bobinas linha por linha
+function processarBobinas(op) {
+    if (linhaAtual >= bobinas.length) {
+        progressoAtivo = false;  // Termina o processo
+        linhaAtual = 0;  // Reseta o índice para futuras execuções
+        return;
+    }
+
+    let velocidade = velocidades[op - 1];
+    let consumoAtual = bobinas[linhaAtual].progresso;
+    let progressBar = document.getElementById(progress-bar-${linhaAtual});
+
+    function atualizarProgresso() {
+        if (consumoAtual >= bobinas[linhaAtual].metragem) {
+            // Linha completa: passa para a próxima
+            progressBar.style.width = "100%";
+            document.getElementById(circle${op}).style.backgroundColor = "red";  // Atualiza o círculo para vermelho
+            linhaAtual++;
+            processarBobinas(op);  // Processa a próxima linha
+        } else {
+            // Continua o progresso da linha atual
+            consumoAtual += velocidade / 60;  // Incrementa o consumo por minuto
+            let progress = (consumoAtual / bobinas[linhaAtual].metragem) * 100;
+            progressBar.style.width = ${progress}%;
+            bobinas[linhaAtual].progresso = consumoAtual;  // Atualiza o progresso
+            setTimeout(atualizarProgresso, 1000);
+        }
+    }
+
+    atualizarProgresso();
+}
+
+// Função para resetar a cor do círculo
+function resetarCorCírculo(op) {
+    document.getElementById(circle${op}).style.backgroundColor = "green";
 }
 
     </script>
