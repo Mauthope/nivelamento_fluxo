@@ -245,7 +245,10 @@
 
         // Calcula e armazena a nova marcação
         let consumoAtual = consumos[op - 1];
-        marcacoes.push(consumoAtual);
+        if (!marcacoes.includes(consumoAtual)) {
+            marcacoes.push(consumoAtual);  // Adiciona nova marcação apenas se não existir
+            marcacoes.sort((a, b) => a - b);  // Ordena as marcações para facilitar a verificação
+        }
 
         // Marcação visual
         marcarBobina(op, consumoAtual, metragem);
