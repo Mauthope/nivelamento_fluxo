@@ -240,10 +240,7 @@
             return;
         }
 
-        // Atualizar o consumo diretamente com a bobina de entrada
         consumos[op - 1] += bobinaEntrada;
-
-        // Calcula a posição da nova marcação na barra
         let consumoAtual = consumos[op - 1];
         marcarBobina(op, consumoAtual, metragem);
     }
@@ -258,11 +255,18 @@
     }
 
     function verificarMarca(op, consumoAtual) {
-        // Verifica se a barra atingiu uma marca de bobina
-        let intervaloMarca = 1000;  // Define o valor da marcação para 1000
-        if (Math.abs(consumoAtual % intervaloMarca) < 0.1) {
-            document.getElementById(`circle${op}`).style.backgroundColor = "red";
+        let intervaloMarca = 1000;  // Marcações a cada 1000 metros
+
+        // Verificar se o consumo atual ultrapassou uma marcação de bobina
+        for (let i = 0; i < marcacoes.length; i++) {
+            if (consumoAtual >= marcacoes[i] && consumoAtual < marcacoes[i] + intervaloMarca) {
+                document.getElementById(`circle${op}`).style.backgroundColor = "red";
+                return;  // Apenas muda a cor uma vez para evitar múltiplas mudanças
+            }
         }
+
+        // Caso o consumo não tenha atingido nenhuma marcação ainda, o círculo volta para verde
+        resetarCorCírculo(op);
     }
 
     function atualizarBarra(op, consumoAtual, metragem) {
@@ -276,6 +280,7 @@
         document.getElementById(`circle${op}`).style.backgroundColor = "green";
     }
 </script>
+
 
 
 </body>
