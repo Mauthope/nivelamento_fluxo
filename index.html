@@ -10,24 +10,40 @@
             background-color: #1a1a1a;
             color: #fff;
             display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
             justify-content: center;
             margin: 20px;
         }
-
         .container {
-            width: 60%;
-            max-width: 800px;
+            width: 45%;
+            max-width: 600px;
             padding: 20px;
             border: 1px solid #333;
             border-radius: 10px;
             background-color: #2d2d2d;
         }
+        
+       
+        /* Estilo do select */
+        .container select {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 2px solid #ccc;
+            border-radius: 20px;
+            background-color: #2d2d2d;
+            color: #fff;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
 
+
+        
         h2 {
             text-align: center;
         }
-
-        input, select, button {
+        input, button {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
@@ -36,71 +52,105 @@
             background-color: #333;
             color: #fff;
         }
-
         button {
             background-color: #007bff;
             cursor: pointer;
         }
-
         button:hover {
             background-color: #0056b3;
         }
-
         .results, .bobinas {
             margin-top: 20px;
         }
-
-        #bobina-tabela {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        #bobina-tabela th, #bobina-tabela td {
-            padding: 10px;
-            border: 1px solid #444;
-            text-align: left;
-        }
-
         .loading-bar-container {
             position: relative;
             width: 100%;
-            height: 20px;
+            height: 100px;
             background-color: #444;
             border-radius: 5px;
             overflow: hidden;
         }
-
         .loading-bar {
             height: 100%;
+            position: absolute;
             background-color: #28a745;
-            transition: width 1s linear;
             width: 0%;
+        }
+        .marking {
+            position: absolute;
+            height: 100%;
+            width: 2px;
+            background-color: #ff0000;
+        }
+        .progress-indicator {
+            position: absolute;
+            top: -25px;
+            right: 10px;
+            font-weight: bold;
+        }
+        .digital-display {
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            background-color: #333;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .circle {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background-color: green;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+        }
+        .reset-button {
+            background-color: #ffffff;
+            color: #000;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .reset-button:hover {
+            background-color: #e0e0e0;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="container1">
         <h2>Impressora 1</h2>
         <label for="metragem1">Metragem da OP (m):</label>
         <input type="number" id="metragem1" placeholder="Digite a metragem da OP">
         
         <label for="material">Material:</label>
-        <select id="material">
-            <option value="" disabled selected>Selecione o material</option>
-            <option value="TECIDO POLIPROPILENO 045X104GR">TECIDO POLIPROPILENO 045X104GR</option>
-            <option value="TECIDO POLIPROPILENO 050X57GR">TECIDO POLIPROPILENO 050X57GR</option>
-            <option value="TECIDO POLIPROPILENO 050X68GR">TECIDO POLIPROPILENO 050X68GR</option>
-            <option value="TECIDO POLIPROPILENO 055X65GR">TECIDO POLIPROPILENO 055X65GR</option>
-        </select>
+                <select id="material">
+                    <option value="" disabled selected>Selecione o materal</option>
+                    <option value="TECIDO POLIPROPILENO 045X104GR PLAST TUB PRETO FILME PP FOSCO FILME PP BRANCO II- VERDE PEQUENO 15KG
+                        ">TECIDO POLIPROPILENO 045X104GR PLAST TUB PRETO FILME PP FOSCO FILME PP BRANCO II- VERDE PEQUENO 15KG
+                    </option>
+                    <option value="TECIDO POLIPROPILENO 050X57GR PLAST TUB BRANCO
+                        ">TECIDO POLIPROPILENO 050X57GR PLAST TUB BRANCO
+                    </option>
+                    <option value="TECIDO POLIPROPILENO 050X68GR PLAST TUB BRANCO SOLDADO
+                        ">TECIDO POLIPROPILENO 050X68GR PLAST TUB BRANCO SOLDADO
+                    </option>
+                    <option value="TECIDO POLIPROPILENO 055X65GR PLAST TUB BRANCO ANTIDERRAPANTE
+                        ">TECIDO POLIPROPILENO 055X65GR PLAST TUB BRANCO ANTIDERRAPANTE
+                    </option>
+                </select>
         
         <label for="er1">ER (m/min):</label>
         <input type="number" id="er1" placeholder="Digite a ER (m/min)">
-        
         <label for="eficiencia1">Eficiência (%):</label>
         <input type="number" id="eficiencia1" placeholder="Digite a eficiência (%)" value="0">
+        <label for="inicial">Quantidade inicial de bobinas:</label>
+        <input type="number" id="inicial" value="2" disabled>
+        <button onclick="calcular(1)">Pedir bobinas</button>
 
-        <button onclick="calcular(1)">Calcular Consumo</button>
+       
 
         <div class="results">
             <h2>Resultados</h2>
@@ -108,97 +158,123 @@
             <p>Velocidade de Consumo (m/min): <span id="velocidade-consumo1">-</span></p>
         </div>
 
-        <div class="bobinas">
+       
+
+        <div class="loading-bar-container">
+            <div class="loading-bar" id="loading-bar1"></div>
+            <div class="progress-indicator" id="progress-indicator1">0 m</div>
+        </div>
+        <div class="digital-display" id="digital-display1">0 m</div>
+
+        
+         <button onclick="iniciarProgresso(1)">Iniciar</button> <!-- Novo botão Iniciar -->
+         <div class="bobinas">
             <h2>Bobinas</h2>
             <label for="bobina-entrada1">Bobina de Entrada (m):</label>
             <input type="number" id="bobina-entrada1" placeholder="Digite a bobina de entrada">
-            <button onclick="adicionarBobina()">Inserir Bobina</button>
-
-            <table id="bobina-tabela">
-                <thead>
-                    <tr>
-                        <th>Bobina</th>
-                        <th>Progresso</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Linhas serão adicionadas dinamicamente -->
-                </tbody>
-            </table>
+            <button onclick="adicionarBobina(1)">Inserir Bobina</button>
+            <div id="bobina-list1"></div>
         </div>
 
-        <button onclick="iniciarProgresso()">Iniciar Progresso</button>
+        <div class="circle" id="circle1">
+            <button class="reset-button" onclick="resetarCorCírculo(1)">Resetar</button>
+        </div>
     </div>
 
     <script>
+        let consumos = [0];
+        let marcacoes = [0];  // Inicia a lista de marcações com 0
         let velocidades = [0];
-        let bobinas = [];
-        let progressoAtivo = false;
+        let intervalo;
 
         function calcular(op) {
-            const metragem = parseFloat(document.getElementById(`metragem${op}`).value);
-            const er = parseFloat(document.getElementById(`er${op}`).value);
-            const eficiencia = parseFloat(document.getElementById(`eficiencia${op}`).value);
+            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
+            let er = parseFloat(document.getElementById(`er${op}`).value);
+            let eficiencia = parseFloat(document.getElementById(`eficiencia${op}`).value);
 
             if (!metragem || !er || !eficiencia) {
                 alert("Preencha todos os campos.");
                 return;
             }
 
-            const tempoConsumo = metragem / (er * (eficiencia / 100));
-            const velocidadeConsumo = metragem / tempoConsumo;
+            let tempoConsumo = metragem / (er * (eficiencia / 100));
+            let velocidadeConsumo = metragem / tempoConsumo;
 
             document.getElementById(`tempo-consumo${op}`).textContent = tempoConsumo.toFixed(2);
             document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
 
             velocidades[op - 1] = velocidadeConsumo;
+            document.getElementById(`circle${op}`).style.backgroundColor = "yellow";
         }
 
-        function adicionarBobina() {
-            const bobinaEntrada = parseFloat(document.getElementById("bobina-entrada1").value);
+        function iniciarProgresso(op) {
+            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
+
+            if (!metragem) {
+                alert("Digite a metragem da OP.");
+                return;
+            }
+
+            // Resetar o consumo para começar do 0
+            consumos[op - 1] = 0;
+
+            let consumoAtual = consumos[op - 1];
+            let velocidade = velocidades[op - 1];
+
+            clearInterval(intervalo);
+            intervalo = setInterval(() => {
+                consumoAtual += velocidade / 60; // Incremento por segundo
+                consumos[op - 1] = consumoAtual;
+                atualizarBarra(op, consumoAtual, metragem);
+                verificarMarca(op, consumoAtual);
+
+                if (consumoAtual >= metragem) clearInterval(intervalo);
+            }, 1000); // Atualiza a cada segundo
+        }
+
+        function adicionarBobina(op) {
+            let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
+            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
+
             if (!bobinaEntrada) {
                 alert("Digite a bobina de entrada.");
                 return;
             }
 
-            const tabela = document.getElementById("bobina-tabela").getElementsByTagName("tbody")[0];
-            const novaLinha = tabela.insertRow();
-            const celulaBobina = novaLinha.insertCell(0);
-            const celulaProgresso = novaLinha.insertCell(1);
-
-            celulaBobina.textContent = `${bobinaEntrada} m`;
-            celulaProgresso.innerHTML = `
-                <div class="loading-bar-container">
-                    <div class="loading-bar"></div>
-                </div>
-            `;
-
-            bobinas.push({ metragem: bobinaEntrada, progresso: 0 });
+            // Atualiza o consumo e a soma das marcações
+            consumos[op - 1] += bobinaEntrada;
+            let somaMarcações = marcacoes.reduce((acc, val) => acc + val, 0); // Soma as marcações anteriores
+            marcacoes.push(somaMarcações + bobinaEntrada); // Adiciona a nova marcação com a soma acumulada
+            marcarBobina(op, somaMarcações + bobinaEntrada, metragem);
         }
 
-        function iniciarProgresso() {
-            if (progressoAtivo || bobinas.length === 0) return;
-            progressoAtivo = true;
+        function marcarBobina(op, consumoAtual, metragem) {
+            let container = document.querySelector(".loading-bar-container");
+            let porcentagem = (consumoAtual / metragem) * 100;
+            let marcador = document.createElement("div");
+            marcador.classList.add("marking");
+            marcador.style.left = `${porcentagem}%`;
+            container.appendChild(marcador);
+        }
 
-            const velocidade = velocidades[0];
-            bobinas.forEach((bobina, index) => {
-                const progressBar = document.querySelector(`#bobina-tabela tbody tr:nth-child(${index + 1}) .loading-bar`);
-                let progresso = 0;
+        function verificarMarca(op, consumoAtual) {
+            // Verificar se a barra atingiu alguma marca de bobina
+            for (let i = 0; i < marcacoes.length; i++) {
+                if (Math.abs(consumoAtual - marcacoes[i]) < 0.1) {  // Ajuste de tolerância para evitar precisão excessiva
+                    document.getElementById(`circle${op}`).style.backgroundColor = "red";
+                }
+            }
+        }
 
-                const intervalo = setInterval(() => {
-                    progresso += velocidade / 60;
-                    bobina.progresso = progresso;
+        function atualizarBarra(op, consumoAtual, metragem) {
+            let porcentagem = (consumoAtual / metragem) * 100;
+            document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
+            document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
+            document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
+        }
 
-                    if (progresso >= bobina.metragem) {
-                        progressBar.style.width = "100%";
-                        clearInterval(intervalo);
-                    } else {
-                        progressBar.style.width = `${(progresso / bobina.metragem) * 100}%`;
-                    }
-                }, 1000);
-            });
-
-            progressoAtivo = false;
+        function resetarCorCírculo(op) {
+            document.getElementById(`circle${op}`).style.backgroundColor = "green";
         }
     </script>
 </body>
