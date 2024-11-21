@@ -183,7 +183,7 @@
 
 <script>
 let consumos = [0];
-let marcacoes = []; // Lista para armazenar marcações com valores acumulados
+let marcacoes = [];
 let velocidades = [0];
 let intervalo;
 
@@ -239,16 +239,25 @@ function adicionarBobina(op) {
         return;
     }
 
-    // Atualiza o consumo e soma das marcações
-    let ultimaMarcacao = marcacoes.length ? marcacoes[marcacoes.length - 1].valor : 0;
+    // Calcula o valor acumulado para a nova marcação
+    let ultimaMarcacao = marcacoes.length ? marcacoes[marcacoes.length - 1] : 0;
     let novaMarcacao = ultimaMarcacao + bobinaEntrada;
 
     if (novaMarcacao <= metragem) {
-        marcacoes.push({ valor: novaMarcacao });
-        inserirMarcacaoVisual(op, novaMarcacao, metragem, marcacoes.length - 1);
+        marcacoes.push(novaMarcacao); // Adiciona a nova marcação à lista
+        atualizarMarcacoesVisuais(op, metragem); // Atualiza as marcações visuais
     } else {
         alert("A bobina ultrapassa a metragem total.");
     }
+}
+
+function atualizarMarcacoesVisuais(op, metragem) {
+    let container = document.querySelector(".loading-bar-container");
+    container.querySelectorAll(".marking").forEach(mark => mark.remove()); // Remove todas as marcações visuais
+
+    marcacoes.forEach((valor, index) => {
+        inserirMarcacaoVisual(op, valor, metragem, index);
+    });
 }
 
 function inserirMarcacaoVisual(op, valor, metragem, index) {
@@ -260,6 +269,7 @@ function inserirMarcacaoVisual(op, valor, metragem, index) {
     marcador.classList.add("marking");
     marcador.style.left = `${porcentagem}%`;
     marcador.setAttribute("data-index", index);
+    marcador.onclick = () => excluirMarcacao(op, index, metragem); // Adiciona funcionalidade de exclusão ao clique
 
     // Adiciona uma legenda com o valor da marcação
     let legenda = document.createElement("span");
@@ -271,27 +281,19 @@ function inserirMarcacaoVisual(op, valor, metragem, index) {
 }
 
 function excluirMarcacao(op, index, metragem) {
-    marcacoes = marcacoes.slice(0, index); // Remove a marcação selecionada e todas as posteriores
+    // Remove a marcação selecionada e todas as posteriores
+    marcacoes = marcacoes.slice(0, index);
 
-    // Recalcular e limpar as marcações visuais
-    recalcularMarcacoes(op, metragem);
+    // Recalcula as marcações visuais
+    atualizarMarcacoesVisuais(op, metragem);
 
-    // Atualizar a cor do círculo para vermelho
+    // Atualiza o círculo para vermelho
     document.getElementById(`circle${op}`).style.backgroundColor = "red";
 }
 
-function recalcularMarcacoes(op, metragem) {
-    let container = document.querySelector(".loading-bar-container");
-    container.querySelectorAll(".marking").forEach(mark => mark.remove()); // Limpa os marcadores visuais
-
-    marcacoes.forEach((marca, index) => {
-        inserirMarcacaoVisual(op, marca.valor, metragem, index); // Reinsere as marcações ordenadas
-    });
-}
-
 function verificarMarca(op, consumoAtual) {
-    marcacoes.forEach((marca) => {
-        if (Math.abs(consumoAtual - marca.valor) < 0.1) {
+    marcacoes.forEach((valor) => {
+        if (Math.abs(consumoAtual - valor) < 0.1) {
             document.getElementById(`circle${op}`).style.backgroundColor = "red";
         }
     });
