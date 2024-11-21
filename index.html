@@ -182,117 +182,105 @@
     </div>
 
     <script>
-        let consumos = [0];
-        let marcacoes = [0];  // Inicia a lista de marcações com 0
-        let velocidades = [0];
-        let intervalo;
+    let consumos = [0];
+    let marcacoes = [0];  // Inicia a lista de marcações com 0
+    let velocidades = [0];
+    let intervalo;
 
-        function calcular(op) {
-            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
-            let er = parseFloat(document.getElementById(`er${op}`).value);
-            let eficiencia = parseFloat(document.getElementById(`eficiencia${op}`).value);
+    function calcular(op) {
+        let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
+        let er = parseFloat(document.getElementById(`er${op}`).value);
+        let eficiencia = parseFloat(document.getElementById(`eficiencia${op}`).value);
 
-            if (!metragem || !er || !eficiencia) {
-                alert("Preencha todos os campos.");
-                return;
-            }
-
-            let tempoConsumo = metragem / (er * (eficiencia / 100));
-            let velocidadeConsumo = metragem / tempoConsumo;
-
-            document.getElementById(`tempo-consumo${op}`).textContent = tempoConsumo.toFixed(2);
-            document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
-
-            velocidades[op - 1] = velocidadeConsumo;
-            document.getElementById(`circle${op}`).style.backgroundColor = "yellow";
+        if (!metragem || !er || !eficiencia) {
+            alert("Preencha todos os campos.");
+            return;
         }
 
-        function iniciarProgresso(op) {
-            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
+        let tempoConsumo = metragem / (er * (eficiencia / 100));
+        let velocidadeConsumo = metragem / tempoConsumo;
 
-            if (!metragem) {
-                alert("Digite a metragem da OP.");
-                return;
-            }
+        document.getElementById(`tempo-consumo${op}`).textContent = tempoConsumo.toFixed(2);
+        document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
 
-            // Resetar o consumo para começar do 0
-            consumos[op - 1] = 0;
-
-            let consumoAtual = consumos[op - 1];
-            let velocidade = velocidades[op - 1];
-
-            clearInterval(intervalo);
-            intervalo = setInterval(() => {
-                consumoAtual += velocidade / 60; // Incremento por segundo
-                consumos[op - 1] = consumoAtual;
-                atualizarBarra(op, consumoAtual, metragem);
-                verificarMarca(op, consumoAtual);
-
-                if (consumoAtual >= metragem) clearInterval(intervalo);
-            }, 1000); // Atualiza a cada segundo
-        }
-
-       // Array para armazenar as marcações
-let marcacoes = [];
-
- let marcacoes = [];
-
-     let totalMarcacoes = 0; // Variável para armazenar a soma total das marcações
-
-function adicionarBobina(op) {
-    let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
-    let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
-
-    if (!bobinaEntrada) {
-        alert("Digite a bobina de entrada.");
-        return;
+        velocidades[op - 1] = velocidadeConsumo;
+        document.getElementById(`circle${op}`).style.backgroundColor = "yellow";
     }
 
-    // Adiciona a bobina de entrada ao total de marcações
-    totalMarcacoes += bobinaEntrada;
+    function iniciarProgresso(op) {
+        let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
 
-    // Atualiza a interface com a nova marcação
-    let somaMarcações = totalMarcacoes; // Mantém a soma total das marcações
-    marcacoes.push(somaMarcações); // Adiciona o valor da nova marcação ao array de marcações
+        if (!metragem) {
+            alert("Digite a metragem da OP.");
+            return;
+        }
 
-    // Chama a função para marcar a bobina com base no total acumulado
-    marcarBobina(op, somaMarcações, metragem);
-}
+        // Resetar o consumo para começar do 0
+        consumos[op - 1] = 0;
 
-function marcarBobina(op, novaMarcacao, metragem) {
-    let container = document.querySelector(".loading-bar-container");
+        let consumoAtual = consumos[op - 1];
+        let velocidade = velocidades[op - 1];
 
-    // Calcula a porcentagem da nova marcação
-    let porcentagem = (novaMarcacao / metragem) * 100;
+        clearInterval(intervalo);
+        intervalo = setInterval(() => {
+            consumoAtual += velocidade / 60; // Incremento por segundo
+            consumos[op - 1] = consumoAtual;
+            atualizarBarra(op, consumoAtual, metragem);
+            verificarMarca(op, consumoAtual);
 
-    // Cria um novo marcador na barra de progresso
-    let marcador = document.createElement("div");
-    marcador.classList.add("marking");
-    marcador.style.left = `${porcentagem}%`; // Posiciona o marcador na barra
+            if (consumoAtual >= metragem) clearInterval(intervalo);
+        }, 1000); // Atualiza a cada segundo
+    }
 
-    container.appendChild(marcador);
-}
+    function adicionarBobina(op) {
+        let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
+        let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
 
+        if (!bobinaEntrada) {
+            alert("Digite a bobina de entrada.");
+            return;
+        }
 
-        function verificarMarca(op, consumoAtual) {
-            // Verificar se a barra atingiu alguma marca de bobina
-            for (let i = 0; i < marcacoes.length; i++) {
-                if (Math.abs(consumoAtual - marcacoes[i]) < 0.1) {  // Ajuste de tolerância para evitar precisão excessiva
-                    document.getElementById(`circle${op}`).style.backgroundColor = "red";
-                }
+        // Atualiza o consumo e a soma das marcações
+        consumos[op - 1] += bobinaEntrada;
+        
+        // Calcula a soma das marcações anteriores de forma acumulativa
+        let somaMarcacoes = marcacoes.reduce((acc, val) => acc + val, 0);
+        marcacoes.push(somaMarcacoes + bobinaEntrada); // Adiciona a nova marcação com a soma acumulada
+        
+        // Marca a bobina com a nova soma acumulada
+        marcarBobina(op, somaMarcacoes + bobinaEntrada, metragem);
+    }
+
+    function marcarBobina(op, consumoAtual, metragem) {
+        let container = document.querySelector(".loading-bar-container");
+        let porcentagem = (consumoAtual / metragem) * 100;
+        let marcador = document.createElement("div");
+        marcador.classList.add("marking");
+        marcador.style.left = `${porcentagem}%`;
+        container.appendChild(marcador);
+    }
+
+    function verificarMarca(op, consumoAtual) {
+        // Verificar se a barra atingiu alguma marca de bobina
+        for (let i = 0; i < marcacoes.length; i++) {
+            if (Math.abs(consumoAtual - marcacoes[i]) < 0.1) {  // Ajuste de tolerância para evitar precisão excessiva
+                document.getElementById(`circle${op}`).style.backgroundColor = "red";
             }
         }
+    }
 
-        function atualizarBarra(op, consumoAtual, metragem) {
-            let porcentagem = (consumoAtual / metragem) * 100;
-            document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
-            document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
-            document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
-        }
+    function atualizarBarra(op, consumoAtual, metragem) {
+        let porcentagem = (consumoAtual / metragem) * 100;
+        document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
+        document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
+        document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
+    }
 
-        function resetarCorCírculo(op) {
-            document.getElementById(`circle${op}`).style.backgroundColor = "green";
-        }
-    </script>
+    function resetarCorCírculo(op) {
+        document.getElementById(`circle${op}`).style.backgroundColor = "green";
+    }
+</script>
+
 </body>
 </html>
