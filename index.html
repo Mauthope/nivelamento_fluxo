@@ -251,19 +251,6 @@
     function marcarBobina(op, consumoAtual, metragem) {
         let container = document.querySelector(".loading-bar-container");
         let porcentagem = (consumoAtual / metragem) * 100;
-
-        // Se houver outras marcações, ajusta a posição delas
-        if (marcacoes.length > 0) {
-            // Ajusta a posição das marcações subsequentes
-            for (let i = 0; i < marcacoes.length; i++) {
-                if (parseFloat(marcacoes[i].style.left) > porcentagem) {
-                    let novaPosicao = parseFloat(marcacoes[i].style.left) - 100 * (porcentagem / 100);
-                    marcacoes[i].style.left = `${novaPosicao}%`;
-                }
-            }
-        }
-
-        // Cria o novo marcador
         let marcador = document.createElement("div");
         marcador.classList.add("marking");
         marcador.style.left = `${porcentagem}%`;
@@ -276,34 +263,45 @@
         container.appendChild(marcador);
 
         // Armazenando a marcação na lista (apenas para fins de controle visual)
-        marcacoes.push(marcador);
+        marcacoes.push({ marcador: marcador, porcentagem: porcentagem });
     }
 
     function removerMarca(op, marcador) {
-        // Remover apenas visualmente o marcador da barra de progresso
+        // Encontrar e remover a marcação da lista de marcações
+        marcacoes = marcacoes.filter(m => m.marcador !== marcador);
+
+        // Remover visualmente o marcador
         marcador.remove();
+
+        // Recalcular as posições das marcações restantes
+        recalcularMarcacoes(op);
 
         // Mudar a cor do círculo para vermelho
         document.getElementById(`circle${op}`).style.backgroundColor = "red";
+    }
 
-        // Ajustar a posição das marcações subsequentes
-        let indice = marcacoes.indexOf(marcador);
-        if (indice !== -1) {
-            marcacoes.splice(indice, 1); // Remove da lista de marcações
-        }
+    function recalcularMarcacoes(op) {
+        let container = document.querySelector(".loading-bar-container");
+        // Limpar todas as marcações atuais
+        let allMarkings = container.querySelectorAll(".marking");
+        allMarkings.forEach(mark => mark.remove());
 
-        // Ajusta as posições das marcações seguintes
-        for (let i = indice; i < marcacoes.length; i++) {
-            let novaPosicao = parseFloat(marcacoes[i].style.left) + 100 * (porcentagem / 100);
-            marcacoes[i].style.left = `${novaPosicao}%`;
-        }
+        // Recalcular e inserir as marcações de forma sequencial
+        marcacoes.sort((a, b) => a.porcentagem - b.porcentagem); // Ordenar por posição
+
+        // Re-inserir as marcações no container
+        marcacoes.forEach((marca, index) => {
+            let marcador = marca.marcador;
+            marcador.style.left = `${(index / marcacoes.length) * 100}%`; // Recalcular posições
+            container.appendChild(marcador);
+        });
     }
 
     function verificarMarca(op, consumoAtual) {
         // Verifica se a barra atingiu uma marca de bobina
         for (let i = 0; i < marcacoes.length; i++) {
             // Considera uma pequena tolerância para comparar o consumo com a marcação
-            if (Math.abs(consumoAtual - parseFloat(marcacoes[i].style.left)) < 0.1) { 
+            if (Math.abs(consumoAtual - marcacoes[i].porcentagem) < 0.1) { 
                 document.getElementById(`circle${op}`).style.backgroundColor = "red";
             }
         }
@@ -320,7 +318,6 @@
         document.getElementById(`circle${op}`).style.backgroundColor = "green";
     }
 </script>
-
 
 </body>
 </html>
