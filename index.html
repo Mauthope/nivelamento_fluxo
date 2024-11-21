@@ -263,7 +263,7 @@
         container.appendChild(marcador);
 
         // Armazenando a marcação na lista (apenas para fins de controle visual)
-        marcacoes.push({ marcador: marcador, porcentagem: porcentagem });
+        marcacoes.push({ marcador: marcador, consumo: consumoAtual });
     }
 
     function removerMarca(op, marcador) {
@@ -273,7 +273,7 @@
         // Remover visualmente o marcador
         marcador.remove();
 
-        // Recalcular as posições das marcações restantes
+        // Recalcular as posições das marcações restantes com base no seu valor original de metragem
         recalcularMarcacoes(op);
 
         // Mudar a cor do círculo para vermelho
@@ -286,13 +286,11 @@
         let allMarkings = container.querySelectorAll(".marking");
         allMarkings.forEach(mark => mark.remove());
 
-        // Recalcular e inserir as marcações de forma sequencial
-        marcacoes.sort((a, b) => a.porcentagem - b.porcentagem); // Ordenar por posição
-
-        // Re-inserir as marcações no container
-        marcacoes.forEach((marca, index) => {
+        // Re-inserir as marcações com base na metragem original (valor de consumo)
+        marcacoes.forEach((marca) => {
+            let porcentagem = (marca.consumo / parseFloat(document.getElementById(`metragem${op}`).value)) * 100;
             let marcador = marca.marcador;
-            marcador.style.left = `${(index / marcacoes.length) * 100}%`; // Recalcular posições
+            marcador.style.left = `${porcentagem}%`; // Recalcular a posição com base no valor real
             container.appendChild(marcador);
         });
     }
@@ -301,7 +299,7 @@
         // Verifica se a barra atingiu uma marca de bobina
         for (let i = 0; i < marcacoes.length; i++) {
             // Considera uma pequena tolerância para comparar o consumo com a marcação
-            if (Math.abs(consumoAtual - marcacoes[i].porcentagem) < 0.1) { 
+            if (Math.abs(consumoAtual - marcacoes[i].consumo) < 0.1) { 
                 document.getElementById(`circle${op}`).style.backgroundColor = "red";
             }
         }
@@ -318,6 +316,7 @@
         document.getElementById(`circle${op}`).style.backgroundColor = "green";
     }
 </script>
+
 
 </body>
 </html>
