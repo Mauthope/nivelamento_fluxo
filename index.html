@@ -251,6 +251,19 @@
     function marcarBobina(op, consumoAtual, metragem) {
         let container = document.querySelector(".loading-bar-container");
         let porcentagem = (consumoAtual / metragem) * 100;
+
+        // Se houver outras marcações, ajusta a posição delas
+        if (marcacoes.length > 0) {
+            // Ajusta a posição das marcações subsequentes
+            for (let i = 0; i < marcacoes.length; i++) {
+                if (parseFloat(marcacoes[i].style.left) > porcentagem) {
+                    let novaPosicao = parseFloat(marcacoes[i].style.left) - 100 * (porcentagem / 100);
+                    marcacoes[i].style.left = `${novaPosicao}%`;
+                }
+            }
+        }
+
+        // Cria o novo marcador
         let marcador = document.createElement("div");
         marcador.classList.add("marking");
         marcador.style.left = `${porcentagem}%`;
@@ -263,7 +276,7 @@
         container.appendChild(marcador);
 
         // Armazenando a marcação na lista (apenas para fins de controle visual)
-        marcacoes.push({ marcador, valor: consumoAtual });
+        marcacoes.push(marcador);
     }
 
     function removerMarca(op, marcador) {
@@ -273,38 +286,24 @@
         // Mudar a cor do círculo para vermelho
         document.getElementById(`circle${op}`).style.backgroundColor = "red";
 
-        // Encontrar e remover a marcação da lista
-        let index = marcacoes.findIndex(m => m.marcador === marcador);
-        if (index !== -1) {
-            marcacoes.splice(index, 1);
+        // Ajustar a posição das marcações subsequentes
+        let indice = marcacoes.indexOf(marcador);
+        if (indice !== -1) {
+            marcacoes.splice(indice, 1); // Remove da lista de marcações
         }
 
-        // Recalcular e ajustar as marcações subsequentes
-        ajustarMarcacoes(op);
-    }
-
-    function ajustarMarcacoes(op) {
-        let container = document.querySelector(".loading-bar-container");
-
-        // Ordenar as marcações pela posição de consumo
-        marcacoes.sort((a, b) => a.valor - b.valor);
-
-        // Reposicionar as marcações após a exclusão
-        marcacoes.forEach((m, i) => {
-            let porcentagem = (m.valor / parseFloat(document.getElementById(`metragem${op}`).value)) * 100;
-            m.marcador.style.left = `${porcentagem}%`;
-        });
-
-        // Recalcular o progresso visual da barra de progresso
-        let totalConsumo = consumos[op - 1];
-        atualizarBarra(op, totalConsumo, parseFloat(document.getElementById(`metragem${op}`).value));
+        // Ajusta as posições das marcações seguintes
+        for (let i = indice; i < marcacoes.length; i++) {
+            let novaPosicao = parseFloat(marcacoes[i].style.left) + 100 * (porcentagem / 100);
+            marcacoes[i].style.left = `${novaPosicao}%`;
+        }
     }
 
     function verificarMarca(op, consumoAtual) {
         // Verifica se a barra atingiu uma marca de bobina
         for (let i = 0; i < marcacoes.length; i++) {
             // Considera uma pequena tolerância para comparar o consumo com a marcação
-            if (Math.abs(consumoAtual - marcacoes[i].valor) < 0.1) { 
+            if (Math.abs(consumoAtual - parseFloat(marcacoes[i].style.left)) < 0.1) { 
                 document.getElementById(`circle${op}`).style.backgroundColor = "red";
             }
         }
@@ -321,6 +320,7 @@
         document.getElementById(`circle${op}`).style.backgroundColor = "green";
     }
 </script>
+
 
 </body>
 </html>
