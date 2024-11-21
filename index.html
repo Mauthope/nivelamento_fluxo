@@ -186,7 +186,6 @@
         let marcacoes = [0];  // Inicia a lista de marcações com 0
         let velocidades = [0];
         let intervalo;
-        let marcacoes = [];  // Variável para armazenar as marcações
 
         function calcular(op) {
             let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
@@ -233,7 +232,10 @@
             }, 1000); // Atualiza a cada segundo
         }
 
-  function adicionarBobina(op) {
+       // Array para armazenar as marcações
+let marcacoes = [];
+
+function adicionarBobina(op) {
     let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
     let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
 
@@ -242,20 +244,25 @@
         return;
     }
 
-    // Não acumular, apenas registrar a nova marcação
-    marcacoes.push(bobinaEntrada);
+    // Se esta for a primeira marcação, iniciamos o array de marcações com o valor da entrada
+    if (marcacoes.length === 0) {
+        marcacoes.push(bobinaEntrada); 
+    } else {
+        // Caso contrário, somamos o valor da nova bobina à última marcação
+        let ultimaMarcacao = marcacoes[marcacoes.length - 1];
+        marcacoes.push(ultimaMarcacao + bobinaEntrada); 
+    }
 
-    // Chama a função para marcar a bobina com base na nova marcação
-    marcarBobina(op, bobinaEntrada, metragem);
+    // Chama a função para marcar a bobina com base nas marcações acumuladas
+    marcarBobina(op, marcacoes[marcacoes.length - 1], metragem);
 }
 
 function marcarBobina(op, novaMarcacao, metragem) {
     let container = document.querySelector(".loading-bar-container");
-    let porcentagem = (novaMarcacao / metragem) * 100;  // Calcula a porcentagem da nova marcação
-
+    let porcentagem = (novaMarcacao / metragem) * 100; // Calcula a porcentagem da nova marcação
     let marcador = document.createElement("div");
     marcador.classList.add("marking");
-    marcador.style.left = `${porcentagem}%`;  // Posiciona o marcador na barra
+    marcador.style.left = `${porcentagem}%`; // Posiciona o marcador na barra
     container.appendChild(marcador);
 }
 
