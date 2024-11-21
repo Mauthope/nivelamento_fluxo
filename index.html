@@ -254,10 +254,24 @@
         let marcador = document.createElement("div");
         marcador.classList.add("marking");
         marcador.style.left = `${porcentagem}%`;
+
+        // Adiciona um evento de clique para remover a marcação
+        marcador.addEventListener('click', () => {
+            removerMarca(op, consumoAtual);
+        });
+
         container.appendChild(marcador);
 
         // Armazenando a marcação na lista
         marcacoes.push(consumoAtual);
+    }
+
+    function removerMarca(op, consumoAtual) {
+        // Remove a marcação do array de marcações
+        marcacoes = marcacoes.filter(marcacao => marcacao !== consumoAtual);
+
+        // Atualiza a barra removendo o marcador
+        atualizarBarraComMarcas(op);
     }
 
     function verificarMarca(op, consumoAtual) {
@@ -276,12 +290,25 @@
         document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
     }
 
+    function atualizarBarraComMarcas(op) {
+        // Limpa a barra de progresso atual
+        let container = document.querySelector(".loading-bar-container");
+        container.innerHTML = "";
+
+        // Adiciona novamente os marcadores restantes
+        for (let i = 0; i < marcacoes.length; i++) {
+            let marcador = document.createElement("div");
+            marcador.classList.add("marking");
+            let porcentagem = (marcacoes[i] / parseFloat(document.getElementById(`metragem${op}`).value)) * 100;
+            marcador.style.left = `${porcentagem}%`;
+            container.appendChild(marcador);
+        }
+    }
+
     function resetarCorCírculo(op) {
         document.getElementById(`circle${op}`).style.backgroundColor = "green";
     }
 </script>
-
-
 
 </body>
 </html>
