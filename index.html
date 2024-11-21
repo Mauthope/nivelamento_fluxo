@@ -182,140 +182,81 @@
     </div>
 
 <script>
-    let consumos = [0];
-    let marcacoes = []; // Lista para armazenar as marcações
-    let velocidades = [0];
-    let intervalo;
+function recalcularMarcacoes(op) {
+    let container = document.querySelector(".loading-bar-container");
 
-    function calcular(op) {
-        let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
-        let er = parseFloat(document.getElementById(`er${op}`).value);
-        let eficiencia = parseFloat(document.getElementById(`eficiencia${op}`).value);
+    // Limpar visualmente todas as marcações
+    let allMarkings = container.querySelectorAll(".marking");
+    allMarkings.forEach(mark => mark.remove());
 
-        if (!metragem || !er || !eficiencia) {
-            alert("Preencha todos os campos.");
-            return;
-        }
+    // Ordenar as marcações pela sequência original (baseado no valor original acumulado)
+    marcacoes.sort((a, b) => a.valor - b.valor);
 
-        let tempoConsumo = metragem / (er * (eficiencia / 100));
-        let velocidadeConsumo = metragem / tempoConsumo;
+    // Recalcular as posições acumuladas para as marcações restantes
+    let consumoAcumulado = 0;
+    marcacoes.forEach((marca, index) => {
+        consumoAcumulado += marca.valorOriginal; // Soma os valores das marcações
+        let porcentagem = (consumoAcumulado / marca.metragemTotal) * 100;
 
-        document.getElementById(`tempo-consumo${op}`).textContent = tempoConsumo.toFixed(2);
-        document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
+        // Atualizar a posição do marcador
+        let novoMarcador = document.createElement("div");
+        novoMarcador.classList.add("marking");
+        novoMarcador.style.left = `${porcentagem}%`;
 
-        velocidades[op - 1] = velocidadeConsumo;
-        document.getElementById(`circle${op}`).style.backgroundColor = "yellow";
-    }
+        // Atualizar a marcação na lista com o novo valor acumulado
+        marca.porcentagem = porcentagem;
+        marca.valor = consumoAcumulado;
 
-    function iniciarProgresso(op) {
-        let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
-
-        if (!metragem) {
-            alert("Digite a metragem da OP.");
-            return;
-        }
-
-        consumos[op - 1] = 0;
-
-        let consumoAtual = consumos[op - 1];
-        let velocidade = velocidades[op - 1];
-
-        clearInterval(intervalo);
-        intervalo = setInterval(() => {
-            consumoAtual += velocidade / 60;
-            consumos[op - 1] = consumoAtual;
-            atualizarBarra(op, consumoAtual, metragem);
-            verificarMarca(op, consumoAtual);
-
-            if (consumoAtual >= metragem) clearInterval(intervalo);
-        }, 1000);
-    }
-
-    function adicionarBobina(op) {
-        let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
-        let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
-
-        if (!bobinaEntrada) {
-            alert("Digite a bobina de entrada.");
-            return;
-        }
-
-        // Atualizar o consumo diretamente com a bobina de entrada
-        consumos[op - 1] += bobinaEntrada;
-
-        // Calcula a posição da nova marcação na barra
-        let consumoAtual = consumos[op - 1];
-        marcarBobina(op, consumoAtual, metragem);
-    }
-
-    function marcarBobina(op, consumoAtual, metragem) {
-        let container = document.querySelector(".loading-bar-container");
-        let porcentagem = (consumoAtual / metragem) * 100;
-        let marcador = document.createElement("div");
-        marcador.classList.add("marking");
-        marcador.style.left = `${porcentagem}%`;
-
-        // Adiciona um evento de clique para remover a marcação
-        marcador.addEventListener('click', () => {
-            removerMarca(op, marcador); // Passar o marcador para excluir apenas ele visualmente
+        // Adiciona novamente o evento de clique para exclusão
+        novoMarcador.addEventListener('click', () => {
+            removerMarca(op, novoMarcador); // Excluir a marcação
         });
 
-        container.appendChild(marcador);
+        // Adicionar a marcação recalculada na barra
+        container.appendChild(novoMarcador);
+    });
+}
 
-        // Armazenando a marcação na lista (apenas para fins de controle visual)
-        marcacoes.push({ marcador: marcador, valor: consumoAtual });
-    }
+function marcarBobina(op, consumoAtual, metragem) {
+    let container = document.querySelector(".loading-bar-container");
+    let porcentagem = (consumoAtual / metragem) * 100;
 
-    function removerMarca(op, marcador) {
-        // Encontrar e remover a marcação da lista de marcações
-        marcacoes = marcacoes.filter(m => m.marcador !== marcador);
+    let marcador = document.createElement("div");
+    marcador.classList.add("marking");
+    marcador.style.left = `${porcentagem}%`;
 
-        // Remover visualmente o marcador
-        marcador.remove();
+    // Adiciona um evento de clique para remover a marcação
+    marcador.addEventListener('click', () => {
+        removerMarca(op, marcador); // Passar o marcador para excluir apenas ele visualmente
+    });
 
-        // Recalcular as posições das marcações restantes
-        recalcularMarcacoes(op);
+    container.appendChild(marcador);
 
-        // Mudar a cor do círculo para vermelho
-        document.getElementById(`circle${op}`).style.backgroundColor = "red";
-    }
+    // Armazenar as informações da marcação na lista
+    marcacoes.push({
+        marcador: marcador,
+        valor: consumoAtual,
+        valorOriginal: consumoAtual - consumos[op - 1], // Valor desta marcação em relação à última
+        porcentagem: porcentagem,
+        metragemTotal: metragem
+    });
+}
 
-    function recalcularMarcacoes(op) {
-        let container = document.querySelector(".loading-bar-container");
-        // Limpar todas as marcações atuais
-        let allMarkings = container.querySelectorAll(".marking");
-        allMarkings.forEach(mark => mark.remove());
+function removerMarca(op, marcador) {
+    // Encontrar a marcação correspondente na lista e removê-la
+    let index = marcacoes.findIndex(m => m.marcador === marcador);
+    if (index > -1) marcacoes.splice(index, 1);
 
-        // Ordena as marcações com base no valor acumulado
-        let consumoAcumulado = 0;
-        marcacoes.forEach((marca, index) => {
-            consumoAcumulado += marca.valor; // Somando os valores
-            let porcentagem = (consumoAcumulado / parseFloat(document.getElementById(`metragem${op}`).value)) * 100;
-            marca.marcador.style.left = `${porcentagem}%`;
-            container.appendChild(marca.marcador);
-        });
-    }
+    // Remover visualmente o marcador
+    marcador.remove();
 
-    function verificarMarca(op, consumoAtual) {
-        // Verifica se a barra atingiu uma marca de bobina
-        for (let i = 0; i < marcacoes.length; i++) {
-            // Considera uma pequena tolerância para comparar o consumo com a marcação
-            if (Math.abs(consumoAtual - marcacoes[i].valor) < 0.1) { 
-                document.getElementById(`circle${op}`).style.backgroundColor = "red";
-            }
-        }
-    }
+    // Recalcular as marcações restantes de forma sequencial
+    recalcularMarcacoes(op);
 
-    function atualizarBarra(op, consumoAtual, metragem) {
-        let porcentagem = (consumoAtual / metragem) * 100;
-        document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
-        document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
-        document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
-    }
+    // Mudar a cor do círculo para vermelho
+    document.getElementById(`circle${op}`).style.backgroundColor = "red";
+}
 
-    function resetarCorCírculo(op) {
-        document.getElementById(`circle${op}`).style.backgroundColor = "green";
-    }
 </script>
 
 
