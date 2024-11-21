@@ -181,9 +181,9 @@
         </div>
     </div>
 
-    <script>
+<script>
     let consumos = [0];
-    let marcacoes = [0];  // Inicia a lista de marcações com 0
+    let marcacoes = [0];
     let velocidades = [0];
     let intervalo;
 
@@ -215,7 +215,6 @@
             return;
         }
 
-        // Resetar o consumo para começar do 0
         consumos[op - 1] = 0;
 
         let consumoAtual = consumos[op - 1];
@@ -223,13 +222,13 @@
 
         clearInterval(intervalo);
         intervalo = setInterval(() => {
-            consumoAtual += velocidade / 60; // Incremento por segundo
+            consumoAtual += velocidade / 60;
             consumos[op - 1] = consumoAtual;
             atualizarBarra(op, consumoAtual, metragem);
             verificarMarca(op, consumoAtual);
 
             if (consumoAtual >= metragem) clearInterval(intervalo);
-        }, 1000); // Atualiza a cada segundo
+        }, 1000);
     }
 
     function adicionarBobina(op) {
@@ -241,15 +240,12 @@
             return;
         }
 
-        // Atualiza o consumo e a soma das marcações
+        // Atualizar o consumo diretamente com a bobina de entrada
         consumos[op - 1] += bobinaEntrada;
-        
-        // Calcula a soma das marcações anteriores de forma acumulativa
-        let somaMarcacoes = marcacoes.reduce((acc, val) => acc + val, 0);
-        marcacoes.push(somaMarcacoes + bobinaEntrada); // Adiciona a nova marcação com a soma acumulada
-        
-        // Marca a bobina com a nova soma acumulada
-        marcarBobina(op, somaMarcacoes + bobinaEntrada, metragem);
+
+        // Calcula a posição da nova marcação na barra
+        let consumoAtual = consumos[op - 1];
+        marcarBobina(op, consumoAtual, metragem);
     }
 
     function marcarBobina(op, consumoAtual, metragem) {
@@ -262,11 +258,10 @@
     }
 
     function verificarMarca(op, consumoAtual) {
-        // Verificar se a barra atingiu alguma marca de bobina
-        for (let i = 0; i < marcacoes.length; i++) {
-            if (Math.abs(consumoAtual - marcacoes[i]) < 0.1) {  // Ajuste de tolerância para evitar precisão excessiva
-                document.getElementById(`circle${op}`).style.backgroundColor = "red";
-            }
+        // Verifica se a barra atingiu uma marca de bobina
+        let intervaloMarca = 1000;  // Define o valor da marcação para 1000
+        if (Math.abs(consumoAtual % intervaloMarca) < 0.1) {
+            document.getElementById(`circle${op}`).style.backgroundColor = "red";
         }
     }
 
@@ -281,6 +276,7 @@
         document.getElementById(`circle${op}`).style.backgroundColor = "green";
     }
 </script>
+
 
 </body>
 </html>
