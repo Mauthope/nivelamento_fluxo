@@ -186,6 +186,7 @@
         let marcacoes = [0];  // Inicia a lista de marcações com 0
         let velocidades = [0];
         let intervalo;
+        let marcacoes = [];  // Variável para armazenar as marcações
 
         function calcular(op) {
             let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
@@ -232,7 +233,7 @@
             }, 1000); // Atualiza a cada segundo
         }
 
-        function adicionarBobina(op) {
+  function adicionarBobina(op) {
     let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
     let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
 
@@ -241,20 +242,20 @@
         return;
     }
 
-    // Atualiza a soma das marcações com o valor da nova bobina
-    let somaMarcações = marcacoes.reduce((acc, val) => acc + val, 0); // Soma as marcações anteriores
-    marcacoes.push(somaMarcações + bobinaEntrada); // Adiciona a nova marcação
+    // Não acumular, apenas registrar a nova marcação
+    marcacoes.push(bobinaEntrada);
 
-    // Chama a função para marcar a bobina com base na soma das marcações
-    marcarBobina(op, somaMarcações + bobinaEntrada, metragem);
+    // Chama a função para marcar a bobina com base na nova marcação
+    marcarBobina(op, bobinaEntrada, metragem);
 }
 
 function marcarBobina(op, novaMarcacao, metragem) {
     let container = document.querySelector(".loading-bar-container");
-    let porcentagem = (novaMarcacao / metragem) * 100; // Calcula a porcentagem da nova marcação
+    let porcentagem = (novaMarcacao / metragem) * 100;  // Calcula a porcentagem da nova marcação
+
     let marcador = document.createElement("div");
     marcador.classList.add("marking");
-    marcador.style.left = `${porcentagem}%`; // Posiciona o marcador na barra
+    marcador.style.left = `${porcentagem}%`;  // Posiciona o marcador na barra
     container.appendChild(marcador);
 }
 
