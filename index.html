@@ -183,10 +183,14 @@
 
 <script>
     let consumos = [0];
-    let marcacoes = [];  // Lista para armazenar as marcações
+    let marcacoes = [0];  // Inicia a lista de marcações com 0
     let velocidades = [0];
     let intervalo;
 
+    // Lista para armazenar as marcações de bobina
+    let listaMarcas = [];
+
+    // Função para calcular o tempo e a velocidade do consumo
     function calcular(op) {
         let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
         let er = parseFloat(document.getElementById(`er${op}`).value);
@@ -207,6 +211,7 @@
         document.getElementById(`circle${op}`).style.backgroundColor = "yellow";
     }
 
+    // Função para iniciar o progresso de consumo
     function iniciarProgresso(op) {
         let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
 
@@ -215,6 +220,7 @@
             return;
         }
 
+        // Resetar o consumo para começar do 0
         consumos[op - 1] = 0;
 
         let consumoAtual = consumos[op - 1];
@@ -222,15 +228,16 @@
 
         clearInterval(intervalo);
         intervalo = setInterval(() => {
-            consumoAtual += velocidade / 60;
+            consumoAtual += velocidade / 60; // Incremento por segundo
             consumos[op - 1] = consumoAtual;
             atualizarBarra(op, consumoAtual, metragem);
             verificarMarca(op, consumoAtual);
 
             if (consumoAtual >= metragem) clearInterval(intervalo);
-        }, 1000);
+        }, 1000); // Atualiza a cada segundo
     }
 
+    // Função para adicionar uma bobina e atualizar marcações
     function adicionarBobina(op) {
         let bobinaEntrada = parseFloat(document.getElementById(`bobina-entrada${op}`).value);
         let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
@@ -240,20 +247,17 @@
             return;
         }
 
-        // Atualiza o consumo diretamente com a bobina de entrada
+        // Atualiza o consumo e a soma das marcações
         consumos[op - 1] += bobinaEntrada;
+        let somaMarcações = marcacoes.reduce((acc, val) => acc + val, 0); // Soma as marcações anteriores
+        marcacoes.push(somaMarcações + bobinaEntrada); // Adiciona a nova marcação com a soma acumulada
+        marcarBobina(op, somaMarcações + bobinaEntrada, metragem);
 
-        // Calcula e armazena a nova marcação
-        let consumoAtual = consumos[op - 1];
-        if (!marcacoes.includes(consumoAtual)) {
-            marcacoes.push(consumoAtual);  // Adiciona nova marcação apenas se não existir
-            marcacoes.sort((a, b) => a - b);  // Ordena as marcações para facilitar a verificação
-        }
-
-        // Marcação visual
-        marcarBobina(op, consumoAtual, metragem);
+        // Adiciona a marcação à lista para verificação da cor do círculo
+        listaMarcas.push(somaMarcações + bobinaEntrada);
     }
 
+    // Função para marcar uma bobina na barra de progresso
     function marcarBobina(op, consumoAtual, metragem) {
         let container = document.querySelector(".loading-bar-container");
         let porcentagem = (consumoAtual / metragem) * 100;
@@ -263,27 +267,45 @@
         container.appendChild(marcador);
     }
 
+    // Função para verificar se a barra atingiu uma marca de bobina
     function verificarMarca(op, consumoAtual) {
-        // Verificar se o consumo ultrapassou uma das marcações
         for (let i = 0; i < marcacoes.length; i++) {
-            if (consumoAtual >= marcacoes[i] && document.getElementById(`circle${op}`).style.backgroundColor !== "red") {
-                // Mudar a cor para vermelho apenas se ainda não estiver vermelho
+            if (Math.abs(consumoAtual - marcacoes[i]) < 0.1) {  // Ajuste de tolerância
                 document.getElementById(`circle${op}`).style.backgroundColor = "red";
             }
         }
     }
 
+    // Função para atualizar a barra de progresso com o consumo atual
     function atualizarBarra(op, consumoAtual, metragem) {
         let porcentagem = (consumoAtual / metragem) * 100;
         document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
         document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
         document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
+
+        // Verificar se o valor de consumo atual atinge alguma marcação com margem de erro
+        verificarCorCirculo(op, consumoAtual);
     }
 
+    // Função para verificar e alterar a cor do círculo quando atingir uma marcação
+    function verificarCorCirculo(op, consumoAtual) {
+        let margemErro = 0.1; // Margem de erro para comparação
+
+        // Percorrer todas as marcações armazenadas e verificar se o consumo atual bate com alguma delas
+        for (let i = 0; i < listaMarcas.length; i++) {
+            if (Math.abs(consumoAtual - listaMarcas[i]) <= margemErro) {
+                document.getElementById(`circle${op}`).style.backgroundColor = "red"; // Mudar cor para vermelho
+                break; // Parar o loop após encontrar a primeira correspondência
+            }
+        }
+    }
+
+    // Função para resetar a cor do círculo para verde
     function resetarCorCírculo(op) {
         document.getElementById(`circle${op}`).style.backgroundColor = "green";
     }
 </script>
+
 
 </body>
 </html>
