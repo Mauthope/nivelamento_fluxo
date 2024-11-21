@@ -274,7 +274,7 @@ function inserirMarcacaoVisual(op, valor, metragem, index) {
     // Adiciona uma legenda com o valor da marcação
     let legenda = document.createElement("span");
     legenda.classList.add("mark-label");
-    legenda.textContent = `${valor.toFixed(2)} m`;
+    legenda.textContent = `${valor.toFixed(0)} m`;
     marcador.appendChild(legenda);
     // Define o tamanho da fonte diretamente no estilo
 legenda.style.fontSize = "5px";
