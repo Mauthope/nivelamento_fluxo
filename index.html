@@ -263,20 +263,24 @@
         document.getElementById(`circle${op}`).style.backgroundColor = "red";
     }
 
-    function recalcularMarcacoes(op, metragem) {
-        let container = document.querySelector(".loading-bar-container");
-        // Limpar todas as marcações visuais
-        container.querySelectorAll(".marking").forEach(mark => mark.remove());
+   function recalcularMarcacoes(op, metragem) {
+    let container = document.querySelector(".loading-bar-container");
+    // Limpar todas as marcações visuais
+    container.querySelectorAll(".marking").forEach(mark => mark.remove());
 
-        // Recalcular posições e reinserir as marcações
-        let valorAcumulado = 0;
-        marcacoes.forEach((marca, index) => {
-            // Recalcular a posição acumulada para cada marcação, com base no valor da anterior
-            valorAcumulado = index === 0 ? marca.valor : valorAcumulado + marca.valor;
-            marca.valor = valorAcumulado; // Atualizar o valor na lista
-            inserirMarcacaoVisual(op, valorAcumulado, metragem, index);
-        });
-    }
+    // Recalcular valores acumulados de todas as marcações
+    let novoValorAcumulado = 0;
+    marcacoes = marcacoes.map((_, index) => {
+        novoValorAcumulado += marcacoes[index].valor - (marcacoes[index - 1]?.valor || 0);
+        return { valor: novoValorAcumulado };
+    });
+
+    // Inserir novamente as marcações visuais
+    marcacoes.forEach((marca, index) => {
+        inserirMarcacaoVisual(op, marca.valor, metragem, index);
+    });
+}
+
 
     function inserirMarcacaoVisual(op, valor, metragem, index) {
         let container = document.querySelector(".loading-bar-container");
@@ -313,6 +317,7 @@
         document.getElementById(`circle${op}`).style.backgroundColor = "green";
     }
 </script>
+
 
 </body>
 </html>
