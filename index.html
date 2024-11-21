@@ -263,20 +263,17 @@
         container.appendChild(marcador);
 
         // Armazenando a marcação na lista (apenas para fins de controle visual)
-        marcacoes.push({ marcador: marcador, valor: consumoAtual, porcentagem: porcentagem });
+        marcacoes.push({ marcador: marcador, porcentagem: porcentagem });
     }
 
     function removerMarca(op, marcador) {
-        // Remover a marcação da lista de marcações
-        let indice = marcacoes.findIndex(m => m.marcador === marcador);
-        if (indice !== -1) {
-            marcacoes.splice(indice, 1); // Remove a marcação da lista
-        }
+        // Encontrar e remover a marcação da lista de marcações
+        marcacoes = marcacoes.filter(m => m.marcador !== marcador);
 
         // Remover visualmente o marcador
         marcador.remove();
 
-        // Recalcular as posições das marcações restantes (sem redistribuir todas)
+        // Recalcular as posições das marcações restantes, sem redistribuição total, apenas reordenando
         recalcularMarcacoes(op);
 
         // Mudar a cor do círculo para vermelho
@@ -284,29 +281,30 @@
     }
 
     function recalcularMarcacoes(op) {
-        // Apenas recalcular a última marcação (a última inserida)
-        if (marcacoes.length > 0) {
-            let container = document.querySelector(".loading-bar-container");
-            
-            // Limpar todas as marcações atuais
-            let allMarkings = container.querySelectorAll(".marking");
-            allMarkings.forEach(mark => mark.remove());
+        let container = document.querySelector(".loading-bar-container");
 
-            // Re-inserir as marcações, mantendo as posições corretas
-            marcacoes.forEach((marca, index) => {
-                let marcador = marca.marcador;
-                let porcentagem = (marca.valor / marcacoes[marcacoes.length - 1].valor) * 100; // Calcular a porcentagem com base no valor atual
-                marcador.style.left = `${porcentagem}%`; // Recalcular as posições de cada marcação
-                container.appendChild(marcador);
-            });
-        }
+        // Limpar todas as marcações atuais
+        let allMarkings = container.querySelectorAll(".marking");
+        allMarkings.forEach(mark => mark.remove());
+
+        // Recalcular as posições das marcações restantes, uma após a outra
+        marcacoes.sort((a, b) => a.porcentagem - b.porcentagem); // Ordenar por posição
+
+        let espacamento = 100 / marcacoes.length; // Calcular o espaçamento baseado no número de marcações restantes
+
+        // Re-inserir as marcações no container
+        marcacoes.forEach((marca, index) => {
+            let marcador = marca.marcador;
+            marcador.style.left = `${espacamento * index}%`; // Coloca as marcações uma após a outra
+            container.appendChild(marcador);
+        });
     }
 
     function verificarMarca(op, consumoAtual) {
         // Verifica se a barra atingiu uma marca de bobina
         for (let i = 0; i < marcacoes.length; i++) {
             // Considera uma pequena tolerância para comparar o consumo com a marcação
-            if (Math.abs(consumoAtual - marcacoes[i].valor) < 0.1) { 
+            if (Math.abs(consumoAtual - marcacoes[i].porcentagem) < 0.1) { 
                 document.getElementById(`circle${op}`).style.backgroundColor = "red";
             }
         }
