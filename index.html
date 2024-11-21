@@ -183,10 +183,9 @@
 
 <script>
     let consumos = [0];
-    let marcacoes = [0];  // Inicia as marcações com 0
+    let marcacoes = [0];
     let velocidades = [0];
     let intervalo;
-    let marcaAlterada = [false];  // Para controlar se a marca foi atingida
 
     function calcular(op) {
         let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
@@ -206,7 +205,6 @@
 
         velocidades[op - 1] = velocidadeConsumo;
         document.getElementById(`circle${op}`).style.backgroundColor = "yellow";
-        marcaAlterada[op - 1] = false;  // Resetando o controle para a marcação
     }
 
     function iniciarProgresso(op) {
@@ -218,20 +216,19 @@
         }
 
         consumos[op - 1] = 0;
-        marcaAlterada[op - 1] = false; // Resetando o estado de marcação
 
         let consumoAtual = consumos[op - 1];
         let velocidade = velocidades[op - 1];
 
         clearInterval(intervalo);
         intervalo = setInterval(() => {
-            consumoAtual += velocidade / 60; // Incremento por segundo
+            consumoAtual += velocidade / 60;
             consumos[op - 1] = consumoAtual;
             atualizarBarra(op, consumoAtual, metragem);
             verificarMarca(op, consumoAtual);
 
             if (consumoAtual >= metragem) clearInterval(intervalo);
-        }, 1000); // Atualiza a cada segundo
+        }, 1000);
     }
 
     function adicionarBobina(op) {
@@ -260,16 +257,15 @@
     function verificarMarca(op, consumoAtual) {
         let intervaloMarca = 1000;  // Marcações a cada 1000 metros
 
-        // Verificar se o consumo atual ultrapassou uma marcação de bobina e a marca ainda não foi alterada
+        // Verificar se o consumo atual ultrapassou uma marcação de bobina
         for (let i = 0; i < marcacoes.length; i++) {
-            if (consumoAtual >= marcacoes[i] && consumoAtual < marcacoes[i] + intervaloMarca && !marcaAlterada[op - 1]) {
+            if (consumoAtual >= marcacoes[i] && consumoAtual < marcacoes[i] + intervaloMarca) {
                 document.getElementById(`circle${op}`).style.backgroundColor = "red";
-                marcaAlterada[op - 1] = true;  // Marcação alterada, evita múltiplas mudanças
-                return;  // Evita que mude a cor múltiplas vezes
+                return;  // Apenas muda a cor uma vez para evitar múltiplas mudanças
             }
         }
 
-        // Caso o consumo não tenha atingido nenhuma marcação ainda, o círculo volta a ficar verde
+        // Caso o consumo não tenha atingido nenhuma marcação ainda, o círculo volta para verde
         resetarCorCírculo(op);
     }
 
@@ -281,13 +277,9 @@
     }
 
     function resetarCorCírculo(op) {
-        if (!marcaAlterada[op - 1]) {  // Só reseta a cor se não houver marcação já alterada
-            document.getElementById(`circle${op}`).style.backgroundColor = "green";
-        }
+        document.getElementById(`circle${op}`).style.backgroundColor = "green";
     }
 </script>
-
-
 
 
 </body>
