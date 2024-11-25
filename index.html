@@ -23,6 +23,8 @@
             border-radius: 10px;
             background-color: #2d2d2d;
         }
+
+        /* Estilo do select */
         .container select {
             width: 100%;
             padding: 10px;
@@ -34,6 +36,7 @@
             cursor: pointer;
             transition: border-color 0.3s ease;
         }
+
         h2 {
             text-align: center;
         }
@@ -69,6 +72,12 @@
             position: absolute;
             background-color: #28a745;
             width: 0%;
+        }
+        .marking {
+            position: absolute;
+            height: 100%;
+            width: 2px;
+            background-color: #ff0000;
         }
         .progress-indicator {
             position: absolute;
@@ -112,10 +121,30 @@
         <h2>Impressora 1</h2>
         <label for="metragem1">Metragem da OP (m):</label>
         <input type="number" id="metragem1" placeholder="Digite a metragem da OP">
+        
+        <label for="material">Material:</label>
+                <select id="material">
+                    <option value="" disabled selected>Selecione o materal</option>
+                    <option value="TECIDO POLIPROPILENO 045X104GR PLAST TUB PRETO FILME PP FOSCO FILME PP BRANCO II- VERDE PEQUENO 15KG
+                        ">TECIDO POLIPROPILENO 045X104GR PLAST TUB PRETO FILME PP FOSCO FILME PP BRANCO II- VERDE PEQUENO 15KG
+                    </option>
+                    <option value="TECIDO POLIPROPILENO 050X57GR PLAST TUB BRANCO
+                        ">TECIDO POLIPROPILENO 050X57GR PLAST TUB BRANCO
+                    </option>
+                    <option value="TECIDO POLIPROPILENO 050X68GR PLAST TUB BRANCO SOLDADO
+                        ">TECIDO POLIPROPILENO 050X68GR PLAST TUB BRANCO SOLDADO
+                    </option>
+                    <option value="TECIDO POLIPROPILENO 055X65GR PLAST TUB BRANCO ANTIDERRAPANTE
+                        ">TECIDO POLIPROPILENO 055X65GR PLAST TUB BRANCO ANTIDERRAPANTE
+                    </option>
+                </select>
+        
         <label for="er1">ER (m/min):</label>
         <input type="number" id="er1" placeholder="Digite a ER (m/min)">
         <label for="eficiencia1">Eficiência (%):</label>
         <input type="number" id="eficiencia1" placeholder="Digite a eficiência (%)" value="0">
+        <label for="inicial">Quantidade inicial de bobinas:</label>
+        <input type="number" id="inicial" value="2" disabled>
         <button onclick="calcular(1)">Pedir bobinas</button>
 
         <div class="results">
@@ -130,78 +159,104 @@
         </div>
         <div class="digital-display" id="digital-display1">0 m</div>
 
-        <button onclick="iniciarProgresso(1)">Iniciar</button>
-        <button onclick="pausarProgresso(1)" id="pause-resume1">Pausar</button>
+        <div class="bobinas">
+            <label for="bobina-entrada1">Bobina de Entrada (m):</label>
+            <input type="number" id="bobina-entrada1" placeholder="Digite a bobina de entrada">
+            <button onclick="adicionarBobina(1)">Inserir Bobina</button>
+            <div id="bobina-list1"></div>
+        </div>
+        
+        <button onclick="iniciarProgresso(1)">Iniciar</button> <!-- Novo botão Iniciar -->
+        <button id="pauseButton1" onclick="togglePause(1)">Pausar</button> <!-- Novo botão Pausar -->
 
         <div class="circle" id="circle1">
             <button class="reset-button" onclick="resetarCorCírculo(1)">Resetar</button>
         </div>
     </div>
 
-    <script>
-        let consumos = [0];
-        let velocidades = [0];
-        let intervalos = [null];
-        let pausado = [false];
+<script>
+let consumos = [0];
+let marcacoes = [];
+let velocidades = [0];
+let intervalo;
+let pausado = false;  // Variável para controlar o estado de pausa
 
-        function calcular(op) {
-            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
-            let er = parseFloat(document.getElementById(`er${op}`).value);
-            let eficiencia = parseFloat(document.getElementById(`eficiencia${op}`).value);
+function calcular(op) {
+    let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
+    let er = parseFloat(document.getElementById(`er${op}`).value);
+    let eficiencia = parseFloat(document.getElementById(`eficiencia${op}`).value);
 
-            if (!metragem || !er || !eficiencia) {
-                alert("Preencha todos os campos.");
-                return;
-            }
+    if (!metragem || !er || !eficiencia) {
+        alert("Preencha todos os campos.");
+        return;
+    }
 
-            let tempoConsumo = metragem / (er * (eficiencia / 100));
-            let velocidadeConsumo = metragem / tempoConsumo;
+    let tempoConsumo = metragem / (er * (eficiencia / 100));
+    let velocidadeConsumo = metragem / tempoConsumo;
 
-            document.getElementById(`tempo-consumo${op}`).textContent = tempoConsumo.toFixed(2);
-            document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
+    document.getElementById(`tempo-consumo${op}`).textContent = tempoConsumo.toFixed(2);
+    document.getElementById(`velocidade-consumo${op}`).textContent = velocidadeConsumo.toFixed(2);
 
-            velocidades[op - 1] = velocidadeConsumo;
-        }
+    velocidades[op - 1] = velocidadeConsumo;
+    document.getElementById(`circle${op}`).style.backgroundColor = "yellow";
+}
 
-        function iniciarProgresso(op) {
-            let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
-            if (!metragem) {
-                alert("Digite a metragem da OP.");
-                return;
-            }
+function iniciarProgresso(op) {
+    let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
 
-            if (intervalos[op - 1]) clearInterval(intervalos[op - 1]);
+    if (!metragem) {
+        alert("Digite a metragem da OP.");
+        return;
+    }
 
-            intervalos[op - 1] = setInterval(() => {
-                consumos[op - 1] += velocidades[op - 1] / 60;
-                atualizarBarra(op, consumos[op - 1], metragem);
-                if (consumos[op - 1] >= metragem) clearInterval(intervalos[op - 1]);
-            }, 1000);
+    consumos[op - 1] = 0; // Resetar consumo inicial
+    let consumoAtual = consumos[op - 1];
+    let velocidade = velocidades[op - 1];
 
-            pausado[op - 1] = false;
-            document.getElementById(`pause-resume${op}`).textContent = "Pausar";
-        }
+    if (pausado) {
+        pausado = false;
+        return;
+    }
 
-        function pausarProgresso(op) {
-            if (pausado[op - 1]) {
-                iniciarProgresso(op);
-            } else {
-                clearInterval(intervalos[op - 1]);
-                pausado[op - 1] = true;
-                document.getElementById(`pause-resume${op}`).textContent = "Retomar";
-            }
-        }
+    clearInterval(intervalo);
+    intervalo = setInterval(() => {
+        consumoAtual += velocidade / 60; // Incremento por segundo
+        consumos[op - 1] = consumoAtual;
+        atualizarBarra(consumoAtual, op);
+    }, 1000);
+}
 
-        function atualizarBarra(op, consumoAtual, metragem) {
-            let porcentagem = (consumoAtual / metragem) * 100;
-            document.getElementById(`loading-bar${op}`).style.width = `${porcentagem}%`;
-            document.getElementById(`progress-indicator${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
-            document.getElementById(`digital-display${op}`).textContent = `${consumoAtual.toFixed(2)} m`;
-        }
+function atualizarBarra(consumoAtual, op) {
+    let tempoTotal = parseFloat(document.getElementById(`metragem${op}`).value);
+    let progresso = (consumoAtual / tempoTotal) * 100;
+    let progressoTextual = (consumoAtual).toFixed(2);
 
-        function resetarCorCírculo(op) {
-            document.getElementById(`circle${op}`).style.backgroundColor = "green";
-        }
-    </script>
+    document.getElementById(`loading-bar${op}`).style.width = `${progresso}%`;
+    document.getElementById(`progress-indicator${op}`).textContent = `${progressoTextual} m`;
+    document.getElementById(`digital-display${op}`).textContent = `${progressoTextual} m`;
+
+    if (progresso >= 100) {
+        clearInterval(intervalo);
+        alert(`Consumo de bobinas finalizado!`);
+    }
+}
+
+function togglePause(op) {
+    pausado = !pausado;
+
+    if (pausado) {
+        clearInterval(intervalo);
+        document.getElementById(`pauseButton${op}`).textContent = "Retomar";
+    } else {
+        iniciarProgresso(op);
+        document.getElementById(`pauseButton${op}`).textContent = "Pausar";
+    }
+}
+
+function resetarCorCírculo(op) {
+    document.getElementById(`circle${op}`).style.backgroundColor = "green";
+}
+</script>
+
 </body>
 </html>
