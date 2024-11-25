@@ -175,11 +175,7 @@
         </div>
          <button onclick="iniciarProgresso(1)">Iniciar</button> <!-- Novo botão Iniciar -->
         
- <!-- Botões de Iniciar e Pausar -->
-        <button onclick="iniciarProgresso(1)">Iniciar</button> 
-        <button class="pause-button" onclick="pausarProgresso(1)">Pausar</button> <!-- Novo botão Pausar -->
 
-        
         <div class="circle" id="circle1">
             <button class="reset-button" onclick="resetarCorCírculo(1)">Resetar</button>
         </div>
@@ -190,9 +186,7 @@ let consumos = [0];
 let marcacoes = [];
 let velocidades = [0];
 let intervalo;
-let emPausa = false; // Flag para controlar o estado de pausa
 
-    
 function calcular(op) {
     let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
     let er = parseFloat(document.getElementById(`er${op}`).value);
@@ -224,30 +218,6 @@ function iniciarProgresso(op) {
     consumos[op - 1] = 0; // Resetar consumo inicial
     let consumoAtual = consumos[op - 1];
     let velocidade = velocidades[op - 1];
-
-    // Interromper qualquer intervalo anterior
-    clearInterval(intervalo);
-    intervalo = setInterval(() => {
-        if (!emPausa) {
-            consumoAtual += velocidade / 60; // Incremento por segundo
-            consumos[op - 1] = consumoAtual;
-            atualizarBarra(op, consumoAtual, metragem);
-        }
-        if (consumoAtual >= metragem) clearInterval(intervalo);
-    }, 1000); // Atualiza a cada segundo
-}
-
-function pausarProgresso(op) {
-    // Troca o estado de pausa
-    emPausa = !emPausa;
-    if (emPausa) {
-        // Se estiver pausado, mudar a cor do botão e mostrar mensagem
-        document.querySelector('.pause-button').textContent = 'Retomar';
-    } else {
-        // Se retomar, mudar a cor do botão e voltar a contar
-        document.querySelector('.pause-button').textContent = 'Pausar';
-    }
-}
 
     clearInterval(intervalo);
     intervalo = setInterval(() => {
