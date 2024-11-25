@@ -192,18 +192,6 @@ let velocidades = [0];
 let intervalo;
 
 
-    function pausarProgresso(op) {
-    clearInterval(intervalo); // Para o progresso atual
-    document.getElementById(`pause-button${op}`).textContent = "Resume"; // Muda o texto do botão
-    document.getElementById(`pause-button${op}`).onclick = () => retomarProgresso(op); // Redefine o evento para retomar
-}
-
-function retomarProgresso(op) {
-    iniciarProgresso(op); // Retoma o progresso chamando a função original
-    document.getElementById(`pause-button${op}`).textContent = "Pause"; // Muda o texto do botão de volta
-    document.getElementById(`pause-button${op}`).onclick = () => pausarProgresso(op); // Redefine o evento para pausar
-}
-
 function calcular(op) {
     let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
     let er = parseFloat(document.getElementById(`er${op}`).value);
@@ -330,6 +318,40 @@ function resetarCorCírculo(op) {
     document.getElementById(`circle${op}`).style.backgroundColor = "green";
 }
 
+    function pausarProgresso(op) {
+    clearInterval(intervalo); // Interrompe o progresso
+    document.getElementById(`pause-button${op}`).textContent = "Resume"; // Muda o texto do botão
+    document.getElementById(`pause-button${op}`).onclick = () => retomarProgresso(op); // Redefine o evento para retomar
+}
+
+function retomarProgresso(op) {
+    let consumoAtual = consumos[op - 1]; // Pega o progresso salvo
+    let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
+    let velocidade = velocidades[op - 1];
+
+    if (!metragem || !velocidade) {
+        alert("Por favor, configure a metragem e calcule a velocidade antes de continuar.");
+        return;
+    }
+
+    intervalo = setInterval(() => {
+        consumoAtual += velocidade / 60; // Incrementa a partir do valor salvo
+        consumos[op - 1] = consumoAtual;
+        atualizarBarra(op, consumoAtual, metragem);
+        verificarMarca(op, consumoAtual);
+
+        if (consumoAtual >= metragem) {
+            clearInterval(intervalo);
+            document.getElementById(`pause-button${op}`).textContent = "Pause"; // Reseta o texto do botão
+            document.getElementById(`pause-button${op}`).onclick = () => pausarProgresso(op);
+        }
+    }, 1000); // Atualiza a cada segundo
+
+    document.getElementById(`pause-button${op}`).textContent = "Pause"; // Altera o texto para "Pause"
+    document.getElementById(`pause-button${op}`).onclick = () => pausarProgresso(op); // Redefine para "Pause"
+}
+
+    
 </script>
 
 
