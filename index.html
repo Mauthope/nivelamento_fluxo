@@ -150,7 +150,11 @@
         <input type="number" id="inicial" value="2" disabled>
         <button onclick="calcular(1)">Pedir bobinas</button>
 
-       
+       <div id="loading-bar-container">
+    <div id="loading-bar1" class="loading-bar"></div>
+    <div id="progress-indicator1" class="progress-indicator"></div>
+    <button id="pause-button1" onclick="pausarProgresso(1)">Pause</button>
+</div>
 
         <div class="results">
             <h2>Resultados</h2>
@@ -186,6 +190,19 @@ let consumos = [0];
 let marcacoes = [];
 let velocidades = [0];
 let intervalo;
+
+
+    function pausarProgresso(op) {
+    clearInterval(intervalo); // Para o progresso atual
+    document.getElementById(`pause-button${op}`).textContent = "Resume"; // Muda o texto do botão
+    document.getElementById(`pause-button${op}`).onclick = () => retomarProgresso(op); // Redefine o evento para retomar
+}
+
+function retomarProgresso(op) {
+    iniciarProgresso(op); // Retoma o progresso chamando a função original
+    document.getElementById(`pause-button${op}`).textContent = "Pause"; // Muda o texto do botão de volta
+    document.getElementById(`pause-button${op}`).onclick = () => pausarProgresso(op); // Redefine o evento para pausar
+}
 
 function calcular(op) {
     let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
