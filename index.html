@@ -324,13 +324,14 @@ function excluirMarcacao(op, index, metragem) {
 
 function verificarMarca(op, consumoAtual) {
     marcacoes.forEach((valor) => {
-        // Verifica se o consumo atual está muito próximo de uma das marcações
-        if (Math.abs(consumoAtual - valor) < 0.1) {
-            // Muda a cor do círculo para vermelho quando atinge a marcação
+        // Verifica se o consumo atual ultrapassou a marcação
+        if (consumoAtual >= valor && consumoAtual < valor + 1) {
+            // Muda a cor do círculo para vermelho quando ultrapassa a marcação
             document.getElementById(`circle${op}`).style.backgroundColor = "red";
         }
     });
 }
+
 
 
 function atualizarBarra(op, consumoAtual, metragem) {
