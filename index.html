@@ -214,7 +214,6 @@ let marcacoes = [];
 let velocidades = [0];
 let intervalo;
 
-
 function calcular(op) {
     let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
     let er = parseFloat(document.getElementById(`er${op}`).value);
@@ -305,8 +304,8 @@ function inserirMarcacaoVisual(op, valor, metragem, index) {
     legenda.textContent = `${valor.toFixed(0)} m`;
     marcador.appendChild(legenda);
     // Define o tamanho da fonte diretamente no estilo
-legenda.style.fontSize = "10px";
-legenda.style.color = "white"; // Opcional
+    legenda.style.fontSize = "10px";
+    legenda.style.color = "white"; // Opcional
 
     container.appendChild(marcador);
 }
@@ -324,8 +323,8 @@ function excluirMarcacao(op, index, metragem) {
 
 function verificarMarca(op, consumoAtual) {
     marcacoes.forEach((valor) => {
-        if (Math.abs(consumoAtual - valor) < 0.1) {
-            document.getElementById(`circle${op}`).style.backgroundColor = "red";
+        if (Math.abs(consumoAtual - valor) < 0.1) {  // A tolerância é importante para garantir a precisão da comparação
+            document.getElementById(`circle${op}`).style.backgroundColor = "red"; // Muda a cor para vermelho
         }
     });
 }
@@ -341,7 +340,7 @@ function resetarCorCírculo(op) {
     document.getElementById(`circle${op}`).style.backgroundColor = "green";
 }
 
-    function pausarProgresso(op) {
+function pausarProgresso(op) {
     clearInterval(intervalo); // Interrompe o progresso
     document.getElementById(`pause-button${op}`).textContent = "Resume"; // Muda o texto do botão
     document.getElementById(`pause-button${op}`).onclick = () => retomarProgresso(op); // Redefine o evento para retomar
@@ -373,9 +372,8 @@ function retomarProgresso(op) {
     document.getElementById(`pause-button${op}`).textContent = "Pause"; // Altera o texto para "Pause"
     document.getElementById(`pause-button${op}`).onclick = () => pausarProgresso(op); // Redefine para "Pause"
 }
-
-    
 </script>
+
 
 
 </body>
