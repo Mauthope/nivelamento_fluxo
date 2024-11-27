@@ -214,6 +214,7 @@ let marcacoes = [];
 let velocidades = [0];
 let intervalo;
 
+
 function calcular(op) {
     let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
     let er = parseFloat(document.getElementById(`er${op}`).value);
@@ -251,7 +252,7 @@ function iniciarProgresso(op) {
         consumoAtual += velocidade / 60; // Incremento por segundo
         consumos[op - 1] = consumoAtual;
         atualizarBarra(op, consumoAtual, metragem);
-        verificarMarca(op, consumoAtual); // Verificar se passou por uma marcação
+        verificarMarca(op, consumoAtual);
 
         if (consumoAtual >= metragem) clearInterval(intervalo);
     }, 1000); // Atualiza a cada segundo
@@ -303,8 +304,9 @@ function inserirMarcacaoVisual(op, valor, metragem, index) {
     legenda.classList.add("mark-label");
     legenda.textContent = `${valor.toFixed(0)} m`;
     marcador.appendChild(legenda);
-    legenda.style.fontSize = "10px";
-    legenda.style.color = "white"; // Opcional
+    // Define o tamanho da fonte diretamente no estilo
+legenda.style.fontSize = "10px";
+legenda.style.color = "white"; // Opcional
 
     container.appendChild(marcador);
 }
@@ -321,13 +323,15 @@ function excluirMarcacao(op, index, metragem) {
 }
 
 function verificarMarca(op, consumoAtual) {
-    // Verifica se o consumo atual está muito próximo de uma marcação
     marcacoes.forEach((valor) => {
+        // Verifica se o consumo atual está muito próximo de uma das marcações
         if (Math.abs(consumoAtual - valor) < 0.1) {
-            document.getElementById(`circle${op}`).style.backgroundColor = "red"; // Altera a cor para vermelho
+            // Muda a cor do círculo para vermelho quando atinge a marcação
+            document.getElementById(`circle${op}`).style.backgroundColor = "red";
         }
     });
 }
+
 
 function atualizarBarra(op, consumoAtual, metragem) {
     let porcentagem = (consumoAtual / metragem) * 100;
@@ -340,8 +344,41 @@ function resetarCorCírculo(op) {
     document.getElementById(`circle${op}`).style.backgroundColor = "green";
 }
 
-</script>
+    function pausarProgresso(op) {
+    clearInterval(intervalo); // Interrompe o progresso
+    document.getElementById(`pause-button${op}`).textContent = "Resume"; // Muda o texto do botão
+    document.getElementById(`pause-button${op}`).onclick = () => retomarProgresso(op); // Redefine o evento para retomar
+}
 
+function retomarProgresso(op) {
+    let consumoAtual = consumos[op - 1]; // Pega o progresso salvo
+    let metragem = parseFloat(document.getElementById(`metragem${op}`).value);
+    let velocidade = velocidades[op - 1];
+
+    if (!metragem || !velocidade) {
+        alert("Por favor, configure a metragem e calcule a velocidade antes de continuar.");
+        return;
+    }
+
+    intervalo = setInterval(() => {
+        consumoAtual += velocidade / 60; // Incrementa a partir do valor salvo
+        consumos[op - 1] = consumoAtual;
+        atualizarBarra(op, consumoAtual, metragem);
+        verificarMarca(op, consumoAtual);
+
+        if (consumoAtual >= metragem) {
+            clearInterval(intervalo);
+            document.getElementById(`pause-button${op}`).textContent = "Pause"; // Reseta o texto do botão
+            document.getElementById(`pause-button${op}`).onclick = () => pausarProgresso(op);
+        }
+    }, 1000); // Atualiza a cada segundo
+
+    document.getElementById(`pause-button${op}`).textContent = "Pause"; // Altera o texto para "Pause"
+    document.getElementById(`pause-button${op}`).onclick = () => pausarProgresso(op); // Redefine para "Pause"
+}
+
+    
+</script>
 
 
 </body>
